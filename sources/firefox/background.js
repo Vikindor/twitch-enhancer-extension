@@ -1,49 +1,49 @@
 const DEFAULT_SETTINGS = {
-  preferredHigh: 1080,
-  muteOnLow: true,
-  muteTarget: 'tab',
-  persistSelection: true,
-  forceUnmuteBothOnHigh: false
+  modules: {
+    toggleVideoQuality: {
+      enabled: true,
+      preferredHigh: 1080,
+      muteOnLow: true,
+      muteTarget: 'tab',
+      persistSelection: true,
+      forceUnmuteBothOnHigh: false
+    },
+    forceSortViewers: {
+      enabled: true,
+      runPolicy: 'perLoad'
+    },
+    showStreamLanguage: {
+      enabled: true,
+      visualMode: 'suffix'
+    }
+  }
 };
 
-async function getSettings() {
-  const stored = await browser.storage.sync.get(DEFAULT_SETTINGS);
+async function ensureDefaults() {
+  const current = await browser.storage.sync.get(DEFAULT_SETTINGS);
+  const modules = current.modules || {};
 
-  const preferredHigh =
-    typeof stored.preferredHigh === 'number' && Number.isFinite(stored.preferredHigh)
-      ? stored.preferredHigh
-      : null;
-
-  const muteOnLow =
-    typeof stored.muteOnLow === 'boolean'
-      ? stored.muteOnLow
-      : Boolean(stored.willMute);
-
-  return {
-    preferredHigh,
-    muteOnLow,
-    muteTarget: stored.muteTarget === 'video' ? 'video' : 'tab',
-    persistSelection: typeof stored.persistSelection === 'boolean' ? stored.persistSelection : true,
-    forceUnmuteBothOnHigh:
-      typeof stored.forceUnmuteBothOnHigh === 'boolean' ? stored.forceUnmuteBothOnHigh : false
-  };
+  await browser.storage.sync.set({
+    modules: {
+      toggleVideoQuality: {
+        ...DEFAULT_SETTINGS.modules.toggleVideoQuality,
+        ...(modules.toggleVideoQuality || {})
+      },
+      forceSortViewers: {
+        ...DEFAULT_SETTINGS.modules.forceSortViewers,
+        ...(modules.forceSortViewers || {})
+      },
+      showStreamLanguage: {
+        ...DEFAULT_SETTINGS.modules.showStreamLanguage,
+        ...(modules.showStreamLanguage || {})
+      }
+    }
+  });
 }
 
-browser.runtime.onInstalled.addListener(async () => {
-  const current = await browser.storage.sync.get(DEFAULT_SETTINGS);
-  await browser.storage.sync.set({
-    preferredHigh:
-      typeof current.preferredHigh === 'number' && Number.isFinite(current.preferredHigh)
-        ? current.preferredHigh
-        : 1080,
-    muteOnLow:
-      typeof current.muteOnLow === 'boolean'
-        ? current.muteOnLow
-        : Boolean(current.willMute),
-    muteTarget: current.muteTarget === 'video' ? 'video' : 'tab',
-    persistSelection: typeof current.persistSelection === 'boolean' ? current.persistSelection : true,
-    forceUnmuteBothOnHigh:
-      typeof current.forceUnmuteBothOnHigh === 'boolean' ? current.forceUnmuteBothOnHigh : false
+browser.runtime.onInstalled.addListener(() => {
+  ensureDefaults().catch((error) => {
+    console.warn('Failed to initialize Twitch Enhancer settings:', error);
   });
 });
 
@@ -52,12 +52,9 @@ browser.action.onClicked.addListener(async (tab) => {
     return;
   }
 
-  const settings = await getSettings();
-
   try {
     await browser.tabs.sendMessage(tab.id, {
-      type: 'toggle-quality',
-      settings
+      type: 'run-toggle-video-quality'
     });
   } catch (error) {
     console.warn('Failed to send toggle command to tab:', error);

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Twitch Toggle Video Quality",
-  "version": "0.3.0",
-  "description": "Toggle Twitch stream quality with option to mute the tab or the player",
+  "name": "Twitch Enhancer",
+  "version": "0.4.0",
+  "description": "Modular Twitch enhancement extension with quality toggle, viewer sorting and stream language tools",
   "permissions": [
     "storage",
     "tabs"
@@ -29,7 +29,10 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "page.js"
+        "page.js",
+        "modules/toggle-video-quality.js",
+        "modules/force-sort-viewers.js",
+        "modules/show-stream-language.js"
       ],
       "matches": [
         "https://www.twitch.tv/*"
@@ -45,7 +48,8 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "twitch-toggle-video-quality@vikindor.github.io"
+      "id": "twitch-enhancer@vikindor.github.io",
+      "strict_min_version": "128.0"
     }
   }
 }

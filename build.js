@@ -40,7 +40,7 @@ function zipDir(sourceDir, archivePath) {
     "Add-Type -AssemblyName 'System.IO.Compression.FileSystem'",
     `$source = '${sourceDir.replace(/'/g, "''")}'`,
     `$archive = '${archivePath.replace(/'/g, "''")}'`,
-    "[System.IO.Compression.ZipFile]::CreateFromDirectory($source, $archive)"
+    '[System.IO.Compression.ZipFile]::CreateFromDirectory($source, $archive)'
   ].join('; ');
 
   const result = spawnSync('powershell', ['-NoProfile', '-Command', script], {
@@ -56,7 +56,7 @@ function buildBrowser(browserName) {
   const browserSourceDir = path.join(sourcesDir, browserName);
   const outputDir = path.join(buildsDir, browserName);
   const manifest = JSON.parse(fs.readFileSync(path.join(browserSourceDir, 'manifest.json'), 'utf8'));
-  const archivePath = path.join(packedDir, `twitch-toggle-video-quality-${browserName}-${manifest.version}.zip`);
+  const archivePath = path.join(packedDir, `twitch-enhancer-${browserName}-${manifest.version}.zip`);
 
   removeDir(outputDir);
   ensureDir(outputDir);

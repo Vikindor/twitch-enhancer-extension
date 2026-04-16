@@ -2,107 +2,121 @@
   'use strict';
 
   const api = globalThis.browser ?? globalThis.chrome;
+  const PAGE_SCRIPT_IDS = [
+    'modules/toggle-video-quality.js',
+    'modules/force-sort-viewers.js',
+    'modules/show-stream-language.js',
+    'page.js'
+  ];
+
+  const DEFAULT_SETTINGS = {
+    modules: {
+      toggleVideoQuality: {
+        enabled: true,
+        preferredHigh: 1080,
+        muteOnLow: true,
+        muteTarget: 'tab',
+        persistSelection: true,
+        forceUnmuteBothOnHigh: false
+      },
+      forceSortViewers: {
+        enabled: true,
+        runPolicy: 'perLoad'
+      },
+      showStreamLanguage: {
+        enabled: true,
+        visualMode: 'suffix'
+      }
+    }
+  };
 
   let bridgeReady = false;
-  let requestCounter = 0;
-  const pendingRequests = new Map();
+  let scriptsInjected = false;
+  let pageStateRequestCounter = 0;
   const bridgeWaiters = [];
+  const pendingPageResponses = new Map();
 
-  function injectPageScript() {
-    if (document.getElementById('ttvq-page-script')) {
+  function deepClone(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function normalizeSettings(raw) {
+    const fallback = deepClone(DEFAULT_SETTINGS);
+    const modules = raw && raw.modules && typeof raw.modules === 'object' ? raw.modules : {};
+    const toggle = modules.toggleVideoQuality && typeof modules.toggleVideoQuality === 'object'
+      ? modules.toggleVideoQuality
+      : {};
+    const sort = modules.forceSortViewers && typeof modules.forceSortViewers === 'object'
+      ? modules.forceSortViewers
+      : {};
+    const language = modules.showStreamLanguage && typeof modules.showStreamLanguage === 'object'
+      ? modules.showStreamLanguage
+      : {};
+
+    fallback.modules.toggleVideoQuality = {
+      enabled: typeof toggle.enabled === 'boolean' ? toggle.enabled : true,
+      preferredHigh:
+        typeof toggle.preferredHigh === 'number' && Number.isFinite(toggle.preferredHigh)
+          ? toggle.preferredHigh
+          : null,
+      muteOnLow: typeof toggle.muteOnLow === 'boolean' ? toggle.muteOnLow : true,
+      muteTarget: toggle.muteTarget === 'video' ? 'video' : 'tab',
+      persistSelection: typeof toggle.persistSelection === 'boolean' ? toggle.persistSelection : true,
+      forceUnmuteBothOnHigh:
+        typeof toggle.forceUnmuteBothOnHigh === 'boolean' ? toggle.forceUnmuteBothOnHigh : false
+    };
+
+    fallback.modules.forceSortViewers = {
+      enabled: typeof sort.enabled === 'boolean' ? sort.enabled : true,
+      runPolicy: sort.runPolicy === 'perTab' ? 'perTab' : 'perLoad'
+    };
+
+    fallback.modules.showStreamLanguage = {
+      enabled: typeof language.enabled === 'boolean' ? language.enabled : true,
+      visualMode: language.visualMode === 'badge' ? 'badge' : 'suffix'
+    };
+
+    return fallback;
+  }
+
+  function storageGet(defaults) {
+    return Promise.resolve(api.storage.sync.get(defaults)).catch(() => defaults);
+  }
+
+  function runtimeSendMessage(message) {
+    return Promise.resolve(api.runtime.sendMessage(message)).catch((error) => ({
+      ok: false,
+      error: String(error)
+    }));
+  }
+
+  function injectPageScripts() {
+    if (scriptsInjected) {
       return;
     }
 
-    const script = document.createElement('script');
-    script.id = 'ttvq-page-script';
-    script.src = api.runtime.getURL('page.js');
-    script.async = false;
-    (document.head || document.documentElement).appendChild(script);
-  }
-
-  function setTabMuted(muted) {
-    return new Promise((resolve) => {
-      api.runtime.sendMessage(
-        {
-          type: 'set-tab-muted',
-          muted
-        },
-        (response) => {
-          const error = api.runtime.lastError;
-          if (error || !response || !response.ok) {
-            resolve(false);
-            return;
-          }
-
-          resolve(true);
-        }
-      );
-    });
-  }
-
-  function postToggleRequest(settings) {
-    return new Promise((resolve) => {
-      const requestId = `toggle-${Date.now()}-${++requestCounter}`;
-      pendingRequests.set(requestId, resolve);
-
-      window.postMessage(
-        {
-          source: 'ttvq-extension-content',
-          type: 'ttvq-toggle-quality',
-          requestId,
-          settings
-        },
-        window.location.origin
-      );
-    });
-  }
-
-  window.addEventListener('message', async (event) => {
-    if (event.source !== window || !event.data) {
+    const parent = document.head || document.documentElement;
+    if (!parent) {
       return;
     }
 
-    const { data } = event;
-
-    if (data.source !== 'ttvq-extension-page') {
-      return;
-    }
-
-    if (data.type === 'ttvq-page-ready') {
-      bridgeReady = true;
-      while (bridgeWaiters.length) {
-        const resolve = bridgeWaiters.shift();
-        resolve();
+    for (const scriptPath of PAGE_SCRIPT_IDS) {
+      const id = `twitch-enhancer-${scriptPath.replace(/[^a-z0-9]+/gi, '-')}`;
+      if (document.getElementById(id)) {
+        continue;
       }
-      return;
+
+      const script = document.createElement('script');
+      script.id = id;
+      script.src = api.runtime.getURL(scriptPath);
+      script.async = false;
+      parent.appendChild(script);
     }
 
-    if (data.type === 'ttvq-set-tab-muted') {
-      const ok = await setTabMuted(Boolean(data.muted));
+    scriptsInjected = true;
+  }
 
-      window.postMessage(
-        {
-          source: 'ttvq-extension-content',
-          type: 'ttvq-set-tab-muted-result',
-          requestId: data.requestId,
-          ok
-        },
-        window.location.origin
-      );
-      return;
-    }
-
-    if (data.type === 'ttvq-toggle-quality-result') {
-      const resolve = pendingRequests.get(data.requestId);
-      if (resolve) {
-        pendingRequests.delete(data.requestId);
-        resolve(data.result || { ok: false, reason: 'no-result' });
-      }
-      return;
-    }
-  });
-
-  function waitForBridgeReady(timeoutMs = 1500) {
+  function waitForBridgeReady(timeoutMs = 2000) {
     if (bridgeReady) {
       return Promise.resolve();
     }
@@ -125,49 +139,98 @@
     });
   }
 
-  injectPageScript();
+  function postToPage(message) {
+    window.postMessage(
+      {
+        source: 'twitch-enhancer-content',
+        ...message
+      },
+      window.location.origin
+    );
+  }
+
+  async function syncSettingsToPage() {
+    injectPageScripts();
+    await waitForBridgeReady();
+    const stored = await storageGet(DEFAULT_SETTINGS);
+    const settings = normalizeSettings(stored);
+    postToPage({ type: 'twitch-enhancer-init', settings });
+  }
+
+  window.addEventListener('message', async (event) => {
+    if (event.source !== window || !event.data || event.data.source !== 'twitch-enhancer-page') {
+      return;
+    }
+
+    const { data } = event;
+
+    if (data.type === 'twitch-enhancer-page-ready') {
+      bridgeReady = true;
+      while (bridgeWaiters.length) {
+        const resolve = bridgeWaiters.shift();
+        resolve();
+      }
+      await syncSettingsToPage();
+      return;
+    }
+
+    if (data.type === 'twitch-enhancer-set-tab-muted') {
+      const response = await runtimeSendMessage({
+        type: 'set-tab-muted',
+        muted: Boolean(data.muted)
+      });
+
+      postToPage({
+        type: 'twitch-enhancer-set-tab-muted-result',
+        requestId: data.requestId,
+        ok: Boolean(response && response.ok)
+      });
+      return;
+    }
+
+    if (data.type === 'twitch-enhancer-page-state-response') {
+      const resolve = pendingPageResponses.get(data.requestId);
+      if (resolve) {
+        pendingPageResponses.delete(data.requestId);
+        resolve(data.result || { ok: false, reason: 'no-result' });
+      }
+    }
+  });
+
+  injectPageScripts();
+
+  if (api.storage && api.storage.onChanged && typeof api.storage.onChanged.addListener === 'function') {
+    api.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== 'sync' || !changes.modules) {
+        return;
+      }
+
+      syncSettingsToPage().catch(() => {});
+    });
+  }
 
   api.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (!message || message.type !== 'toggle-quality') {
+    if (!message || message.type !== 'run-toggle-video-quality') {
       return false;
     }
 
-    const settings = {
-      preferredHigh:
-        message.settings && typeof message.settings.preferredHigh === 'number'
-          ? message.settings.preferredHigh
-          : null,
-      muteOnLow: Boolean(message.settings && message.settings.muteOnLow),
-      muteTarget:
-        message.settings && message.settings.muteTarget === 'video'
-          ? 'video'
-          : 'tab',
-      persistSelection:
-        message.settings && typeof message.settings.persistSelection === 'boolean'
-          ? message.settings.persistSelection
-          : true,
-      forceUnmuteBothOnHigh:
-        message.settings && typeof message.settings.forceUnmuteBothOnHigh === 'boolean'
-          ? message.settings.forceUnmuteBothOnHigh
-          : false
-    };
+    const requestId = `page-command-${Date.now()}-${++pageStateRequestCounter}`;
+    pendingPageResponses.set(requestId, sendResponse);
 
-    if (!bridgeReady) {
-      injectPageScript();
-    }
-
-    waitForBridgeReady()
-      .then(() => postToggleRequest(settings))
-      .then((result) => sendResponse(result))
-      .catch((error) => {
-        sendResponse({
-          ok: false,
-          reason: 'unexpected-error',
-          message: String(error)
+    syncSettingsToPage()
+      .then(() => {
+        postToPage({
+          type: 'twitch-enhancer-command',
+          requestId,
+          moduleId: 'toggleVideoQuality',
+          command: 'toggle'
         });
+      })
+      .catch((error) => {
+        pendingPageResponses.delete(requestId);
+        sendResponse({ ok: false, reason: 'bridge-error', message: String(error) });
       });
 
     return true;
   });
 })();
-

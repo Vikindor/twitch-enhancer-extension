@@ -3,18 +3,23 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Twitch Toggle Video Quality Options</title>
+    <title>Twitch Enhancer Options</title>
     <style>
       body {
         margin: 0;
         padding: 24px;
-        font: 14px/1.4 sans-serif;
+        font: 14px/1.5 sans-serif;
         color: #111827;
         background: #f9fafb;
       }
 
       main {
-        max-width: 520px;
+        max-width: 760px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .panel {
         background: #ffffff;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
@@ -22,37 +27,60 @@
       }
 
       h1 {
-        margin: 0 0 16px;
-        font-size: 20px;
+        margin: 0;
+        font-size: 24px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+      }
+
+      p {
+        margin: 8px 0 0;
+        color: #4b5563;
       }
 
       .field {
         display: grid;
         gap: 8px;
-        margin-bottom: 16px;
+        margin-top: 16px;
+      }
+
+      .checkbox {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .checkbox label {
+        font-weight: 600;
       }
 
       label {
         font-weight: 600;
       }
 
+      input,
       select,
       button {
         font: inherit;
       }
 
+      input[type="number"],
       select {
+        max-width: 280px;
         padding: 8px 10px;
       }
 
-      .checkbox {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+      .module-settings[data-disabled="true"] {
+        opacity: 0.55;
       }
 
-      .checkbox label {
-        font-weight: 400;
+      .actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
       }
 
       button {
@@ -65,7 +93,6 @@
       }
 
       #status {
-        margin-top: 12px;
         min-height: 20px;
         color: #065f46;
       }
@@ -73,45 +100,96 @@
   </head>
   <body>
     <main>
-      <h1>Twitch Toggle Video Quality</h1>
+      <section class="panel">
+        <h1>Twitch Enhancer</h1>
+        <p>Enable the modules you want and adjust each module's behavior below.</p>
+      </section>
 
-      <div class="field">
+      <section class="panel">
+        <h2>Toggle Video Quality</h2>
         <div class="checkbox">
-          <input id="muteOnLow" type="checkbox">
-          <label for="muteOnLow">Mute when switching to low quality</label>
+          <input id="toggle-enabled" type="checkbox">
+          <label for="toggle-enabled">Enable module</label>
         </div>
-      </div>
 
-      <div class="field">
-        <label for="preferredHigh">Preferred high resolution</label>
-        <input id="preferredHigh" type="number" min="1" step="1" placeholder="1080">
-        <div>Leave empty to always use the highest available quality.</div>
-      </div>
+        <div class="module-settings" data-module-settings="toggleVideoQuality">
+          <div class="field">
+            <label for="toggle-preferredHigh">Preferred high resolution</label>
+            <input id="toggle-preferredHigh" type="number" min="1" step="1" placeholder="1080">
+            <p>Leave empty to always use the highest available quality.</p>
+          </div>
 
-      <div class="field">
-        <label for="muteTarget">Mute target</label>
-        <select id="muteTarget">
-          <option value="tab">Browser tab</option>
-          <option value="video">Twitch player</option>
-        </select>
-      </div>
+          <div class="field">
+            <div class="checkbox">
+              <input id="toggle-muteOnLow" type="checkbox">
+              <label for="toggle-muteOnLow">Mute when switching to low quality</label>
+            </div>
+          </div>
 
-      <div class="field">
+          <div class="field">
+            <label for="toggle-muteTarget">Mute target</label>
+            <select id="toggle-muteTarget">
+              <option value="tab">Browser tab</option>
+              <option value="video">Twitch player</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <div class="checkbox">
+              <input id="toggle-persistSelection" type="checkbox">
+              <label for="toggle-persistSelection">Persist quality and mute state across reloads</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="checkbox">
+              <input id="toggle-forceUnmuteBothOnHigh" type="checkbox">
+              <label for="toggle-forceUnmuteBothOnHigh">When switching back to high quality, unmute both tab and video</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Force Sort Viewers</h2>
         <div class="checkbox">
-          <input id="persistSelection" type="checkbox">
-          <label for="persistSelection">Persist quality and mute state across reloads</label>
+          <input id="sort-enabled" type="checkbox">
+          <label for="sort-enabled">Enable module</label>
         </div>
-      </div>
 
-      <div class="field">
+        <div class="module-settings" data-module-settings="forceSortViewers">
+          <div class="field">
+            <label for="sort-runPolicy">Run policy</label>
+            <select id="sort-runPolicy">
+              <option value="perLoad">Run once per URL on each page load</option>
+              <option value="perTab">Run once per URL per tab session</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Show Stream Language</h2>
         <div class="checkbox">
-          <input id="forceUnmuteBothOnHigh" type="checkbox">
-          <label for="forceUnmuteBothOnHigh">When switching back to high quality, always unmute both tab and video</label>
+          <input id="language-enabled" type="checkbox">
+          <label for="language-enabled">Enable module</label>
         </div>
-      </div>
 
-      <button id="save" type="button">Save</button>
-      <div id="status"></div>
+        <div class="module-settings" data-module-settings="showStreamLanguage">
+          <div class="field">
+            <label for="language-visualMode">Visual mode</label>
+            <select id="language-visualMode">
+              <option value="suffix">Suffix next to channel name</option>
+              <option value="badge">Badge on stream preview</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="actions">
+        <button id="save" type="button">Save</button>
+        <div id="status"></div>
+      </section>
     </main>
 
     <script src="options.js"></script>

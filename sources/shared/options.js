@@ -1,48 +1,94 @@
+const api = globalThis.browser ?? globalThis.chrome;
+
 const DEFAULT_SETTINGS = {
-  preferredHigh: 1080,
-  muteOnLow: true,
-  muteTarget: 'tab',
-  persistSelection: true,
-  forceUnmuteBothOnHigh: false
+  modules: {
+    toggleVideoQuality: {
+      enabled: true,
+      preferredHigh: 1080,
+      muteOnLow: true,
+      muteTarget: 'tab',
+      persistSelection: true,
+      forceUnmuteBothOnHigh: false
+    },
+    forceSortViewers: {
+      enabled: true,
+      runPolicy: 'perLoad'
+    },
+    showStreamLanguage: {
+      enabled: true,
+      visualMode: 'suffix'
+    }
+  }
 };
 
-async function loadOptions() {
-  const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
+function storageGet(defaults) {
+  return Promise.resolve(api.storage.sync.get(defaults)).catch(() => defaults);
+}
 
-  document.getElementById('preferredHigh').value =
-    typeof settings.preferredHigh === 'number' && Number.isFinite(settings.preferredHigh)
-      ? String(settings.preferredHigh)
+function storageSet(value) {
+  return Promise.resolve(api.storage.sync.set(value));
+}
+
+function setModuleDisabledState(moduleName, enabled) {
+  const container = document.querySelector(`[data-module-settings="${moduleName}"]`);
+  if (!container) return;
+
+  container.dataset.disabled = enabled ? 'false' : 'true';
+  container.querySelectorAll('input, select').forEach((element) => {
+    element.disabled = !enabled;
+  });
+}
+
+async function loadOptions() {
+  const settings = await storageGet(DEFAULT_SETTINGS);
+  const modules = settings.modules || DEFAULT_SETTINGS.modules;
+
+  const toggle = modules.toggleVideoQuality || DEFAULT_SETTINGS.modules.toggleVideoQuality;
+  document.getElementById('toggle-enabled').checked = toggle.enabled !== false;
+  document.getElementById('toggle-preferredHigh').value =
+    typeof toggle.preferredHigh === 'number' && Number.isFinite(toggle.preferredHigh)
+      ? String(toggle.preferredHigh)
       : '';
-  document.getElementById('muteOnLow').checked =
-    typeof settings.muteOnLow === 'boolean'
-      ? settings.muteOnLow
-      : Boolean(settings.willMute);
-  document.getElementById('muteTarget').value =
-    settings.muteTarget === 'video' ? 'video' : 'tab';
-  document.getElementById('persistSelection').checked =
-    typeof settings.persistSelection === 'boolean' ? settings.persistSelection : true;
-  document.getElementById('forceUnmuteBothOnHigh').checked =
-    typeof settings.forceUnmuteBothOnHigh === 'boolean' ? settings.forceUnmuteBothOnHigh : false;
+  document.getElementById('toggle-muteOnLow').checked = toggle.muteOnLow !== false;
+  document.getElementById('toggle-muteTarget').value = toggle.muteTarget === 'video' ? 'video' : 'tab';
+  document.getElementById('toggle-persistSelection').checked = toggle.persistSelection !== false;
+  document.getElementById('toggle-forceUnmuteBothOnHigh').checked = toggle.forceUnmuteBothOnHigh === true;
+  setModuleDisabledState('toggleVideoQuality', toggle.enabled !== false);
+
+  const sort = modules.forceSortViewers || DEFAULT_SETTINGS.modules.forceSortViewers;
+  document.getElementById('sort-enabled').checked = sort.enabled !== false;
+  document.getElementById('sort-runPolicy').value = sort.runPolicy === 'perTab' ? 'perTab' : 'perLoad';
+  setModuleDisabledState('forceSortViewers', sort.enabled !== false);
+
+  const language = modules.showStreamLanguage || DEFAULT_SETTINGS.modules.showStreamLanguage;
+  document.getElementById('language-enabled').checked = language.enabled !== false;
+  document.getElementById('language-visualMode').value = language.visualMode === 'badge' ? 'badge' : 'suffix';
+  setModuleDisabledState('showStreamLanguage', language.enabled !== false);
 }
 
 async function saveOptions() {
-  const preferredHighValue = document.getElementById('preferredHigh').value.trim();
-  const preferredHigh = preferredHighValue === ''
-    ? null
-    : Number.parseInt(preferredHighValue, 10);
-  const muteOnLow = document.getElementById('muteOnLow').checked;
-  const muteTarget = document.getElementById('muteTarget').value === 'video'
-    ? 'video'
-    : 'tab';
-  const persistSelection = document.getElementById('persistSelection').checked;
-  const forceUnmuteBothOnHigh = document.getElementById('forceUnmuteBothOnHigh').checked;
+  const preferredHighValue = document.getElementById('toggle-preferredHigh').value.trim();
+  const preferredHigh = preferredHighValue === '' ? null : Number.parseInt(preferredHighValue, 10);
 
-  await chrome.storage.sync.set({
-    preferredHigh: Number.isFinite(preferredHigh) ? preferredHigh : null,
-    muteOnLow,
-    muteTarget,
-    persistSelection,
-    forceUnmuteBothOnHigh
+  await storageSet({
+    modules: {
+      toggleVideoQuality: {
+        enabled: document.getElementById('toggle-enabled').checked,
+        preferredHigh: Number.isFinite(preferredHigh) ? preferredHigh : null,
+        muteOnLow: document.getElementById('toggle-muteOnLow').checked,
+        muteTarget: document.getElementById('toggle-muteTarget').value === 'video' ? 'video' : 'tab',
+        persistSelection: document.getElementById('toggle-persistSelection').checked,
+        forceUnmuteBothOnHigh: document.getElementById('toggle-forceUnmuteBothOnHigh').checked
+      },
+      forceSortViewers: {
+        enabled: document.getElementById('sort-enabled').checked,
+        runPolicy: document.getElementById('sort-runPolicy').value === 'perTab' ? 'perTab' : 'perLoad'
+      },
+      showStreamLanguage: {
+        enabled: document.getElementById('language-enabled').checked,
+        visualMode: document.getElementById('language-visualMode').value === 'badge' ? 'badge' : 'suffix'
+      }
+    }
   });
 
   const status = document.getElementById('status');
@@ -54,5 +100,16 @@ async function saveOptions() {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadOptions();
+
+  document.getElementById('toggle-enabled').addEventListener('change', (event) => {
+    setModuleDisabledState('toggleVideoQuality', event.target.checked);
+  });
+  document.getElementById('sort-enabled').addEventListener('change', (event) => {
+    setModuleDisabledState('forceSortViewers', event.target.checked);
+  });
+  document.getElementById('language-enabled').addEventListener('change', (event) => {
+    setModuleDisabledState('showStreamLanguage', event.target.checked);
+  });
+
   document.getElementById('save').addEventListener('click', saveOptions);
 });
