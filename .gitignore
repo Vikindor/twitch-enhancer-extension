@@ -1,0 +1,10 @@
+builds/
+config.json
+
+node_modules/
+
+.idea/
+.vscode/
+
+Thumbs.db
+.DS_Store
