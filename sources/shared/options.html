@@ -22,6 +22,12 @@
         --success: #00f593;
         --warning: #ffca61;
         --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+        --z-panel-shadow: 0;
+        --z-panel: 1;
+        --z-panel-active: 20;
+        --z-panel-overlay: 0;
+        --z-panel-content: 1;
+        --z-tooltip: 1000;
         --select-arrow-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23efeff1' d='M1.41.59 6 5.17 10.59.59 12 2l-6 6-6-6z'/%3E%3C/svg%3E");
         --select-arrow-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23efeff1' d='M12 6.59 10.59 8 6 3.41 1.41 8 0 6.59l6-6z'/%3E%3C/svg%3E");
       }
@@ -47,16 +53,31 @@
         margin: 0 auto;
         display: grid;
         gap: 18px;
+        isolation: isolate;
+      }
+
+      .panel-wrap {
+        position: relative;
+      }
+
+      .panel-wrap::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: var(--z-panel-shadow);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        pointer-events: none;
       }
 
       .panel {
         position: relative;
-        overflow: hidden;
+        overflow: visible;
+        z-index: var(--z-panel);
         background: linear-gradient(180deg, rgba(36, 36, 40, 0.96), rgba(26, 26, 30, 0.96));
         border: 1px solid var(--border);
         border-radius: 22px;
         padding: 24px;
-        box-shadow: var(--shadow);
         backdrop-filter: blur(16px);
       }
 
@@ -64,9 +85,21 @@
         content: '';
         position: absolute;
         inset: 0;
+        z-index: var(--z-panel-overlay);
+        border-radius: inherit;
         pointer-events: none;
         background: linear-gradient(135deg, rgba(169, 112, 255, 0.12), transparent 42%);
         opacity: 0.9;
+      }
+
+      .panel-content {
+        position: relative;
+        z-index: var(--z-panel-content);
+      }
+
+      .panel:has(.tooltip:hover),
+      .panel:has(.tooltip:focus-within) {
+        z-index: var(--z-panel-active);
       }
 
       .hero {
@@ -208,7 +241,7 @@
         position: absolute;
         left: 0;
         top: calc(100% + 10px);
-        z-index: 10;
+        z-index: var(--z-tooltip);
         width: min(320px, calc(100vw - 48px));
         padding: 12px 14px;
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -292,6 +325,13 @@
       .checkbox label {
         font-weight: 600;
         color: var(--text);
+      }
+
+      .checkbox-copy {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       label {
@@ -473,189 +513,239 @@
   </head>
   <body>
     <main>
-      <section class="panel hero">
-        <div class="hero-top">
-          <span class="eyebrow">Twitch Enhancer</span>
-        </div>
-        <div class="hero-copy">
-          <h1>Shape Twitch Around How You Actually Watch</h1>
-          <p>Turn modules on or off, tune the rough edges, and keep the behaviors you care about close at hand without digging through separate userscripts</p>
-        </div>
-        <div class="hero-grid">
-          <div class="hero-stat">
-            <strong>5 modules</strong>
-            <span>Quality, sorting, language labels, bonus claim, and active-tab behavior</span>
-          </div>
-          <div class="hero-stat">
-            <strong>Twitch-style defaults</strong>
-            <span>Fast access to the tweaks that matter without bloated settings sprawl</span>
-          </div>
-          <div class="hero-stat">
-            <strong>Live, modular control</strong>
-            <span>Disable whole features when you do not want them, not just their sub-options</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="module-header">
-          <div class="module-copy">
-            <h2>Toggle Video Quality</h2>
-            <p>Flip between low and preferred high quality, with mute behavior that follows your chosen workflow</p>
-          </div>
-          <div class="module-toggle">
-            <input id="toggle-enabled" type="checkbox">
-            <label for="toggle-enabled">Enable module</label>
-          </div>
-        </div>
-
-        <div class="module-settings" data-module-settings="toggleVideoQuality">
-          <div class="field">
-            <div class="checkbox">
-              <input id="toggle-muteOnLow" type="checkbox">
-              <label for="toggle-muteOnLow">Mute when switching to low quality</label>
+      <div class="panel-wrap">
+        <section class="panel hero">
+          <div class="panel-content">
+            <div class="hero-top">
+              <span class="eyebrow">Twitch Enhancer</span>
+            </div>
+            <div class="hero-copy">
+              <h1>Shape Twitch Around How You Actually Watch</h1>
+              <p>Turn modules on or off, tune the rough edges, and keep the behaviors you care about close at hand without digging through separate userscripts</p>
+            </div>
+            <div class="hero-grid">
+              <div class="hero-stat">
+                <strong>5 modules</strong>
+                <span>Quality, sorting, language labels, bonus claim, and active-tab behavior</span>
+              </div>
+              <div class="hero-stat">
+                <strong>Twitch-style defaults</strong>
+                <span>Fast access to the tweaks that matter without bloated settings sprawl</span>
+              </div>
+              <div class="hero-stat">
+                <strong>Live, modular control</strong>
+                <span>Disable whole features when you do not want them, not just their sub-options</span>
+              </div>
             </div>
           </div>
+        </section>
+      </div>
 
-          <div class="field" id="toggle-muteTarget-field">
-            <label for="toggle-muteTarget">Mute target</label>
-            <select id="toggle-muteTarget">
-              <option value="tab">Browser tab</option>
-              <option value="video">Twitch player</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <div class="checkbox">
-              <input id="toggle-persistSelection" type="checkbox">
-              <label for="toggle-persistSelection">Persist quality and mute state across reloads</label>
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Toggle Video Quality</h2>
+                <p>Flip between low and preferred high quality, with mute behavior that follows your chosen workflow</p>
+              </div>
+              <div class="module-toggle">
+                <input id="toggle-enabled" type="checkbox">
+                <label for="toggle-enabled">Enable module</label>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <div class="checkbox">
-              <input id="toggle-forceUnmuteBothOnHigh" type="checkbox">
-              <label for="toggle-forceUnmuteBothOnHigh">When switching back to high quality, unmute both tab and video</label>
-            </div>
-          </div>
+            <div class="module-settings" data-module-settings="toggleVideoQuality">
+              <div class="field">
+                <div class="checkbox">
+                  <input id="toggle-muteOnLow" type="checkbox">
+                  <label for="toggle-muteOnLow">Mute when switching to low quality</label>
+                </div>
+              </div>
+
+              <div class="field" id="toggle-muteTarget-field">
+                <label for="toggle-muteTarget">Mute target</label>
+                <select id="toggle-muteTarget">
+                  <option value="tab">Browser tab</option>
+                  <option value="video">Twitch player</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="toggle-persistSelection" type="checkbox">
+                  <label for="toggle-persistSelection">Persist quality and mute state across reloads</label>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="toggle-forceUnmuteBothOnHigh" type="checkbox">
+                  <label for="toggle-forceUnmuteBothOnHigh">When switching back to high quality, unmute both tab and video</label>
+                </div>
+              </div>
 		  
-          <div class="field">
-            <div class="label-row">
-              <label for="toggle-preferredHigh">Preferred high resolution</label>
-              <div class="tooltip">
-                <button class="tooltip-trigger" type="button" aria-label="More information about preferred high resolution">i</button>
-                <div class="tooltip-bubble" role="tooltip">
-                  Only height, for example <code>1440</code> or <code>1080</code>.<br>
-                  Leave empty to always use the highest available quality.
+              <div class="field">
+                <div class="label-row">
+                  <label for="toggle-preferredHigh">Preferred high resolution</label>
+                  <div class="tooltip">
+                    <button class="tooltip-trigger" type="button" aria-label="More information about preferred high resolution">i</button>
+                    <div class="tooltip-bubble" role="tooltip">
+                      Only height, for example <code>1440</code> or <code>1080</code>.<br>
+                      Leave empty to always use the highest available quality.
+                    </div>
+                  </div>
+                </div>
+                <input id="toggle-preferredHigh" type="number" min="1" step="1" placeholder="1080">
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="toggle-preferHighestBitrateMatch" type="checkbox">
+                  <div class="checkbox-copy">
+                    <label for="toggle-preferHighestBitrateMatch">Prefer the highest bitrate match within the preferred resolution</label>
+                    <div class="tooltip">
+                      <button class="tooltip-trigger" type="button" aria-label="More information about bitrate matching within the preferred resolution">i</button>
+                      <div class="tooltip-bubble" role="tooltip">
+                        If multiple qualities match the same height, like <code>1080p30</code> and <code>1080p60</code>, pick the one with the highest bitrate.<br>
+                        Turn this off to keep the first matching quality instead.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <input id="toggle-preferredHigh" type="number" min="1" step="1" placeholder="1080">
           </div>
+        </section>
+      </div>
 
-          <div class="field">
-            <div class="checkbox">
-              <input id="toggle-preferHighestBitrateMatch" type="checkbox">
-              <label for="toggle-preferHighestBitrateMatch">Prefer the highest bitrate match within the preferred resolution</label>
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Force Sort Viewers</h2>
+                <p>Push Twitch directory pages toward viewer count sorting so high-traffic streams stay surfaced first</p>
+              </div>
+              <div class="module-toggle">
+                <input id="sort-enabled" type="checkbox">
+                <label for="sort-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="forceSortViewers">
+              <div class="field">
+                <label for="sort-runPolicy">Run policy</label>
+                <select id="sort-runPolicy">
+                  <option value="perLoad">Run once per URL on each page load</option>
+                  <option value="perTab">Run once per URL per tab session</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section class="panel">
-        <div class="module-header">
-          <div class="module-copy">
-            <h2>Force Sort Viewers</h2>
-            <p>Push Twitch directory pages toward viewer count sorting so high-traffic streams stay surfaced first</p>
-          </div>
-          <div class="module-toggle">
-            <input id="sort-enabled" type="checkbox">
-            <label for="sort-enabled">Enable module</label>
-          </div>
-        </div>
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Show Stream Language</h2>
+                <p>Reveal the stream language where it matters, either inline beside the channel or directly on the preview card</p>
+              </div>
+              <div class="module-toggle">
+                <input id="language-enabled" type="checkbox">
+                <label for="language-enabled">Enable module</label>
+              </div>
+            </div>
 
-        <div class="module-settings" data-module-settings="forceSortViewers">
-          <div class="field">
-            <label for="sort-runPolicy">Run policy</label>
-            <select id="sort-runPolicy">
-              <option value="perLoad">Run once per URL on each page load</option>
-              <option value="perTab">Run once per URL per tab session</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="module-header">
-          <div class="module-copy">
-            <h2>Show Stream Language</h2>
-            <p>Reveal the stream language where it matters, either inline beside the channel or directly on the preview card</p>
-          </div>
-          <div class="module-toggle">
-            <input id="language-enabled" type="checkbox">
-            <label for="language-enabled">Enable module</label>
-          </div>
-        </div>
-
-        <div class="module-settings" data-module-settings="showStreamLanguage">
-          <div class="field">
-            <label for="language-visualMode">Visual mode</label>
-            <select id="language-visualMode">
-              <option value="suffix">Suffix next to channel name</option>
-              <option value="badge">Badge on stream preview</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="module-header">
-          <div class="module-copy">
-            <h2>Auto Claim Bonus</h2>
-            <p>Quietly claim Twitch channel point bonuses on your behalf when the reward button appears under chat</p>
-          </div>
-          <div class="module-toggle">
-            <input id="claim-enabled" type="checkbox">
-            <label for="claim-enabled">Enable module</label>
-          </div>
-        </div>
-
-        <div class="module-settings" data-module-settings="autoClaimBonus">
-          <div class="field">
-            <label for="claim-intervalSeconds">Polling interval in seconds</label>
-            <input id="claim-intervalSeconds" type="number" min="5" step="1" placeholder="15">
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="module-header">
-          <div class="module-copy">
-            <h2>Keep Tab Active</h2>
-            <p class="experimental-note">Experimental module. Reload the Twitch page after changing this module's settings</p>
-          </div>
-          <div class="module-toggle">
-            <input id="keep-enabled" type="checkbox">
-            <label for="keep-enabled">Enable module</label>
-          </div>
-        </div>
-
-        <div class="module-settings" data-module-settings="keepTabActive">
-          <div class="field">
-            <div class="checkbox">
-              <input id="keep-autoRecoverOverlays" type="checkbox">
-              <label for="keep-autoRecoverOverlays">Automatically dismiss blocking Twitch overlays</label>
+            <div class="module-settings" data-module-settings="showStreamLanguage">
+              <div class="field">
+                <label for="language-visualMode">Visual mode</label>
+                <select id="language-visualMode">
+                  <option value="suffix">Suffix next to channel name</option>
+                  <option value="badge">Badge on stream preview</option>
+                </select>
+              </div>
             </div>
           </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Auto Claim Bonus</h2>
+                <p>Quietly claim Twitch channel point bonuses on your behalf when the reward button appears under chat</p>
+              </div>
+              <div class="module-toggle">
+                <input id="claim-enabled" type="checkbox">
+                <label for="claim-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="autoClaimBonus">
+              <div class="field">
+                <label for="claim-intervalSeconds">Polling interval in seconds</label>
+                <input id="claim-intervalSeconds" type="number" min="5" step="1" placeholder="15">
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Keep Tab Active</h2>
+                <p class="experimental-note">Experimental module. Reload the Twitch page after changing this module's settings</p>
+              </div>
+              <div class="module-toggle">
+                <input id="keep-enabled" type="checkbox">
+                <label for="keep-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="keepTabActive">
+              <div class="field">
+                <div class="checkbox">
+                  <input id="keep-autoRecoverOverlays" type="checkbox">
+                  <div class="checkbox-copy">
+                    <label for="keep-autoRecoverOverlays">Automatically dismiss blocking Twitch overlays</label>
+                    <div class="tooltip">
+                      <button class="tooltip-trigger" type="button" aria-label="More information about automatically dismissing blocking Twitch overlays">i</button>
+                      <div class="tooltip-bubble" role="tooltip">
+                        Attempts to click blocking overlays above the player, including things like <code>Start Watching</code> and similar recoverable prompts.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 		
-          <div class="field">
-            <div class="checkbox">
-              <input id="keep-requestWakeLock" type="checkbox">
-              <label for="keep-requestWakeLock">Request screen wake lock when available</label>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="keep-requestWakeLock" type="checkbox">
+                  <div class="checkbox-copy">
+                    <label for="keep-requestWakeLock">Request screen wake lock when available</label>
+                    <div class="tooltip">
+                      <button class="tooltip-trigger" type="button" aria-label="More information about screen wake lock">i</button>
+                      <div class="tooltip-bubble" role="tooltip">
+                        Asks the browser to help keep the screen awake while Twitch is open.<br>
+                        Availability depends on the browser and device, and it may be ignored.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <div class="actions">
         <button id="save" type="button">Save changes</button>
