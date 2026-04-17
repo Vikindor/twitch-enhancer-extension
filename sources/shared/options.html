@@ -76,7 +76,14 @@
                     </div>
                   </div>
                 </div>
-                <input id="toggle-preferredHigh" type="number" min="1" step="1" placeholder="1080">
+                <input
+                  id="toggle-preferredHigh"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  maxlength="4"
+                  placeholder="E.g. 1080, 1440, or leave empty"
+                >
               </div>
 
               <div class="field">
@@ -170,7 +177,14 @@
             <div class="module-settings" data-module-settings="autoClaimBonus">
               <div class="field">
                 <label for="claim-intervalSeconds">Polling interval in seconds</label>
-                <input id="claim-intervalSeconds" type="number" min="5" step="1" placeholder="15">
+                <input
+                  id="claim-intervalSeconds"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  maxlength="3"
+                  placeholder="15"
+                >
               </div>
             </div>
           </div>

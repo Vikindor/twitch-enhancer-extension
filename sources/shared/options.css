@@ -311,6 +311,7 @@ button {
 }
 
 input[type="number"],
+input[type="text"],
 select {
   width: min(320px, 100%);
   padding: 12px 14px;
@@ -344,11 +345,13 @@ select {
   background-size: 12px 8px;
 }
 
-input[type="number"]::placeholder {
+input[type="number"]::placeholder,
+input[type="text"]::placeholder {
   color: #8f8f98;
 }
 
 input[type="number"]:focus,
+input[type="text"]:focus,
 select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);

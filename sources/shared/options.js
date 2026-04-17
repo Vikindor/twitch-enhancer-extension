@@ -50,6 +50,44 @@ function setAppVersion() {
   versionNode.textContent = manifest?.version ? `v${manifest.version}` : 'Version';
 }
 
+function sanitizeDigitsInput(value, maxLength = Infinity) {
+  return String(value).replace(/\D+/g, '').slice(0, maxLength);
+}
+
+function normalizeClaimIntervalInput(value) {
+  if (value === '') {
+    return 15;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) {
+    return 15;
+  }
+
+  if (parsed < 5) {
+    return 5;
+  }
+
+  return parsed;
+}
+
+function normalizePreferredHighInput(value) {
+  if (value === '') {
+    return null;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) {
+    return 1080;
+  }
+
+  if (parsed < 160) {
+    return 160;
+  }
+
+  return parsed;
+}
+
 function setModuleDisabledState(moduleName, enabled) {
   const container = document.querySelector(`[data-module-settings="${moduleName}"]`);
   if (!container) return;
@@ -131,9 +169,10 @@ async function loadOptions() {
 
   const toggle = modules.toggleVideoQuality || DEFAULT_SETTINGS.modules.toggleVideoQuality;
   document.getElementById('toggle-enabled').checked = toggle.enabled !== false;
-  document.getElementById('toggle-preferredHigh').value =
+  const preferredHighInput = document.getElementById('toggle-preferredHigh');
+  preferredHighInput.value =
     typeof toggle.preferredHigh === 'number' && Number.isFinite(toggle.preferredHigh)
-      ? String(toggle.preferredHigh)
+      ? String(normalizePreferredHighInput(sanitizeDigitsInput(String(toggle.preferredHigh), 4)) ?? '')
       : '';
   document.getElementById('toggle-muteOnLow').checked = toggle.muteOnLow !== false;
   document.getElementById('toggle-muteTarget').value = toggle.muteTarget === 'video' ? 'video' : 'tab';
@@ -158,7 +197,7 @@ async function loadOptions() {
   document.getElementById('claim-enabled').checked = autoClaim.enabled !== false;
   document.getElementById('claim-intervalSeconds').value =
     typeof autoClaim.intervalSeconds === 'number' && Number.isFinite(autoClaim.intervalSeconds)
-      ? String(autoClaim.intervalSeconds)
+      ? String(normalizeClaimIntervalInput(sanitizeDigitsInput(String(autoClaim.intervalSeconds), 3)))
       : '15';
   setModuleDisabledState('autoClaimBonus', autoClaim.enabled !== false);
 
@@ -170,10 +209,16 @@ async function loadOptions() {
 }
 
 async function saveOptions() {
-  const preferredHighValue = document.getElementById('toggle-preferredHigh').value.trim();
-  const preferredHigh = preferredHighValue === '' ? null : Number.parseInt(preferredHighValue, 10);
-  const claimIntervalValue = document.getElementById('claim-intervalSeconds').value.trim();
-  const claimInterval = claimIntervalValue === '' ? 15 : Number.parseInt(claimIntervalValue, 10);
+  const preferredHighValue = sanitizeDigitsInput(
+    document.getElementById('toggle-preferredHigh').value.trim(),
+    4
+  );
+  const preferredHigh = normalizePreferredHighInput(preferredHighValue);
+  const claimIntervalValue = sanitizeDigitsInput(
+    document.getElementById('claim-intervalSeconds').value.trim(),
+    3
+  );
+  const claimInterval = normalizeClaimIntervalInput(claimIntervalValue);
 
   await storageSet({
     modules: {
@@ -196,8 +241,7 @@ async function saveOptions() {
       },
       autoClaimBonus: {
         enabled: document.getElementById('claim-enabled').checked,
-        intervalSeconds:
-          Number.isFinite(claimInterval) && claimInterval >= 5 ? claimInterval : 15
+        intervalSeconds: claimInterval
       },
       keepTabActive: {
         enabled: document.getElementById('keep-enabled').checked,
@@ -219,6 +263,32 @@ document.addEventListener('DOMContentLoaded', () => {
   initSelectOpenState();
   loadOptions();
 
+  const claimIntervalInput = document.getElementById('claim-intervalSeconds');
+  if (claimIntervalInput) {
+    claimIntervalInput.addEventListener('input', () => {
+      claimIntervalInput.value = sanitizeDigitsInput(claimIntervalInput.value, 3);
+    });
+
+    claimIntervalInput.addEventListener('blur', () => {
+      claimIntervalInput.value = String(normalizeClaimIntervalInput(
+        sanitizeDigitsInput(claimIntervalInput.value, 3)
+      ));
+    });
+  }
+
+  const preferredHighInput = document.getElementById('toggle-preferredHigh');
+  if (preferredHighInput) {
+    preferredHighInput.addEventListener('input', () => {
+      preferredHighInput.value = sanitizeDigitsInput(preferredHighInput.value, 4);
+    });
+
+    preferredHighInput.addEventListener('blur', () => {
+      preferredHighInput.value = String(normalizePreferredHighInput(
+        sanitizeDigitsInput(preferredHighInput.value, 4)
+      ) ?? '');
+    });
+  }
+
   document.getElementById('toggle-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('toggleVideoQuality', event.target.checked);
     syncToggleMuteDependencies();
@@ -237,5 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setModuleDisabledState('keepTabActive', event.target.checked);
   });
 
-  document.getElementById('save').addEventListener('click', saveOptions);
+  document.getElementById('save').addEventListener('click', async () => {
+    await saveOptions();
+
+    if (claimIntervalInput) {
+      claimIntervalInput.value = String(normalizeClaimIntervalInput(
+        sanitizeDigitsInput(claimIntervalInput.value, 3)
+      ));
+    }
+  });
 });
