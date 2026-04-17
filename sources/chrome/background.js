@@ -6,7 +6,7 @@ const DEFAULT_SETTINGS = {
       muteOnLow: true,
       muteTarget: 'tab',
       persistSelection: true,
-      forceUnmuteBothOnHigh: false
+      forceUnmuteBothOnHigh: true
     },
     forceSortViewers: {
       enabled: true,
@@ -15,6 +15,11 @@ const DEFAULT_SETTINGS = {
     showStreamLanguage: {
       enabled: true,
       visualMode: 'suffix'
+    },
+    keepTabActive: {
+      enabled: true,
+      requestWakeLock: false,
+      autoRecoverOverlays: true
     }
   }
 };
@@ -36,6 +41,10 @@ async function ensureDefaults() {
       showStreamLanguage: {
         ...DEFAULT_SETTINGS.modules.showStreamLanguage,
         ...(modules.showStreamLanguage || {})
+      },
+      keepTabActive: {
+        ...DEFAULT_SETTINGS.modules.keepTabActive,
+        ...(modules.keepTabActive || {})
       }
     }
   });
@@ -84,3 +93,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   return true;
 });
+

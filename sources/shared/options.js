@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS = {
       muteOnLow: true,
       muteTarget: 'tab',
       persistSelection: true,
-      forceUnmuteBothOnHigh: false
+      forceUnmuteBothOnHigh: true
     },
     forceSortViewers: {
       enabled: true,
@@ -17,6 +17,11 @@ const DEFAULT_SETTINGS = {
     showStreamLanguage: {
       enabled: true,
       visualMode: 'suffix'
+    },
+    keepTabActive: {
+      enabled: true,
+      requestWakeLock: false,
+      autoRecoverOverlays: true
     }
   }
 };
@@ -64,6 +69,12 @@ async function loadOptions() {
   document.getElementById('language-enabled').checked = language.enabled !== false;
   document.getElementById('language-visualMode').value = language.visualMode === 'badge' ? 'badge' : 'suffix';
   setModuleDisabledState('showStreamLanguage', language.enabled !== false);
+
+  const keepActive = modules.keepTabActive || DEFAULT_SETTINGS.modules.keepTabActive;
+  document.getElementById('keep-enabled').checked = keepActive.enabled === true;
+  document.getElementById('keep-requestWakeLock').checked = keepActive.requestWakeLock !== false;
+  document.getElementById('keep-autoRecoverOverlays').checked = keepActive.autoRecoverOverlays !== false;
+  setModuleDisabledState('keepTabActive', keepActive.enabled === true);
 }
 
 async function saveOptions() {
@@ -87,6 +98,11 @@ async function saveOptions() {
       showStreamLanguage: {
         enabled: document.getElementById('language-enabled').checked,
         visualMode: document.getElementById('language-visualMode').value === 'badge' ? 'badge' : 'suffix'
+      },
+      keepTabActive: {
+        enabled: document.getElementById('keep-enabled').checked,
+        requestWakeLock: document.getElementById('keep-requestWakeLock').checked,
+        autoRecoverOverlays: document.getElementById('keep-autoRecoverOverlays').checked
       }
     }
   });
@@ -110,6 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('language-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('showStreamLanguage', event.target.checked);
   });
+  document.getElementById('keep-enabled').addEventListener('change', (event) => {
+    setModuleDisabledState('keepTabActive', event.target.checked);
+  });
 
   document.getElementById('save').addEventListener('click', saveOptions);
 });
+

@@ -1,14 +1,16 @@
 {
   "manifest_version": 3,
   "name": "Twitch Enhancer",
-  "version": "0.4.0",
-  "description": "Modular Twitch enhancement extension with quality toggle, viewer sorting and stream language tools",
+  "version": "0.5.1",
+  "description": "Modular Twitch enhancement extension with quality toggle, viewer sorting, stream language tools and experimental keep tab active support",
   "permissions": [
     "storage",
     "tabs"
   ],
   "host_permissions": [
-    "https://www.twitch.tv/*"
+    "https://www.twitch.tv/*",
+    "https://player.twitch.tv/*",
+    "https://embed.twitch.tv/*"
   ],
   "background": {
     "scripts": [
@@ -18,12 +20,14 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.twitch.tv/*"
+        "https://www.twitch.tv/*",
+        "https://player.twitch.tv/*",
+        "https://embed.twitch.tv/*"
       ],
       "js": [
         "content.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
@@ -32,10 +36,13 @@
         "page.js",
         "modules/toggle-video-quality.js",
         "modules/force-sort-viewers.js",
-        "modules/show-stream-language.js"
+        "modules/show-stream-language.js",
+        "modules/keep-tab-active.js"
       ],
       "matches": [
-        "https://www.twitch.tv/*"
+        "https://www.twitch.tv/*",
+        "https://player.twitch.tv/*",
+        "https://embed.twitch.tv/*"
       ]
     }
   ],
@@ -53,3 +60,6 @@
     }
   }
 }
+
+
+

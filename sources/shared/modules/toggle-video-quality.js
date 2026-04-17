@@ -15,7 +15,7 @@
         muteOnLow: true,
         muteTarget: 'tab',
         persistSelection: true,
-        forceUnmuteBothOnHigh: false
+        forceUnmuteBothOnHigh: true
       };
 
       function persistQuality(group) {
@@ -194,3 +194,4 @@
     }
   });
 })();
+

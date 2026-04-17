@@ -77,6 +77,10 @@
         opacity: 0.55;
       }
 
+      .experimental-note {
+        color: #92400e;
+      }
+
       .actions {
         display: flex;
         gap: 12px;
@@ -186,6 +190,31 @@
         </div>
       </section>
 
+      <section class="panel">
+        <h2>Keep Tab Active</h2>
+        <p class="experimental-note">Experimental module. Reload the Twitch page after changing this module's settings.</p>
+        <div class="checkbox">
+          <input id="keep-enabled" type="checkbox">
+          <label for="keep-enabled">Enable module</label>
+        </div>
+
+        <div class="module-settings" data-module-settings="keepTabActive">
+          <div class="field">
+            <div class="checkbox">
+              <input id="keep-requestWakeLock" type="checkbox">
+              <label for="keep-requestWakeLock">Request screen wake lock when available</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="checkbox">
+              <input id="keep-autoRecoverOverlays" type="checkbox">
+              <label for="keep-autoRecoverOverlays">Automatically dismiss blocking Twitch overlays</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="actions">
         <button id="save" type="button">Save</button>
         <div id="status"></div>
@@ -195,3 +224,4 @@
     <script src="options.js"></script>
   </body>
 </html>
+

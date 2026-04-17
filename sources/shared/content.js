@@ -6,6 +6,7 @@
     'modules/toggle-video-quality.js',
     'modules/force-sort-viewers.js',
     'modules/show-stream-language.js',
+    'modules/keep-tab-active.js',
     'page.js'
   ];
 
@@ -17,7 +18,7 @@
         muteOnLow: true,
         muteTarget: 'tab',
         persistSelection: true,
-        forceUnmuteBothOnHigh: false
+        forceUnmuteBothOnHigh: true
       },
       forceSortViewers: {
         enabled: true,
@@ -26,6 +27,11 @@
       showStreamLanguage: {
         enabled: true,
         visualMode: 'suffix'
+      },
+      keepTabActive: {
+        enabled: true,
+        requestWakeLock: false,
+        autoRecoverOverlays: true
       }
     }
   };
@@ -52,6 +58,9 @@
     const language = modules.showStreamLanguage && typeof modules.showStreamLanguage === 'object'
       ? modules.showStreamLanguage
       : {};
+    const keepActive = modules.keepTabActive && typeof modules.keepTabActive === 'object'
+      ? modules.keepTabActive
+      : {};
 
     fallback.modules.toggleVideoQuality = {
       enabled: typeof toggle.enabled === 'boolean' ? toggle.enabled : true,
@@ -63,7 +72,7 @@
       muteTarget: toggle.muteTarget === 'video' ? 'video' : 'tab',
       persistSelection: typeof toggle.persistSelection === 'boolean' ? toggle.persistSelection : true,
       forceUnmuteBothOnHigh:
-        typeof toggle.forceUnmuteBothOnHigh === 'boolean' ? toggle.forceUnmuteBothOnHigh : false
+        typeof toggle.forceUnmuteBothOnHigh === 'boolean' ? toggle.forceUnmuteBothOnHigh : true
     };
 
     fallback.modules.forceSortViewers = {
@@ -74,6 +83,14 @@
     fallback.modules.showStreamLanguage = {
       enabled: typeof language.enabled === 'boolean' ? language.enabled : true,
       visualMode: language.visualMode === 'badge' ? 'badge' : 'suffix'
+    };
+
+    fallback.modules.keepTabActive = {
+      enabled: typeof keepActive.enabled === 'boolean' ? keepActive.enabled : true,
+      requestWakeLock:
+        typeof keepActive.requestWakeLock === 'boolean' ? keepActive.requestWakeLock : false,
+      autoRecoverOverlays:
+        typeof keepActive.autoRecoverOverlays === 'boolean' ? keepActive.autoRecoverOverlays : true
     };
 
     return fallback;
@@ -234,3 +251,5 @@
     return true;
   });
 })();
+
+
