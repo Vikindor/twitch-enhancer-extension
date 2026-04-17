@@ -16,6 +16,10 @@ const DEFAULT_SETTINGS = {
       enabled: true,
       visualMode: 'suffix'
     },
+    autoClaimBonus: {
+      enabled: true,
+      intervalSeconds: 15
+    },
     keepTabActive: {
       enabled: true,
       requestWakeLock: false,
@@ -41,6 +45,10 @@ async function ensureDefaults() {
       showStreamLanguage: {
         ...DEFAULT_SETTINGS.modules.showStreamLanguage,
         ...(modules.showStreamLanguage || {})
+      },
+      autoClaimBonus: {
+        ...DEFAULT_SETTINGS.modules.autoClaimBonus,
+        ...(modules.autoClaimBonus || {})
       },
       keepTabActive: {
         ...DEFAULT_SETTINGS.modules.keepTabActive,
@@ -93,4 +101,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   return true;
 });
-

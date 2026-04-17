@@ -18,6 +18,10 @@ const DEFAULT_SETTINGS = {
       enabled: true,
       visualMode: 'suffix'
     },
+    autoClaimBonus: {
+      enabled: true,
+      intervalSeconds: 15
+    },
     keepTabActive: {
       enabled: true,
       requestWakeLock: false,
@@ -70,6 +74,14 @@ async function loadOptions() {
   document.getElementById('language-visualMode').value = language.visualMode === 'badge' ? 'badge' : 'suffix';
   setModuleDisabledState('showStreamLanguage', language.enabled !== false);
 
+  const autoClaim = modules.autoClaimBonus || DEFAULT_SETTINGS.modules.autoClaimBonus;
+  document.getElementById('claim-enabled').checked = autoClaim.enabled !== false;
+  document.getElementById('claim-intervalSeconds').value =
+    typeof autoClaim.intervalSeconds === 'number' && Number.isFinite(autoClaim.intervalSeconds)
+      ? String(autoClaim.intervalSeconds)
+      : '15';
+  setModuleDisabledState('autoClaimBonus', autoClaim.enabled !== false);
+
   const keepActive = modules.keepTabActive || DEFAULT_SETTINGS.modules.keepTabActive;
   document.getElementById('keep-enabled').checked = keepActive.enabled === true;
   document.getElementById('keep-requestWakeLock').checked = keepActive.requestWakeLock !== false;
@@ -80,6 +92,8 @@ async function loadOptions() {
 async function saveOptions() {
   const preferredHighValue = document.getElementById('toggle-preferredHigh').value.trim();
   const preferredHigh = preferredHighValue === '' ? null : Number.parseInt(preferredHighValue, 10);
+  const claimIntervalValue = document.getElementById('claim-intervalSeconds').value.trim();
+  const claimInterval = claimIntervalValue === '' ? 15 : Number.parseInt(claimIntervalValue, 10);
 
   await storageSet({
     modules: {
@@ -98,6 +112,11 @@ async function saveOptions() {
       showStreamLanguage: {
         enabled: document.getElementById('language-enabled').checked,
         visualMode: document.getElementById('language-visualMode').value === 'badge' ? 'badge' : 'suffix'
+      },
+      autoClaimBonus: {
+        enabled: document.getElementById('claim-enabled').checked,
+        intervalSeconds:
+          Number.isFinite(claimInterval) && claimInterval >= 5 ? claimInterval : 15
       },
       keepTabActive: {
         enabled: document.getElementById('keep-enabled').checked,
@@ -126,10 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('language-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('showStreamLanguage', event.target.checked);
   });
+  document.getElementById('claim-enabled').addEventListener('change', (event) => {
+    setModuleDisabledState('autoClaimBonus', event.target.checked);
+  });
   document.getElementById('keep-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('keepTabActive', event.target.checked);
   });
 
   document.getElementById('save').addEventListener('click', saveOptions);
 });
-

@@ -191,6 +191,22 @@
       </section>
 
       <section class="panel">
+        <h2>Auto Claim Bonus</h2>
+        <div class="checkbox">
+          <input id="claim-enabled" type="checkbox">
+          <label for="claim-enabled">Enable module</label>
+        </div>
+
+        <div class="module-settings" data-module-settings="autoClaimBonus">
+          <div class="field">
+            <label for="claim-intervalSeconds">Polling interval in seconds</label>
+            <input id="claim-intervalSeconds" type="number" min="5" step="1" placeholder="15">
+            <p>The extension checks for the Twitch claim button by its <code>Claim Bonus</code> aria-label.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
         <h2>Keep Tab Active</h2>
         <p class="experimental-note">Experimental module. Reload the Twitch page after changing this module's settings.</p>
         <div class="checkbox">
@@ -224,4 +240,3 @@
     <script src="options.js"></script>
   </body>
 </html>
-

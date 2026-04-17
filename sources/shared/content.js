@@ -6,6 +6,7 @@
     'modules/toggle-video-quality.js',
     'modules/force-sort-viewers.js',
     'modules/show-stream-language.js',
+    'modules/auto-claim-bonus.js',
     'modules/keep-tab-active.js',
     'page.js'
   ];
@@ -27,6 +28,10 @@
       showStreamLanguage: {
         enabled: true,
         visualMode: 'suffix'
+      },
+      autoClaimBonus: {
+        enabled: true,
+        intervalSeconds: 15
       },
       keepTabActive: {
         enabled: true,
@@ -58,6 +63,9 @@
     const language = modules.showStreamLanguage && typeof modules.showStreamLanguage === 'object'
       ? modules.showStreamLanguage
       : {};
+    const autoClaim = modules.autoClaimBonus && typeof modules.autoClaimBonus === 'object'
+      ? modules.autoClaimBonus
+      : {};
     const keepActive = modules.keepTabActive && typeof modules.keepTabActive === 'object'
       ? modules.keepTabActive
       : {};
@@ -83,6 +91,16 @@
     fallback.modules.showStreamLanguage = {
       enabled: typeof language.enabled === 'boolean' ? language.enabled : true,
       visualMode: language.visualMode === 'badge' ? 'badge' : 'suffix'
+    };
+
+    fallback.modules.autoClaimBonus = {
+      enabled: typeof autoClaim.enabled === 'boolean' ? autoClaim.enabled : true,
+      intervalSeconds:
+        typeof autoClaim.intervalSeconds === 'number' &&
+        Number.isFinite(autoClaim.intervalSeconds) &&
+        autoClaim.intervalSeconds >= 5
+          ? Math.round(autoClaim.intervalSeconds)
+          : 15
     };
 
     fallback.modules.keepTabActive = {
@@ -251,5 +269,3 @@
     return true;
   });
 })();
-
-
