@@ -39,6 +39,17 @@ function storageSet(value) {
   return Promise.resolve(api.storage.sync.set(value));
 }
 
+function setAppVersion() {
+  const versionNode = document.getElementById('app-version');
+  if (!versionNode) return;
+
+  const manifest = typeof api.runtime?.getManifest === 'function'
+    ? api.runtime.getManifest()
+    : null;
+
+  versionNode.textContent = manifest?.version ? `v${manifest.version}` : 'Version';
+}
+
 function setModuleDisabledState(moduleName, enabled) {
   const container = document.querySelector(`[data-module-settings="${moduleName}"]`);
   if (!container) return;
@@ -204,6 +215,7 @@ async function saveOptions() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  setAppVersion();
   initSelectOpenState();
   loadOptions();
 

@@ -8,17 +8,13 @@
       :root {
         --bg-top: #18181b;
         --bg-bottom: #0e0e10;
-        --surface: rgba(31, 31, 35, 0.88);
-        --surface-strong: rgba(38, 38, 44, 0.96);
         --surface-soft: rgba(83, 83, 95, 0.16);
         --border: rgba(255, 255, 255, 0.08);
-        --border-strong: rgba(169, 112, 255, 0.32);
         --text: #efeff1;
         --text-soft: #adadb8;
         --text-muted: #7d7d87;
         --accent: #9147ff;
         --accent-soft: rgba(145, 71, 255, 0.18);
-        --accent-glow: rgba(169, 112, 255, 0.28);
         --success: #00f593;
         --warning: #ffca61;
         --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
@@ -102,16 +98,14 @@
         z-index: var(--z-panel-active);
       }
 
-      .hero {
-        padding: 28px;
-        display: grid;
-        gap: 18px;
+      .page-header {
+        padding: 22px 24px;
         background:
-          radial-gradient(circle at 85% 20%, rgba(145, 71, 255, 0.32), transparent 16rem),
+          radial-gradient(circle at 100% 0%, rgba(145, 71, 255, 0.18), transparent 14rem),
           linear-gradient(180deg, rgba(38, 38, 44, 0.98), rgba(24, 24, 27, 0.98));
       }
 
-      .hero-top {
+      .page-header-top {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -119,62 +113,26 @@
         flex-wrap: wrap;
       }
 
-      .eyebrow {
+      .version-badge {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        width: fit-content;
-        padding: 6px 12px;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 12px;
         border-radius: 999px;
-        border: 1px solid var(--border-strong);
-        background: rgba(145, 71, 255, 0.12);
-        color: #f6f2ff;
-        font-size: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-soft);
+        font-size: 13px;
         font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .hero-copy {
-        display: grid;
-        gap: 10px;
-        max-width: 620px;
+        letter-spacing: 0.01em;
       }
 
       h1 {
         margin: 0;
-        font-size: clamp(30px, 5vw, 42px);
-        line-height: 1.05;
+        font-size: clamp(26px, 4vw, 34px);
+        line-height: 1.08;
         letter-spacing: -0.03em;
-      }
-
-      .hero p {
-        max-width: 56ch;
-      }
-
-      .hero-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-      }
-
-      .hero-stat {
-        padding: 16px 18px;
-        border-radius: 16px;
-        background: var(--surface-soft);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .hero-stat strong {
-        display: block;
-        margin-bottom: 4px;
-        color: var(--text);
-        font-size: 16px;
-      }
-
-      .hero-stat span {
-        color: var(--text-soft);
-        font-size: 13px;
       }
 
       h2 {
@@ -206,11 +164,6 @@
           rgba(255, 255, 255, 0.08) 88%,
           rgba(255, 255, 255, 0)
         );
-      }
-
-      .field-help {
-        color: var(--text-muted);
-        font-size: 13px;
       }
 
       .label-row {
@@ -427,8 +380,7 @@
         filter: saturate(0.74);
       }
 
-      .field[data-disabled="true"] label,
-      .field[data-disabled="true"] .field-help {
+      .field[data-disabled="true"] label {
         color: var(--text-muted);
       }
 
@@ -494,10 +446,6 @@
           padding: 24px 14px 40px;
         }
 
-        .hero-grid {
-          grid-template-columns: 1fr;
-        }
-
         .module-header {
           flex-direction: column;
         }
@@ -509,7 +457,7 @@
 
       @media (max-width: 560px) {
         .panel,
-        .hero {
+        .page-header {
           padding: 18px;
           border-radius: 18px;
         }
@@ -528,28 +476,11 @@
   <body>
     <main>
       <div class="panel-wrap">
-        <section class="panel hero">
+        <section class="panel page-header">
           <div class="panel-content">
-            <div class="hero-top">
-              <span class="eyebrow">Twitch Enhancer</span>
-            </div>
-            <div class="hero-copy">
-              <h1>Shape Twitch Around How You Actually Watch</h1>
-              <p>Turn modules on or off, tune the rough edges, and keep the behaviors you care about close at hand without digging through separate userscripts</p>
-            </div>
-            <div class="hero-grid">
-              <div class="hero-stat">
-                <strong>5 modules</strong>
-                <span>Quality, sorting, language labels, bonus claim, and active-tab behavior</span>
-              </div>
-              <div class="hero-stat">
-                <strong>Twitch-style defaults</strong>
-                <span>Fast access to the tweaks that matter without bloated settings sprawl</span>
-              </div>
-              <div class="hero-stat">
-                <strong>Live, modular control</strong>
-                <span>Disable whole features when you do not want them, not just their sub-options</span>
-              </div>
+            <div class="page-header-top">
+              <h1>Twitch Enhancer</h1>
+              <div class="version-badge" id="app-version">Version</div>
             </div>
           </div>
         </section>
