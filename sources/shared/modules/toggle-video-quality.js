@@ -12,6 +12,7 @@
       let settings = {
         enabled: true,
         preferredHigh: 1080,
+        preferHighestBitrateMatch: true,
         muteOnLow: true,
         muteTarget: 'tab',
         persistSelection: true,
@@ -75,6 +76,12 @@
         return match ? parseInt(match[1], 10) : 0;
       }
 
+      function getHighestBitrateQuality(qualities) {
+        return qualities.reduce((max, quality) =>
+          quality.bitrate > max.bitrate ? quality : max
+        );
+      }
+
       async function setMuteState(player, muted) {
         if (!settings.muteOnLow) {
           return;
@@ -136,12 +143,18 @@
 
         let preferredHigh = null;
         if (settings.preferredHigh != null) {
-          preferredHigh = qualities.find((quality) => extractHeight(quality) === settings.preferredHigh) || null;
+          const preferredMatches = qualities.filter(
+            (quality) => extractHeight(quality) === settings.preferredHigh
+          );
+
+          if (preferredMatches.length) {
+            preferredHigh = settings.preferHighestBitrateMatch
+              ? getHighestBitrateQuality(preferredMatches)
+              : preferredMatches[0];
+          }
         }
 
-        const highestAvailable = qualities.reduce((max, quality) =>
-          quality.bitrate > max.bitrate ? quality : max
-        );
+        const highestAvailable = getHighestBitrateQuality(qualities);
 
         const high = preferredHigh || highestAvailable;
         const isCurrentlyLowest = current.group === lowest.group;
@@ -173,6 +186,10 @@
               typeof nextSettings.preferredHigh === 'number' && Number.isFinite(nextSettings.preferredHigh)
                 ? nextSettings.preferredHigh
                 : null,
+            preferHighestBitrateMatch:
+              typeof nextSettings.preferHighestBitrateMatch === 'boolean'
+                ? nextSettings.preferHighestBitrateMatch
+                : true,
             muteOnLow: typeof nextSettings.muteOnLow === 'boolean' ? nextSettings.muteOnLow : true,
             muteTarget: nextSettings.muteTarget === 'video' ? 'video' : 'tab',
             persistSelection:

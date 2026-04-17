@@ -5,6 +5,7 @@ const DEFAULT_SETTINGS = {
     toggleVideoQuality: {
       enabled: true,
       preferredHigh: 1080,
+      preferHighestBitrateMatch: true,
       muteOnLow: true,
       muteTarget: 'tab',
       persistSelection: true,
@@ -48,6 +49,71 @@ function setModuleDisabledState(moduleName, enabled) {
   });
 }
 
+function syncToggleMuteDependencies() {
+  const muteOnLow = document.getElementById('toggle-muteOnLow');
+  const muteTarget = document.getElementById('toggle-muteTarget');
+  const muteTargetField = document.getElementById('toggle-muteTarget-field');
+
+  if (!muteOnLow || !muteTarget || !muteTargetField) return;
+
+  const toggleModuleEnabled = document.getElementById('toggle-enabled')?.checked !== false;
+  const enabled = toggleModuleEnabled && muteOnLow.checked;
+  muteTarget.disabled = !enabled;
+  muteTargetField.dataset.disabled = enabled ? 'false' : 'true';
+}
+
+function setSelectOpenState(select, isOpen) {
+  select.classList.toggle('is-open', isOpen);
+}
+
+function closeAllSelects(except = null) {
+  document.querySelectorAll('select.is-open').forEach((select) => {
+    if (select !== except) {
+      setSelectOpenState(select, false);
+    }
+  });
+}
+
+function initSelectOpenState() {
+  const selects = Array.from(document.querySelectorAll('select'));
+
+  document.addEventListener('pointerdown', (event) => {
+    const targetSelect = event.target.closest('select');
+    closeAllSelects(targetSelect);
+  }, true);
+
+  selects.forEach((select) => {
+    select.addEventListener('pointerdown', () => {
+      const willOpen = !select.classList.contains('is-open');
+      setSelectOpenState(select, willOpen);
+    });
+
+    select.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' || event.key === 'Tab') {
+        setSelectOpenState(select, false);
+        return;
+      }
+
+      if (
+        event.key === 'ArrowDown' ||
+        event.key === 'ArrowUp' ||
+        event.key === 'Enter' ||
+        event.key === ' '
+      ) {
+        setSelectOpenState(select, true);
+      }
+    });
+
+    select.addEventListener('change', () => {
+      setSelectOpenState(select, false);
+    });
+
+    select.addEventListener('blur', () => {
+      setSelectOpenState(select, false);
+    });
+  });
+}
+
 async function loadOptions() {
   const settings = await storageGet(DEFAULT_SETTINGS);
   const modules = settings.modules || DEFAULT_SETTINGS.modules;
@@ -61,8 +127,11 @@ async function loadOptions() {
   document.getElementById('toggle-muteOnLow').checked = toggle.muteOnLow !== false;
   document.getElementById('toggle-muteTarget').value = toggle.muteTarget === 'video' ? 'video' : 'tab';
   document.getElementById('toggle-persistSelection').checked = toggle.persistSelection !== false;
+  document.getElementById('toggle-preferHighestBitrateMatch').checked =
+    toggle.preferHighestBitrateMatch !== false;
   document.getElementById('toggle-forceUnmuteBothOnHigh').checked = toggle.forceUnmuteBothOnHigh === true;
   setModuleDisabledState('toggleVideoQuality', toggle.enabled !== false);
+  syncToggleMuteDependencies();
 
   const sort = modules.forceSortViewers || DEFAULT_SETTINGS.modules.forceSortViewers;
   document.getElementById('sort-enabled').checked = sort.enabled !== false;
@@ -100,6 +169,7 @@ async function saveOptions() {
       toggleVideoQuality: {
         enabled: document.getElementById('toggle-enabled').checked,
         preferredHigh: Number.isFinite(preferredHigh) ? preferredHigh : null,
+        preferHighestBitrateMatch: document.getElementById('toggle-preferHighestBitrateMatch').checked,
         muteOnLow: document.getElementById('toggle-muteOnLow').checked,
         muteTarget: document.getElementById('toggle-muteTarget').value === 'video' ? 'video' : 'tab',
         persistSelection: document.getElementById('toggle-persistSelection').checked,
@@ -134,11 +204,14 @@ async function saveOptions() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initSelectOpenState();
   loadOptions();
 
   document.getElementById('toggle-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('toggleVideoQuality', event.target.checked);
+    syncToggleMuteDependencies();
   });
+  document.getElementById('toggle-muteOnLow').addEventListener('change', syncToggleMuteDependencies);
   document.getElementById('sort-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('forceSortViewers', event.target.checked);
   });

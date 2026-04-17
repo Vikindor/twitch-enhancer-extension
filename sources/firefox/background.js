@@ -3,6 +3,7 @@ const DEFAULT_SETTINGS = {
     toggleVideoQuality: {
       enabled: true,
       preferredHigh: 1080,
+      preferHighestBitrateMatch: true,
       muteOnLow: true,
       muteTarget: 'tab',
       persistSelection: true,
