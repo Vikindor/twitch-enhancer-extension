@@ -194,6 +194,20 @@
         margin-top: 18px;
       }
 
+      .divider {
+        height: 1px;
+        margin: 18px 0 0;
+        border: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0.08) 12%,
+          rgba(145, 71, 255, 0.22) 50%,
+          rgba(255, 255, 255, 0.08) 88%,
+          rgba(255, 255, 255, 0)
+        );
+      }
+
       .field-help {
         color: var(--text-muted);
         font-size: 13px;
@@ -577,6 +591,8 @@
                   <label for="toggle-persistSelection">Persist quality and mute state across reloads</label>
                 </div>
               </div>
+
+              <div class="divider" aria-hidden="true"></div>
 
               <div class="field">
                 <div class="checkbox">
