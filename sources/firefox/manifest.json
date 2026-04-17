@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Enhancer",
-  "version": "0.6.20",
+  "version": "0.6.21",
   "description": "Modular Twitch enhancement extension with quality toggle, viewer sorting, stream language tools and experimental keep tab active support",
   "icons": {
     "16": "icons/icon_16.png",

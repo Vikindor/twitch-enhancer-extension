@@ -299,6 +299,11 @@ label {
   color: var(--text);
 }
 
+.field > label,
+.label-row > label {
+  pointer-events: none;
+}
+
 input,
 select,
 button {
