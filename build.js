@@ -56,7 +56,7 @@ function buildBrowser(browserName) {
   const browserSourceDir = path.join(sourcesDir, browserName);
   const outputDir = path.join(buildsDir, browserName);
   const manifest = JSON.parse(fs.readFileSync(path.join(browserSourceDir, 'manifest.json'), 'utf8'));
-  const archivePath = path.join(packedDir, `twitch-enhancer-${browserName}-${manifest.version}.zip`);
+  const archivePath = path.join(packedDir, `twitch_enhancer_${browserName}_v${manifest.version}.zip`);
 
   removeDir(outputDir);
   ensureDir(outputDir);
