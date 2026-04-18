@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Enhancer",
-  "version": "0.6.25",
+  "version": "1.0.0",
   "description": "Modular Twitch enhancement extension with quality toggle, viewer sorting, stream language tools and experimental keep tab active support",
   "icons": {
     "16": "icons/icon_16.png",
@@ -52,7 +52,7 @@
     }
   ],
   "action": {
-    "default_title": "Toggle Twitch video quality",
+    "default_title": "Twitch Enhancer",
     "default_icon": {
       "16": "icons/icon_16.png",
       "32": "icons/icon_32.png",
