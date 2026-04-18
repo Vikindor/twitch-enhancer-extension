@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="media/icon.png" alt="Twitch Enhancer icon" style="height: 1em; vertical-align: -0.12em;" /> Twitch Enhancer
+  <img src="media/icon.png" alt="Twitch Enhancer icon" height="26px" /> Twitch Enhancer
 </h1>
 
 Modular browser extension for Twitch that combines several quality-of-life improvements in one place. Designed as a unified replacement for multiple separate Twitch userscripts, it offers shared settings, per-module toggles, and separate builds for **Chrome/Chromium** and **Firefox**.
