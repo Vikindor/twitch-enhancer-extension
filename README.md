@@ -14,7 +14,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ### Toggle Video Quality
 
-<img src="media/toggle_video_quality.jpg" width="100%" alt="Toggle Video Quality screenshot" title="Toggle Video Quality"/>
+<img src="media/toggle_video_quality.jpg" width="75%" alt="Toggle Video Quality screenshot" title="Toggle Video Quality"/>
 
 - Main action-button feature
 - Switches between low and preferred high quality
@@ -23,7 +23,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ### Auto Claim Bonus
 
-<img src="media/auto_claim_bonus.jpg" alt="Auto Claim Bonus screenshot" title="Auto Claim Bonus"/>
+<img src="media/auto_claim_bonus.jpg" width="75%" alt="Auto Claim Bonus screenshot" title="Auto Claim Bonus"/>
 
 - Polls for the `Claim Bonus` button under the chat
 - Claims channel points bonuses automatically
