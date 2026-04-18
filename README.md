@@ -14,12 +14,16 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ### Toggle Video Quality
 
+<img src="media/toggle_video_quality.jpg" width="100%" alt="Toggle Video Quality screenshot" title="Toggle Video Quality"/>
+
 - Main action-button feature
 - Switches between low and preferred high quality
 - Supports tab mute or player mute
 - Can restore both tab and player audio when returning to high quality
 
 ### Auto Claim Bonus
+
+<img src="media/auto_claim_bonus.jpg" alt="Auto Claim Bonus screenshot" title="Auto Claim Bonus"/>
 
 - Polls for the `Claim Bonus` button under the chat
 - Claims channel points bonuses automatically
@@ -28,15 +32,19 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 - Experimental module
 - Multiple strategies to keep streams alive in the background
-- Can dismiss Twitch overlays such as `Start Watching`
+- Can dismiss Twitch overlays such as `Start Watching` and network errors
 - Can request a screen wake lock when supported
 
 ### Show Stream Language
 
-- Displays the stream language in the directory UI
-- Supports inline suffix mode and badge mode
+<img src="media/show_stream_language.jpg" width="100%" alt="Show Stream Language screenshot" title="Show Stream Language"/>
+
+- Displays the stream language like `[EN]` / `[JA]` / etc.
+- Two visual modes: a badge on the preview card or a suffix next to the streamer's username
 
 ### Force Sort Viewers
+
+<img src="media/force_sort_viewers.jpg" width="100%" alt="Force Sort Viewers screenshot" title="Force Sort Viewers"/>
 
 - Nudges Twitch directory pages toward `Viewers: High to Low` sorting
 - Supports per-load and per-tab-session run policies
