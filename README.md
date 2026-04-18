@@ -12,7 +12,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ## ✨ Features
 
-### Toggle Video Quality
+### 1️⃣ Toggle Video Quality
 
 <img src="media/toggle_video_quality.jpg" width="75%" alt="Toggle Video Quality screenshot" title="Toggle Video Quality"/>
 
@@ -21,28 +21,28 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Supports tab mute or player mute
 - Can restore both tab and player audio when returning to high quality
 
-### Auto Claim Bonus
+### 2️⃣ Auto Claim Bonus
 
 <img src="media/auto_claim_bonus.jpg" width="75%" alt="Auto Claim Bonus screenshot" title="Auto Claim Bonus"/>
 
 - Polls for the `Claim Bonus` button under the chat
 - Claims channel points bonuses automatically
 
-### Keep Tab Active
+### 3️⃣ Keep Tab Active
 
 - Experimental module
 - Multiple strategies to keep streams alive in the background
 - Can dismiss Twitch overlays such as `Start Watching` and network errors
 - Can request a screen wake lock when supported
 
-### Show Stream Language
+### 4️⃣ Show Stream Language
 
 <img src="media/show_stream_language.jpg" width="100%" alt="Show Stream Language screenshot" title="Show Stream Language"/>
 
 - Displays the stream language like `[EN]` / `[JA]` / etc.
 - Two visual modes: a badge on the preview card or a suffix next to the streamer's username
 
-### Force Sort Viewers
+### 5️⃣ Force Sort Viewers
 
 <img src="media/force_sort_viewers.jpg" width="100%" alt="Force Sort Viewers screenshot" title="Force Sort Viewers"/>
 
