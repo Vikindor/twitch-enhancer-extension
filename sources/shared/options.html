@@ -25,7 +25,7 @@
             <div class="module-header">
               <div class="module-copy">
                 <h2>Toggle Video Quality</h2>
-                <p>Flip between low and preferred high quality, with mute behavior that follows your chosen workflow</p>
+                <p>Press the extension button to switch between low quality and your preferred high quality, with mute behavior based on your settings</p>
               </div>
               <div class="module-toggle">
                 <input id="toggle-enabled" type="checkbox">
@@ -111,62 +111,8 @@
           <div class="panel-content">
             <div class="module-header">
               <div class="module-copy">
-                <h2>Force Sort Viewers</h2>
-                <p>Push Twitch directory pages toward viewer count sorting so high-traffic streams stay surfaced first</p>
-              </div>
-              <div class="module-toggle">
-                <input id="sort-enabled" type="checkbox">
-                <label for="sort-enabled">Enable module</label>
-              </div>
-            </div>
-
-            <div class="module-settings" data-module-settings="forceSortViewers">
-              <div class="field">
-                <label for="sort-runPolicy">Run policy</label>
-                <select id="sort-runPolicy">
-                  <option value="perLoad">Run once per URL on each page load</option>
-                  <option value="perTab">Run once per URL per tab session</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="panel-wrap">
-        <section class="panel">
-          <div class="panel-content">
-            <div class="module-header">
-              <div class="module-copy">
-                <h2>Show Stream Language</h2>
-                <p>Reveal the stream language where it matters, either inline beside the channel or directly on the preview card</p>
-              </div>
-              <div class="module-toggle">
-                <input id="language-enabled" type="checkbox">
-                <label for="language-enabled">Enable module</label>
-              </div>
-            </div>
-
-            <div class="module-settings" data-module-settings="showStreamLanguage">
-              <div class="field">
-                <label for="language-visualMode">Visual mode</label>
-                <select id="language-visualMode">
-                  <option value="suffix">Suffix next to channel name</option>
-                  <option value="badge">Badge on stream preview</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="panel-wrap">
-        <section class="panel">
-          <div class="panel-content">
-            <div class="module-header">
-              <div class="module-copy">
                 <h2>Auto Claim Bonus</h2>
-                <p>Quietly claim Twitch channel point bonuses on your behalf when the reward button appears under chat</p>
+                <p>Automatically claims Twitch channel points bonuses when the reward button appears under the chat</p>
               </div>
               <div class="module-toggle">
                 <input id="claim-enabled" type="checkbox">
@@ -197,6 +143,7 @@
             <div class="module-header">
               <div class="module-copy">
                 <h2>Keep Tab Active</h2>
+                <p>Helps keep Twitch playback active in the background and can automatically dismiss blocking player overlays</p>
                 <p class="experimental-note">Experimental module. Reload the Twitch page after changing this module's settings</p>
               </div>
               <div class="module-toggle">
@@ -235,6 +182,60 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Show Stream Language</h2>
+                <p>Automatically shows the stream language either next to the channel name or on the preview card</p>
+              </div>
+              <div class="module-toggle">
+                <input id="language-enabled" type="checkbox">
+                <label for="language-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="showStreamLanguage">
+              <div class="field">
+                <label for="language-visualMode">Visual mode</label>
+                <select id="language-visualMode">
+                  <option value="suffix">Suffix next to the channel name</option>
+                  <option value="badge">Badge on the stream preview</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Force Sort Viewers</h2>
+                <p>Automatically applies Viewers: High to Low sorting on Twitch directory pages so larger streams stay surfaced first</p>
+              </div>
+              <div class="module-toggle">
+                <input id="sort-enabled" type="checkbox">
+                <label for="sort-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="forceSortViewers">
+              <div class="field">
+                <label for="sort-runPolicy">Run policy</label>
+                <select id="sort-runPolicy">
+                  <option value="perLoad">Run once per URL on each page load</option>
+                  <option value="perTab">Run once per URL per tab session</option>
+                </select>
               </div>
             </div>
           </div>
