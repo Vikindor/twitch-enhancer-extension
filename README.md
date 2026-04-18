@@ -8,6 +8,8 @@ It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twi
 
 Especially useful for people who like to **keep streams running in the background** to support streamers, farm **channel points**, or keep streams running for **Drops** with less manual babysitting.
 
+> ⚠️ This extension does not block ads and does not attempt to bypass Twitch ad delivery
+
 ## ✨ Features
 
 ### Toggle Video Quality
@@ -76,7 +78,8 @@ node .\build.js
 
 ## ⚠️ Notes & Limitations
 
-- The extension action button currently triggers `Toggle Video Quality` specifically
-- `Keep Tab Active` may behave differently across browsers or Twitch updates
-- Browser throttling with a large number of open tabs is controlled by the browser itself, and the extension cannot override it
-- If you run into throttling-related playback issues, using tab mute is generally more reliable than muting the Twitch player directly
+- This extension does not block ads and does not attempt to bypass Twitch ad delivery.
+- The extension action button currently triggers `Toggle Video Quality` specifically.
+- `Keep Tab Active` may behave differently across browsers or Twitch updates.
+- Browser throttling with a large number of open tabs is controlled by the browser itself, and the extension cannot override it.
+- If you run into throttling-related playback issues, using tab mute is generally more reliable than muting the Twitch player directly.
