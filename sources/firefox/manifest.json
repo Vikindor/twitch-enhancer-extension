@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Twitch Enhancer",
   "version": "1.0.0",
-  "description": "Modular Twitch enhancement extension with quality toggle, viewer sorting, stream language tools and experimental keep tab active support",
+  "description": "Modular browser extension for Twitch with stream quality toggle, channel points auto-claim, language labels, viewer sorting, and keep-tab-active tools",
   "icons": {
     "16": "icons/icon_16.png",
     "32": "icons/icon_32.png",
