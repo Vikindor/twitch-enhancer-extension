@@ -37,10 +37,38 @@ function zipDir(sourceDir, archivePath) {
   }
 
   const script = [
+    "Add-Type -AssemblyName 'System.IO.Compression'",
     "Add-Type -AssemblyName 'System.IO.Compression.FileSystem'",
     `$source = '${sourceDir.replace(/'/g, "''")}'`,
     `$archive = '${archivePath.replace(/'/g, "''")}'`,
-    '[System.IO.Compression.ZipFile]::CreateFromDirectory($source, $archive)'
+    "$sourcePath = (Resolve-Path $source).Path",
+    "if (-not $sourcePath.EndsWith([System.IO.Path]::DirectorySeparatorChar)) { $sourcePath += [System.IO.Path]::DirectorySeparatorChar }",
+    "$files = Get-ChildItem -Path $sourcePath -Recurse -File",
+    "$stream = [System.IO.File]::Open($archive, [System.IO.FileMode]::Create)",
+    "try {",
+    "  $zip = New-Object System.IO.Compression.ZipArchive($stream, [System.IO.Compression.ZipArchiveMode]::Create, $false)",
+    "  try {",
+    "    foreach ($file in $files) {",
+    "      $relativePath = $file.FullName.Substring($sourcePath.Length).Replace('\\', '/')",
+    "      $entry = $zip.CreateEntry($relativePath, [System.IO.Compression.CompressionLevel]::Optimal)",
+    "      $entryStream = $entry.Open()",
+    "      try {",
+    "        $fileStream = [System.IO.File]::OpenRead($file.FullName)",
+    "        try {",
+    "          $fileStream.CopyTo($entryStream)",
+    "        } finally {",
+    "          if ($fileStream) { $fileStream.Dispose() }",
+    "        }",
+    "      } finally {",
+    "        if ($entryStream) { $entryStream.Dispose() }",
+    "      }",
+    "    }",
+    "  } finally {",
+    "    if ($zip) { $zip.Dispose() }",
+    "  }",
+    "} finally {",
+    "  if ($stream) { $stream.Dispose() }",
+    "}"
   ].join('; ');
 
   const result = spawnSync('powershell', ['-NoProfile', '-Command', script], {
