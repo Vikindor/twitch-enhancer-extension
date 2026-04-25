@@ -55,7 +55,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 <a href="https://chromewebstore.google.com/detail/twitch-enhancer/mfmhbfdnihfhndicfkagemohhcmdahbf" target="_blank" rel="noopener noreferrer">
   <img src="media/chrome_web_store_badge.png" alt="Chrome Web Store badge" title="Chrome Web Store" />
 </a>
-
+<br><br>
 <a href="https://addons.mozilla.org/en-US/firefox/addon/twitch-enhancer-extension/" target="_blank" rel="noopener noreferrer">
   <img src="media/firefox_store_badge.png" alt="Firefox Add-ons badge" title="Firefox Add-ons" />
 </a>
