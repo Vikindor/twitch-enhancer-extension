@@ -385,7 +385,7 @@ code {
   color: var(--text-muted);
 }
 
-.experimental-note {
+.note {
   color: var(--warning);
 }
 
