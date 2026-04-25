@@ -30,7 +30,6 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ### 3️⃣ Keep Tab Active
 
-- Experimental module
 - Multiple strategies to keep streams alive in the background
 - Can dismiss Twitch overlays such as `Start Watching` and network errors
 - Can request a screen wake lock when supported
