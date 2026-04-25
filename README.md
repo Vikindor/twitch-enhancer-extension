@@ -52,7 +52,9 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ### Option 1: Install from the store
 
-(Coming soon)
+<a href="https://chromewebstore.google.com/detail/twitch-enhancer/mfmhbfdnihfhndicfkagemohhcmdahbf" target="_blank" rel="noopener noreferrer">
+  <img src="media/chrome_web_store_badge.png" alt="Chrome Web Store badge" title="Chrome Web Store" />
+</a>
 
 ### Option 2: Load the unpacked extension
 
