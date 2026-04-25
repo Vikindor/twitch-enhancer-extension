@@ -56,6 +56,10 @@ Especially useful for people who like to **keep streams running in the backgroun
   <img src="media/chrome_web_store_badge.png" alt="Chrome Web Store badge" title="Chrome Web Store" />
 </a>
 
+<a href="https://addons.mozilla.org/en-US/firefox/addon/twitch-enhancer-extension/" target="_blank" rel="noopener noreferrer">
+  <img src="media/firefox_store_badge.png" alt="Firefox Add-ons badge" title="Firefox Add-ons" />
+</a>
+
 ### Option 2: Load the unpacked extension
 
 First, build the project.
