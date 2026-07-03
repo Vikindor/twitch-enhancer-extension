@@ -7,6 +7,7 @@ const sourcesDir = path.join(rootDir, 'sources');
 const sharedDir = path.join(sourcesDir, 'shared');
 const buildsDir = path.join(rootDir, 'builds');
 const packedDir = path.join(buildsDir, 'packed');
+const supportedBrowsers = ['chrome', 'firefox'];
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
@@ -80,7 +81,7 @@ function zipDir(sourceDir, archivePath) {
   }
 }
 
-function buildBrowser(browserName) {
+function buildBrowser(browserName, options) {
   const browserSourceDir = path.join(sourcesDir, browserName);
   const outputDir = path.join(buildsDir, browserName);
   const manifest = JSON.parse(fs.readFileSync(path.join(browserSourceDir, 'manifest.json'), 'utf8'));
@@ -91,19 +92,55 @@ function buildBrowser(browserName) {
 
   copyDir(sharedDir, outputDir);
   copyDir(browserSourceDir, outputDir);
-  zipDir(outputDir, archivePath);
-
   console.log(`Built ${browserName} extension at ${outputDir}`);
-  console.log(`Built ${browserName} archive at ${archivePath}`);
+
+  if (!options.debug) {
+    zipDir(outputDir, archivePath);
+    console.log(`Built ${browserName} archive at ${archivePath}`);
+  }
+}
+
+function parseArgs(argv) {
+  const options = {
+    debug: false,
+    browsers: supportedBrowsers.slice()
+  };
+
+  const requestedBrowsers = [];
+  for (const arg of argv) {
+    if (arg === '--debug') {
+      options.debug = true;
+      continue;
+    }
+
+    if (supportedBrowsers.includes(arg)) {
+      requestedBrowsers.push(arg);
+      continue;
+    }
+
+    console.error(`Unsupported argument: ${arg}`);
+    process.exit(1);
+  }
+
+  if (requestedBrowsers.length > 0) {
+    options.browsers = requestedBrowsers;
+  }
+
+  return options;
 }
 
 function main() {
+  const options = parseArgs(process.argv.slice(2));
+
   removeDir(buildsDir);
   ensureDir(buildsDir);
-  ensureDir(packedDir);
+  if (!options.debug) {
+    ensureDir(packedDir);
+  }
 
-  buildBrowser('chrome');
-  buildBrowser('firefox');
+  for (const browserName of options.browsers) {
+    buildBrowser(browserName, options);
+  }
 }
 
 main();
