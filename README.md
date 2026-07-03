@@ -8,7 +8,7 @@ It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twi
 
 Especially useful for people who like to **keep streams running in the background** to support streamers, farm **channel points**, or keep streams running for **Drops** with less manual babysitting.
 
-> ⚠️ This extension does not block ads and does not attempt to bypass Twitch ad delivery
+> ⚠️ This extension does not block ads and does not attempt to bypass Twitch ad delivery.
 
 ## ✨ Features
 
@@ -16,7 +16,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 <img src="media/toggle_video_quality.jpg" width="75%" alt="Toggle Video Quality screenshot" title="Toggle Video Quality"/>
 
-- Main action-button feature
+- **Main action-button feature (LMB click on extension icon)**
 - Switches between low and preferred high quality
 - Supports tab mute or player mute
 - Can restore both tab and player audio when returning to high quality
