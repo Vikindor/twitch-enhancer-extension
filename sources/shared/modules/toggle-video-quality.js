@@ -19,11 +19,19 @@
         forceUnmuteBothOnHigh: true
       };
 
-      function persistQuality(group) {
+      function persistQuality(quality) {
         if (!settings.persistSelection) return;
+        if (!quality || !quality.group) return;
 
         try {
-          localStorage.setItem('video-quality', JSON.stringify({ default: group }));
+          localStorage.setItem('video-quality-highest-available', 'false');
+
+          const bitrate = Number(quality.bitrate);
+          if (Number.isFinite(bitrate) && bitrate > 0) {
+            localStorage.setItem('quality-bitrate', String(bitrate));
+          }
+
+          localStorage.setItem('video-quality', JSON.stringify({ default: quality.group }));
         } catch (_) {}
       }
 
@@ -88,10 +96,9 @@
         }
 
         if (settings.muteTarget === 'tab') {
-          const ok = await context.requestTabMuted(muted);
-          if (ok) {
-            persistMute(muted);
-          }
+          // Browser tab muting survives page reloads on its own. Do not write
+          // Twitch's video-muted preference here, or the player is muted too.
+          await context.requestTabMuted(muted);
           return;
         }
 
@@ -166,7 +173,7 @@
           } else if (settings.muteOnLow) {
             await setMuteState(player, false);
           }
-          persistQuality(high.group);
+          persistQuality(high);
           return { ok: true, mode: 'high' };
         }
 
@@ -174,7 +181,7 @@
         if (settings.muteOnLow) {
           await setMuteState(player, true);
         }
-        persistQuality(lowest.group);
+        persistQuality(lowest);
         return { ok: true, mode: 'low' };
       }
 
