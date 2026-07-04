@@ -145,6 +145,45 @@ p {
   margin-top: 18px;
 }
 
+.nested-field {
+  margin-left: 28px;
+  position: relative;
+}
+
+.settings-tree {
+  position: relative;
+  display: flow-root;
+  --tree-line-color: rgba(145, 71, 255, 0.52);
+}
+
+.settings-tree::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 38px;
+  bottom: 11px;
+  width: 2px;
+  border-radius: 999px;
+  background: var(--tree-line-color);
+  transition: opacity 120ms ease;
+}
+
+.settings-tree:has(#annoyances-allPlayerExtensions:checked)::before,
+.settings-tree:has(.tree-root-field input:disabled)::before {
+  opacity: 0.48;
+}
+
+.settings-tree .nested-field::before {
+  content: '';
+  position: absolute;
+  left: -19px;
+  top: 10px;
+  width: 19px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--tree-line-color);
+}
+
 .divider {
   height: 1px;
   margin: 18px 0 0;
@@ -275,7 +314,7 @@ p {
 }
 
 .checkbox input[type="checkbox"] {
-  margin-top: 2px;
+  margin: 2px 0 0;
   width: 18px;
   height: 18px;
   accent-color: var(--accent);

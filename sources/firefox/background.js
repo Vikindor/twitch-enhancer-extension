@@ -2,20 +2,12 @@ const DEFAULT_SETTINGS = {
   modules: {
     toggleVideoQuality: {
       enabled: true,
-      preferredHigh: 1080,
-      preferHighestBitrateMatch: true,
       muteOnLow: true,
       muteTarget: 'tab',
       persistSelection: true,
-      forceUnmuteBothOnHigh: true
-    },
-    forceSortViewers: {
-      enabled: true,
-      runPolicy: 'perLoad'
-    },
-    showStreamLanguage: {
-      enabled: true,
-      visualMode: 'suffix'
+      forceUnmuteBothOnHigh: true,
+      preferredHigh: 1080,
+      preferHighestBitrateMatch: true
     },
     autoClaimBonus: {
       enabled: true,
@@ -23,8 +15,31 @@ const DEFAULT_SETTINGS = {
     },
     keepTabActive: {
       enabled: true,
-      requestWakeLock: false,
-      autoRecoverOverlays: true
+      autoRecoverOverlays: true,
+      requestWakeLock: false
+    },
+    blockAnnoyances: {
+      enabled: true,
+      consentBanner: true,
+      newsFromLuna: true,
+      bitsButton: true,
+      storiesLeftPanel: true,
+      chatLeaderboardAndGoals: true,
+      allPlayerExtensions: false,
+      extensionsDockButtons: false,
+      primeBenefitsExtension: false,
+      underPlayerBitsButton: true,
+      giftSubsButton: true,
+      subscribeButton: true,
+      continueSubButton: true
+    },
+    showStreamLanguage: {
+      enabled: true,
+      visualMode: 'suffix'
+    },
+    forceSortViewers: {
+      enabled: true,
+      runPolicy: 'perLoad'
     }
   }
 };
@@ -39,14 +54,6 @@ async function ensureDefaults() {
         ...DEFAULT_SETTINGS.modules.toggleVideoQuality,
         ...(modules.toggleVideoQuality || {})
       },
-      forceSortViewers: {
-        ...DEFAULT_SETTINGS.modules.forceSortViewers,
-        ...(modules.forceSortViewers || {})
-      },
-      showStreamLanguage: {
-        ...DEFAULT_SETTINGS.modules.showStreamLanguage,
-        ...(modules.showStreamLanguage || {})
-      },
       autoClaimBonus: {
         ...DEFAULT_SETTINGS.modules.autoClaimBonus,
         ...(modules.autoClaimBonus || {})
@@ -54,6 +61,18 @@ async function ensureDefaults() {
       keepTabActive: {
         ...DEFAULT_SETTINGS.modules.keepTabActive,
         ...(modules.keepTabActive || {})
+      },
+      blockAnnoyances: {
+        ...DEFAULT_SETTINGS.modules.blockAnnoyances,
+        ...(modules.blockAnnoyances || {})
+      },
+      showStreamLanguage: {
+        ...DEFAULT_SETTINGS.modules.showStreamLanguage,
+        ...(modules.showStreamLanguage || {})
+      },
+      forceSortViewers: {
+        ...DEFAULT_SETTINGS.modules.forceSortViewers,
+        ...(modules.forceSortViewers || {})
       }
     }
   });

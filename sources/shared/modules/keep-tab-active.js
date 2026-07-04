@@ -11,8 +11,8 @@
     create() {
       let settings = {
         enabled: true,
-        requestWakeLock: false,
-        autoRecoverOverlays: true
+        autoRecoverOverlays: true,
+        requestWakeLock: false
       };
       let activated = false;
 
@@ -225,10 +225,10 @@
         updateSettings(nextSettings) {
           settings = {
             enabled: typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
-            requestWakeLock:
-              typeof nextSettings.requestWakeLock === 'boolean' ? nextSettings.requestWakeLock : false,
             autoRecoverOverlays:
-              typeof nextSettings.autoRecoverOverlays === 'boolean' ? nextSettings.autoRecoverOverlays : true
+              typeof nextSettings.autoRecoverOverlays === 'boolean' ? nextSettings.autoRecoverOverlays : true,
+            requestWakeLock:
+              typeof nextSettings.requestWakeLock === 'boolean' ? nextSettings.requestWakeLock : false
           };
 
           if (settings.enabled) {

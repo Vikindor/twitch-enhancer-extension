@@ -11,12 +11,12 @@
     create(context) {
       let settings = {
         enabled: true,
-        preferredHigh: 1080,
-        preferHighestBitrateMatch: true,
         muteOnLow: true,
         muteTarget: 'tab',
         persistSelection: true,
-        forceUnmuteBothOnHigh: true
+        forceUnmuteBothOnHigh: true,
+        preferredHigh: 1080,
+        preferHighestBitrateMatch: true
       };
 
       function persistQuality(quality) {
@@ -189,14 +189,6 @@
         updateSettings(nextSettings) {
           settings = {
             enabled: typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
-            preferredHigh:
-              typeof nextSettings.preferredHigh === 'number' && Number.isFinite(nextSettings.preferredHigh)
-                ? nextSettings.preferredHigh
-                : null,
-            preferHighestBitrateMatch:
-              typeof nextSettings.preferHighestBitrateMatch === 'boolean'
-                ? nextSettings.preferHighestBitrateMatch
-                : true,
             muteOnLow: typeof nextSettings.muteOnLow === 'boolean' ? nextSettings.muteOnLow : true,
             muteTarget: nextSettings.muteTarget === 'video' ? 'video' : 'tab',
             persistSelection:
@@ -204,7 +196,15 @@
             forceUnmuteBothOnHigh:
               typeof nextSettings.forceUnmuteBothOnHigh === 'boolean'
                 ? nextSettings.forceUnmuteBothOnHigh
-                : false
+                : false,
+            preferredHigh:
+              typeof nextSettings.preferredHigh === 'number' && Number.isFinite(nextSettings.preferredHigh)
+                ? nextSettings.preferredHigh
+                : null,
+            preferHighestBitrateMatch:
+              typeof nextSettings.preferHighestBitrateMatch === 'boolean'
+                ? nextSettings.preferHighestBitrateMatch
+                : true
           };
         },
         handleCommand(command) {

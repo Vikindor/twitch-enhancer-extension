@@ -4,10 +4,11 @@
   const api = globalThis.browser ?? globalThis.chrome;
   const PAGE_SCRIPT_IDS = [
     'modules/toggle-video-quality.js',
-    'modules/force-sort-viewers.js',
-    'modules/show-stream-language.js',
     'modules/auto-claim-bonus.js',
     'modules/keep-tab-active.js',
+    'modules/block-annoyances.js',
+    'modules/show-stream-language.js',
+    'modules/force-sort-viewers.js',
     'page.js'
   ];
 
@@ -15,19 +16,12 @@
     modules: {
       toggleVideoQuality: {
         enabled: true,
-        preferredHigh: 1080,
         muteOnLow: true,
         muteTarget: 'tab',
         persistSelection: true,
-        forceUnmuteBothOnHigh: true
-      },
-      forceSortViewers: {
-        enabled: true,
-        runPolicy: 'perLoad'
-      },
-      showStreamLanguage: {
-        enabled: true,
-        visualMode: 'suffix'
+        forceUnmuteBothOnHigh: true,
+        preferredHigh: 1080,
+        preferHighestBitrateMatch: true
       },
       autoClaimBonus: {
         enabled: true,
@@ -35,8 +29,31 @@
       },
       keepTabActive: {
         enabled: true,
-        requestWakeLock: false,
-        autoRecoverOverlays: true
+        autoRecoverOverlays: true,
+        requestWakeLock: false
+      },
+      blockAnnoyances: {
+        enabled: true,
+        consentBanner: true,
+        newsFromLuna: true,
+        bitsButton: true,
+        storiesLeftPanel: true,
+        chatLeaderboardAndGoals: true,
+        allPlayerExtensions: false,
+        extensionsDockButtons: false,
+        primeBenefitsExtension: false,
+        underPlayerBitsButton: true,
+        giftSubsButton: true,
+        subscribeButton: true,
+        continueSubButton: true
+      },
+      showStreamLanguage: {
+        enabled: true,
+        visualMode: 'suffix'
+      },
+      forceSortViewers: {
+        enabled: true,
+        runPolicy: 'perLoad'
       }
     }
   };
@@ -57,40 +74,37 @@
     const toggle = modules.toggleVideoQuality && typeof modules.toggleVideoQuality === 'object'
       ? modules.toggleVideoQuality
       : {};
-    const sort = modules.forceSortViewers && typeof modules.forceSortViewers === 'object'
-      ? modules.forceSortViewers
-      : {};
-    const language = modules.showStreamLanguage && typeof modules.showStreamLanguage === 'object'
-      ? modules.showStreamLanguage
-      : {};
     const autoClaim = modules.autoClaimBonus && typeof modules.autoClaimBonus === 'object'
       ? modules.autoClaimBonus
       : {};
     const keepActive = modules.keepTabActive && typeof modules.keepTabActive === 'object'
       ? modules.keepTabActive
       : {};
+    const blockAnnoyances = modules.blockAnnoyances && typeof modules.blockAnnoyances === 'object'
+      ? modules.blockAnnoyances
+      : {};
+    const language = modules.showStreamLanguage && typeof modules.showStreamLanguage === 'object'
+      ? modules.showStreamLanguage
+      : {};
+    const sort = modules.forceSortViewers && typeof modules.forceSortViewers === 'object'
+      ? modules.forceSortViewers
+      : {};
 
     fallback.modules.toggleVideoQuality = {
       enabled: typeof toggle.enabled === 'boolean' ? toggle.enabled : true,
-      preferredHigh:
-        typeof toggle.preferredHigh === 'number' && Number.isFinite(toggle.preferredHigh)
-          ? toggle.preferredHigh
-          : null,
       muteOnLow: typeof toggle.muteOnLow === 'boolean' ? toggle.muteOnLow : true,
       muteTarget: toggle.muteTarget === 'video' ? 'video' : 'tab',
       persistSelection: typeof toggle.persistSelection === 'boolean' ? toggle.persistSelection : true,
       forceUnmuteBothOnHigh:
-        typeof toggle.forceUnmuteBothOnHigh === 'boolean' ? toggle.forceUnmuteBothOnHigh : true
-    };
-
-    fallback.modules.forceSortViewers = {
-      enabled: typeof sort.enabled === 'boolean' ? sort.enabled : true,
-      runPolicy: sort.runPolicy === 'perTab' ? 'perTab' : 'perLoad'
-    };
-
-    fallback.modules.showStreamLanguage = {
-      enabled: typeof language.enabled === 'boolean' ? language.enabled : true,
-      visualMode: language.visualMode === 'badge' ? 'badge' : 'suffix'
+        typeof toggle.forceUnmuteBothOnHigh === 'boolean' ? toggle.forceUnmuteBothOnHigh : true,
+      preferredHigh:
+        typeof toggle.preferredHigh === 'number' && Number.isFinite(toggle.preferredHigh)
+          ? toggle.preferredHigh
+          : null,
+      preferHighestBitrateMatch:
+        typeof toggle.preferHighestBitrateMatch === 'boolean'
+          ? toggle.preferHighestBitrateMatch
+          : true
     };
 
     fallback.modules.autoClaimBonus = {
@@ -105,10 +119,62 @@
 
     fallback.modules.keepTabActive = {
       enabled: typeof keepActive.enabled === 'boolean' ? keepActive.enabled : true,
-      requestWakeLock:
-        typeof keepActive.requestWakeLock === 'boolean' ? keepActive.requestWakeLock : false,
       autoRecoverOverlays:
-        typeof keepActive.autoRecoverOverlays === 'boolean' ? keepActive.autoRecoverOverlays : true
+        typeof keepActive.autoRecoverOverlays === 'boolean' ? keepActive.autoRecoverOverlays : true,
+      requestWakeLock:
+        typeof keepActive.requestWakeLock === 'boolean' ? keepActive.requestWakeLock : false
+    };
+
+    fallback.modules.blockAnnoyances = {
+      enabled: typeof blockAnnoyances.enabled === 'boolean' ? blockAnnoyances.enabled : true,
+      consentBanner:
+        typeof blockAnnoyances.consentBanner === 'boolean' ? blockAnnoyances.consentBanner : true,
+      newsFromLuna:
+        typeof blockAnnoyances.newsFromLuna === 'boolean' ? blockAnnoyances.newsFromLuna : true,
+      bitsButton:
+        typeof blockAnnoyances.bitsButton === 'boolean' ? blockAnnoyances.bitsButton : true,
+      storiesLeftPanel:
+        typeof blockAnnoyances.storiesLeftPanel === 'boolean'
+          ? blockAnnoyances.storiesLeftPanel
+          : true,
+      chatLeaderboardAndGoals:
+        typeof blockAnnoyances.chatLeaderboardAndGoals === 'boolean'
+          ? blockAnnoyances.chatLeaderboardAndGoals
+          : true,
+      allPlayerExtensions:
+        typeof blockAnnoyances.allPlayerExtensions === 'boolean'
+          ? blockAnnoyances.allPlayerExtensions
+          : false,
+      extensionsDockButtons:
+        typeof blockAnnoyances.extensionsDockButtons === 'boolean'
+          ? blockAnnoyances.extensionsDockButtons
+          : false,
+      primeBenefitsExtension:
+        typeof blockAnnoyances.primeBenefitsExtension === 'boolean'
+          ? blockAnnoyances.primeBenefitsExtension
+          : false,
+      underPlayerBitsButton:
+        typeof blockAnnoyances.underPlayerBitsButton === 'boolean'
+          ? blockAnnoyances.underPlayerBitsButton
+          : true,
+      giftSubsButton:
+        typeof blockAnnoyances.giftSubsButton === 'boolean' ? blockAnnoyances.giftSubsButton : true,
+      subscribeButton:
+        typeof blockAnnoyances.subscribeButton === 'boolean' ? blockAnnoyances.subscribeButton : true,
+      continueSubButton:
+        typeof blockAnnoyances.continueSubButton === 'boolean'
+          ? blockAnnoyances.continueSubButton
+          : true
+    };
+
+    fallback.modules.showStreamLanguage = {
+      enabled: typeof language.enabled === 'boolean' ? language.enabled : true,
+      visualMode: language.visualMode === 'badge' ? 'badge' : 'suffix'
+    };
+
+    fallback.modules.forceSortViewers = {
+      enabled: typeof sort.enabled === 'boolean' ? sort.enabled : true,
+      runPolicy: sort.runPolicy === 'perTab' ? 'perTab' : 'perLoad'
     };
 
     return fallback;

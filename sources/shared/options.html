@@ -193,6 +193,118 @@
           <div class="panel-content">
             <div class="module-header">
               <div class="module-copy">
+                <h2>Block Annoyances</h2>
+                <p>Hides selected Twitch interface elements that are distracting or unnecessary</p>
+              </div>
+              <div class="module-toggle">
+                <input id="annoyances-enabled" type="checkbox">
+                <label for="annoyances-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="blockAnnoyances">
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-consentBanner" type="checkbox">
+                  <label for="annoyances-consentBanner">Cookies consent banner</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-newsFromLuna" type="checkbox">
+                  <label for="annoyances-newsFromLuna">Header: News from Luna button</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-bitsButton" type="checkbox">
+                  <label for="annoyances-bitsButton">Header: Bits button</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-storiesLeftPanel" type="checkbox">
+                  <label for="annoyances-storiesLeftPanel">Left panel: Stories</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-chatLeaderboardAndGoals" type="checkbox">
+                  <label for="annoyances-chatLeaderboardAndGoals">Chat: Leaderboard and goals panel</label>
+                </div>
+              </div>
+
+              <div class="settings-tree">
+                <div class="field tree-root-field">
+                  <div class="checkbox">
+                    <input id="annoyances-allPlayerExtensions" type="checkbox">
+                    <div class="checkbox-copy">
+                      <label for="annoyances-allPlayerExtensions">Player: Extensions</label>
+                      <div class="tooltip">
+                        <button class="tooltip-trigger" type="button" aria-label="More information about blocking player extensions">i</button>
+                        <div class="tooltip-bubble" role="tooltip">
+                          Enable this option to block all player extensions, including potentially useful ones.<br>
+                          Alternatively, leave it disabled and select individual extensions below.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field nested-field" data-player-extension-setting>
+                  <div class="checkbox">
+                    <input id="annoyances-extensionsDockButtons" type="checkbox">
+                    <div class="checkbox-copy">
+                      <label for="annoyances-extensionsDockButtons">Extension dock buttons</label>
+                      <div class="tooltip">
+                        <button class="tooltip-trigger" type="button" aria-label="More information about extension dock buttons">i</button>
+                        <div class="tooltip-bubble" role="tooltip">
+                          Small extension buttons displayed along the right side of the player.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field nested-field" data-player-extension-setting>
+                  <div class="checkbox">
+                    <input id="annoyances-primeBenefitsExtension" type="checkbox">
+                    <label for="annoyances-primeBenefitsExtension">Prime Benefits dropdown button</label>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-underPlayerBitsButton" type="checkbox">
+                  <label for="annoyances-underPlayerBitsButton">Channel header: Bits button</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-giftSubsButton" type="checkbox">
+                  <label for="annoyances-giftSubsButton">Channel header: Gift Subs button</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-subscribeButton" type="checkbox">
+                  <label for="annoyances-subscribeButton">Channel header: Subscribe button</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="checkbox">
+                  <input id="annoyances-continueSubButton" type="checkbox">
+                  <label for="annoyances-continueSubButton">Channel header: Continue Sub button</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
                 <h2>Show Stream Language</h2>
                 <p>Automatically shows the stream language either next to the channel name or on the preview card</p>
               </div>
