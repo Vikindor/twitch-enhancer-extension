@@ -34,7 +34,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Can dismiss Twitch overlays such as `Start Watching` and network errors
 - Can request a screen wake lock when supported
 
-### 4️⃣ Block Annoyances
+### 4️⃣ Block Annoyances (Disabled by default)
 
 - Hides selected Twitch UI elements without blocking ads or modifying stream delivery
 - Provides a separate checkbox for each supported element:
