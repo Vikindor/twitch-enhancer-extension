@@ -15,7 +15,7 @@
         muteTarget: 'tab',
         persistSelection: true,
         forceUnmuteBothOnHigh: true,
-        preferredHigh: 1080,
+        preferredHigh: null,
         preferHighestBitrateMatch: true
       };
 

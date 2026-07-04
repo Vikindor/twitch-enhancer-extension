@@ -25,7 +25,7 @@
     id: 'blockAnnoyances',
     create() {
       function applySettings(settings) {
-        const enabled = settings.enabled !== false;
+        const enabled = settings.enabled === true;
 
         for (const [id, attribute] of Object.entries(ANNOYANCE_ATTRIBUTES)) {
           document.documentElement.toggleAttribute(attribute, enabled && settings[id] !== false);

@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS = {
       muteTarget: 'tab',
       persistSelection: true,
       forceUnmuteBothOnHigh: true,
-      preferredHigh: 1080,
+      preferredHigh: null,
       preferHighestBitrateMatch: true
     },
     autoClaimBonus: {
@@ -21,7 +21,7 @@ const DEFAULT_SETTINGS = {
       requestWakeLock: false
     },
     blockAnnoyances: {
-      enabled: true,
+      enabled: false,
       consentBanner: true,
       newsFromLuna: true,
       bitsButton: true,
@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS = {
       chatLeaderboardAndGoals: true,
       allPlayerExtensions: false,
       extensionsDockButtons: false,
-      primeBenefitsExtension: false,
+      primeBenefitsExtension: true,
       underPlayerBitsButton: true,
       giftSubsButton: true,
       subscribeButton: true,
@@ -93,7 +93,7 @@ function normalizePreferredHighInput(value) {
 
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed)) {
-    return 1080;
+    return null;
   }
 
   if (parsed < 160) {
@@ -227,7 +227,7 @@ async function loadOptions() {
   setModuleDisabledState('keepTabActive', keepActive.enabled === true);
 
   const blockAnnoyances = modules.blockAnnoyances || DEFAULT_SETTINGS.modules.blockAnnoyances;
-  document.getElementById('annoyances-enabled').checked = blockAnnoyances.enabled !== false;
+  document.getElementById('annoyances-enabled').checked = blockAnnoyances.enabled === true;
   document.getElementById('annoyances-consentBanner').checked = blockAnnoyances.consentBanner !== false;
   document.getElementById('annoyances-newsFromLuna').checked = blockAnnoyances.newsFromLuna !== false;
   document.getElementById('annoyances-bitsButton').checked = blockAnnoyances.bitsButton !== false;
@@ -240,14 +240,14 @@ async function loadOptions() {
   document.getElementById('annoyances-extensionsDockButtons').checked =
     blockAnnoyances.extensionsDockButtons === true;
   document.getElementById('annoyances-primeBenefitsExtension').checked =
-    blockAnnoyances.primeBenefitsExtension === true;
+    blockAnnoyances.primeBenefitsExtension !== false;
   document.getElementById('annoyances-underPlayerBitsButton').checked =
     blockAnnoyances.underPlayerBitsButton !== false;
   document.getElementById('annoyances-giftSubsButton').checked = blockAnnoyances.giftSubsButton !== false;
   document.getElementById('annoyances-subscribeButton').checked = blockAnnoyances.subscribeButton !== false;
   document.getElementById('annoyances-continueSubButton').checked =
     blockAnnoyances.continueSubButton !== false;
-  setModuleDisabledState('blockAnnoyances', blockAnnoyances.enabled !== false);
+  setModuleDisabledState('blockAnnoyances', blockAnnoyances.enabled === true);
   syncBlockAnnoyancesDependencies();
 
   const language = modules.showStreamLanguage || DEFAULT_SETTINGS.modules.showStreamLanguage;

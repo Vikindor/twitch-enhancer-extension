@@ -6,7 +6,7 @@ const DEFAULT_SETTINGS = {
       muteTarget: 'tab',
       persistSelection: true,
       forceUnmuteBothOnHigh: true,
-      preferredHigh: 1080,
+      preferredHigh: null,
       preferHighestBitrateMatch: true
     },
     autoClaimBonus: {
@@ -19,7 +19,7 @@ const DEFAULT_SETTINGS = {
       requestWakeLock: false
     },
     blockAnnoyances: {
-      enabled: true,
+      enabled: false,
       consentBanner: true,
       newsFromLuna: true,
       bitsButton: true,
@@ -27,7 +27,7 @@ const DEFAULT_SETTINGS = {
       chatLeaderboardAndGoals: true,
       allPlayerExtensions: false,
       extensionsDockButtons: false,
-      primeBenefitsExtension: false,
+      primeBenefitsExtension: true,
       underPlayerBitsButton: true,
       giftSubsButton: true,
       subscribeButton: true,

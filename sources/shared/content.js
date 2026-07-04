@@ -20,7 +20,7 @@
         muteTarget: 'tab',
         persistSelection: true,
         forceUnmuteBothOnHigh: true,
-        preferredHigh: 1080,
+        preferredHigh: null,
         preferHighestBitrateMatch: true
       },
       autoClaimBonus: {
@@ -33,7 +33,7 @@
         requestWakeLock: false
       },
       blockAnnoyances: {
-        enabled: true,
+        enabled: false,
         consentBanner: true,
         newsFromLuna: true,
         bitsButton: true,
@@ -41,7 +41,7 @@
         chatLeaderboardAndGoals: true,
         allPlayerExtensions: false,
         extensionsDockButtons: false,
-        primeBenefitsExtension: false,
+        primeBenefitsExtension: true,
         underPlayerBitsButton: true,
         giftSubsButton: true,
         subscribeButton: true,
@@ -126,7 +126,7 @@
     };
 
     fallback.modules.blockAnnoyances = {
-      enabled: typeof blockAnnoyances.enabled === 'boolean' ? blockAnnoyances.enabled : true,
+      enabled: typeof blockAnnoyances.enabled === 'boolean' ? blockAnnoyances.enabled : false,
       consentBanner:
         typeof blockAnnoyances.consentBanner === 'boolean' ? blockAnnoyances.consentBanner : true,
       newsFromLuna:
@@ -152,7 +152,7 @@
       primeBenefitsExtension:
         typeof blockAnnoyances.primeBenefitsExtension === 'boolean'
           ? blockAnnoyances.primeBenefitsExtension
-          : false,
+          : true,
       underPlayerBitsButton:
         typeof blockAnnoyances.underPlayerBitsButton === 'boolean'
           ? blockAnnoyances.underPlayerBitsButton
