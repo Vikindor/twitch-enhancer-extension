@@ -4,7 +4,7 @@
 
 Modular browser extension for Twitch that combines several quality-of-life improvements in one place. Designed as a unified replacement for multiple separate Twitch userscripts, it offers shared settings, per-module toggles, and separate builds for **Chrome/Chromium** and **Firefox**.
 
-It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers), [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language), [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), and the new **Auto Claim Channel Points** feature.
+It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), **Auto Claim Bonus**, [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), **Block Annoyances**, [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language), and [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers).
 
 Especially useful for people who like to **keep streams running in the background** to support streamers, farm **channel points**, or keep streams running for **Drops** with less manual babysitting.
 
@@ -34,14 +34,27 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Can dismiss Twitch overlays such as `Start Watching` and network errors
 - Can request a screen wake lock when supported
 
-### 4️⃣ Show Stream Language
+### 4️⃣ Block Annoyances
+
+- Hides selected Twitch UI elements without blocking ads or modifying stream delivery
+- Provides a separate checkbox for each supported element:
+  - Cookies consent banner
+  - Header buttons for News from Luna and Bits
+  - Stories in the left navigation panel
+  - Chat leaderboard and goals panel
+  - Player extensions
+  - Channel header buttons for Bits, Gift Subs, Subscribe, and Continue Sub
+- Can block all player extensions at once, including potentially useful ones
+- Alternatively, can block only extension dock buttons or the Prime Benefits dropdown
+
+### 5️⃣ Show Stream Language
 
 <img src="media/show_stream_language.jpg" width="100%" alt="Show Stream Language screenshot" title="Show Stream Language"/>
 
 - Displays the stream language like `[EN]` / `[JA]` / etc.
 - Two visual modes: a badge on the preview card or a suffix next to the streamer's username
 
-### 5️⃣ Force Sort Viewers
+### 6️⃣ Force Sort Viewers
 
 <img src="media/force_sort_viewers.jpg" width="100%" alt="Force Sort Viewers screenshot" title="Force Sort Viewers"/>
 
