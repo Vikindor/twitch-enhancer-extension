@@ -4,7 +4,7 @@
 
 Modular browser extension for Twitch that combines several quality-of-life improvements in one place. Designed as a unified replacement for multiple separate Twitch userscripts, it offers shared settings, per-module toggles, and separate builds for **Chrome/Chromium** and **Firefox**.
 
-It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), **Auto Claim Bonus**, [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), **Block Annoyances**, [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language), and [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers).
+It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), **Auto Claim Bonus**, **Block Annoyances**, [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers), and [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language).
 
 Especially useful for people who like to **keep streams running in the background** to support streamers, farm **channel points**, or keep streams running for **Drops** with less manual babysitting.
 
@@ -12,27 +12,27 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ## ✨ Features
 
-### 1️⃣ Toggle Video Quality
+<img src="media/screenshot_1.jpg" width="75%" alt="Features screenshot 1" title="Features"/>
 
-<img src="media/toggle_video_quality.jpg" width="75%" alt="Toggle Video Quality screenshot" title="Toggle Video Quality"/>
+### 1️⃣ Toggle Video Quality
 
 - **Main action-button feature (LMB click on extension icon)**
 - Switches between low and preferred high quality
 - Supports tab mute or player mute
 - Can restore both tab and player audio when returning to high quality
 
-### 2️⃣ Auto Claim Bonus
-
-<img src="media/auto_claim_bonus.jpg" width="75%" alt="Auto Claim Bonus screenshot" title="Auto Claim Bonus"/>
-
-- Polls for the `Claim Bonus` button under the chat
-- Claims channel points bonuses automatically
-
-### 3️⃣ Keep Tab Active
+### 2️⃣ Keep Tab Active
 
 - Multiple strategies to keep streams alive in the background
 - Can dismiss Twitch overlays such as `Start Watching` and network errors
 - Can request a screen wake lock when supported
+
+<img src="media/screenshot_2.jpg" width="75%" alt="Features screenshot 2" title="Features"/>
+
+### 3️⃣ Auto Claim Bonus
+
+- Polls for the `Claim Bonus` button under the chat
+- Claims channel points bonuses automatically
 
 ### 4️⃣ Block Annoyances (Disabled by default)
 
@@ -47,19 +47,19 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Can block all player extensions at once, including potentially useful ones
 - Alternatively, can block only extension dock buttons or the Prime Benefits dropdown
 
-### 5️⃣ Show Stream Language
+<img src="media/screenshot_3.jpg" width="75%" alt="Features screenshot 3" title="Features"/>
+
+### 5️⃣ Force Sort Viewers
+
+- Nudges Twitch directory pages toward `Viewers: High to Low` sorting
+- Supports per-load and per-tab-session run policies
+
+### 6️⃣ Show Stream Language
 
 <img src="media/show_stream_language.jpg" width="100%" alt="Show Stream Language screenshot" title="Show Stream Language"/>
 
 - Displays the stream language like `[EN]` / `[JA]` / etc.
 - Two visual modes: a badge on the preview card or a suffix next to the streamer's username
-
-### 6️⃣ Force Sort Viewers
-
-<img src="media/force_sort_viewers.jpg" width="100%" alt="Force Sort Viewers screenshot" title="Force Sort Viewers"/>
-
-- Nudges Twitch directory pages toward `Viewers: High to Low` sorting
-- Supports per-load and per-tab-session run policies
 
 ## 🚀 Installation
 
