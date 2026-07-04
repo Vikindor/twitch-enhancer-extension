@@ -62,7 +62,6 @@ Especially useful for people who like to **keep streams running in the backgroun
 ### ➕ Per-module settings and toggles in a shared options page
 
 <img src="media/screenshot_4_firefox.jpg" width="75%" alt="Options Firefox screenshot 4" title="Firefox"/>
-<br>
 <img src="media/screenshot_4_google.jpg" width="75%" alt="Options Google screenshot 4" title="Google/Brave"/>
 
 ## 🚀 Installation
