@@ -34,7 +34,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Polls for the `Claim Bonus` button under the chat
 - Claims channel points bonuses automatically
 
-### 4️⃣ Block Annoyances (Disabled by default)
+### 4️⃣ Block Annoyances (disabled by default)
 
 - Hides selected Twitch UI elements without blocking ads or modifying stream delivery
 - Provides a separate checkbox for each supported element:
@@ -56,10 +56,14 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 ### 6️⃣ Show Stream Language
 
-<img src="media/show_stream_language.jpg" width="100%" alt="Show Stream Language screenshot" title="Show Stream Language"/>
-
 - Displays the stream language like `[EN]` / `[JA]` / etc.
 - Two visual modes: a badge on the preview card or a suffix next to the streamer's username
+
+### ➕ Per-module settings and toggles in a shared options page
+
+<img src="media/screenshot_4_firefox.jpg" width="75%" alt="Options Firefox screenshot 4" title="Firefox"/>
+<br>
+<img src="media/screenshot_4_google.jpg" width="75%" alt="Options Google screenshot 4" title="Google/Brave"/>
 
 ## 🚀 Installation
 
