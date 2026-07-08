@@ -34,6 +34,7 @@
       },
       blockAnnoyances: {
         enabled: false,
+        autoPausePromotedStreams: true,
         consentBanner: true,
         newsFromLuna: true,
         bitsButton: true,
@@ -127,6 +128,10 @@
 
     fallback.modules.blockAnnoyances = {
       enabled: typeof blockAnnoyances.enabled === 'boolean' ? blockAnnoyances.enabled : false,
+      autoPausePromotedStreams:
+        typeof blockAnnoyances.autoPausePromotedStreams === 'boolean'
+          ? blockAnnoyances.autoPausePromotedStreams
+          : true,
       consentBanner:
         typeof blockAnnoyances.consentBanner === 'boolean' ? blockAnnoyances.consentBanner : true,
       newsFromLuna:

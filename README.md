@@ -38,6 +38,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 - Hides selected Twitch UI elements without blocking ads or modifying stream delivery
 - Provides a separate checkbox for each supported element:
+  - Auto-pause promoted streams on the homepage
   - Cookies consent banner
   - Header buttons for News from Luna and Bits
   - Stories in the left navigation panel

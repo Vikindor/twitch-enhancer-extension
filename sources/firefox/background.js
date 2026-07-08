@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS = {
     },
     blockAnnoyances: {
       enabled: false,
+      autoPausePromotedStreams: true,
       consentBanner: true,
       newsFromLuna: true,
       bitsButton: true,

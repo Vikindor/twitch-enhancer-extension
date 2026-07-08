@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS = {
     },
     blockAnnoyances: {
       enabled: false,
+      autoPausePromotedStreams: true,
       consentBanner: true,
       newsFromLuna: true,
       bitsButton: true,
@@ -228,6 +229,8 @@ async function loadOptions() {
 
   const blockAnnoyances = modules.blockAnnoyances || DEFAULT_SETTINGS.modules.blockAnnoyances;
   document.getElementById('annoyances-enabled').checked = blockAnnoyances.enabled === true;
+  document.getElementById('annoyances-autoPausePromotedStreams').checked =
+    blockAnnoyances.autoPausePromotedStreams !== false;
   document.getElementById('annoyances-consentBanner').checked = blockAnnoyances.consentBanner !== false;
   document.getElementById('annoyances-newsFromLuna').checked = blockAnnoyances.newsFromLuna !== false;
   document.getElementById('annoyances-bitsButton').checked = blockAnnoyances.bitsButton !== false;
@@ -295,6 +298,8 @@ async function saveOptions() {
       },
       blockAnnoyances: {
         enabled: document.getElementById('annoyances-enabled').checked,
+        autoPausePromotedStreams:
+          document.getElementById('annoyances-autoPausePromotedStreams').checked,
         consentBanner: document.getElementById('annoyances-consentBanner').checked,
         newsFromLuna: document.getElementById('annoyances-newsFromLuna').checked,
         bitsButton: document.getElementById('annoyances-bitsButton').checked,
