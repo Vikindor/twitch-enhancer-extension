@@ -290,6 +290,10 @@ p {
   max-width: 620px;
 }
 
+.module-section-description {
+  margin-top: 24px;
+}
+
 .module-toggle {
   display: inline-flex;
   align-items: center;
