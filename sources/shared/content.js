@@ -11,6 +11,21 @@
     'modules/force-sort-viewers.js',
     'page.js'
   ];
+  const ANNOYANCE_ATTRIBUTES = {
+    consentBanner: 'data-twitch-enhancer-block-consent-banner',
+    newsFromLuna: 'data-twitch-enhancer-block-news-from-luna',
+    bitsButton: 'data-twitch-enhancer-block-bits-button',
+    storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
+    chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
+    allPlayerExtensions: 'data-twitch-enhancer-block-all-player-extensions',
+    extensionsDockButtons: 'data-twitch-enhancer-block-extensions-dock-buttons',
+    primeBenefitsExtension: 'data-twitch-enhancer-block-prime-benefits-extension',
+    underPlayerBitsButton: 'data-twitch-enhancer-block-under-player-bits-button',
+    giftSubsButton: 'data-twitch-enhancer-block-gift-subs-button',
+    subscribeButton: 'data-twitch-enhancer-block-subscribe-button',
+    continueSubButton: 'data-twitch-enhancer-block-continue-sub-button'
+  };
+  const isTwitchExtensionFrame = /\.ext-twitch\.tv$/i.test(window.location.hostname);
 
   const DEFAULT_SETTINGS = {
     modules: {
@@ -194,6 +209,40 @@
       ok: false,
       error: String(error)
     }));
+  }
+
+  function applyAnnoyanceAttributes(settings) {
+    const blockAnnoyances = settings.modules.blockAnnoyances;
+    const enabled = blockAnnoyances.enabled === true;
+
+    for (const [id, attribute] of Object.entries(ANNOYANCE_ATTRIBUTES)) {
+      document.documentElement.toggleAttribute(
+        attribute,
+        enabled && blockAnnoyances[id] !== false
+      );
+    }
+  }
+
+  async function syncSettingsToFrame() {
+    const stored = await storageGet(DEFAULT_SETTINGS);
+    const settings = normalizeSettings(stored);
+    applyAnnoyanceAttributes(settings);
+  }
+
+  if (isTwitchExtensionFrame) {
+    syncSettingsToFrame().catch(() => {});
+
+    if (api.storage && api.storage.onChanged && typeof api.storage.onChanged.addListener === 'function') {
+      api.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName !== 'sync' || !changes.modules) {
+          return;
+        }
+
+        syncSettingsToFrame().catch(() => {});
+      });
+    }
+
+    return;
   }
 
   function injectPageScripts() {

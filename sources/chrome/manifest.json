@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Enhancer",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Make Twitch better for background watching, drops, and channel points",
   "icons": {
     "16": "icons/icon_16.png",
@@ -15,7 +15,8 @@
   "host_permissions": [
     "https://www.twitch.tv/*",
     "https://player.twitch.tv/*",
-    "https://embed.twitch.tv/*"
+    "https://embed.twitch.tv/*",
+    "https://*.ext-twitch.tv/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -34,6 +35,19 @@
         "modules/block-annoyances.css"
       ],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://*.ext-twitch.tv/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "modules/block-annoyances.css"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
     }
   ],
   "web_accessible_resources": [
