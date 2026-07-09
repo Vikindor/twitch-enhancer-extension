@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS = {
       consentBanner: true,
       newsFromLuna: true,
       bitsButton: true,
+      goAdFreeButton: true,
       storiesLeftPanel: true,
       chatLeaderboardAndGoals: true,
       allPlayerExtensions: false,

@@ -10,6 +10,7 @@
     consentBanner: 'data-twitch-enhancer-block-consent-banner',
     newsFromLuna: 'data-twitch-enhancer-block-news-from-luna',
     bitsButton: 'data-twitch-enhancer-block-bits-button',
+    goAdFreeButton: 'data-twitch-enhancer-block-go-ad-free-button',
     storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
     allPlayerExtensions: 'data-twitch-enhancer-block-all-player-extensions',

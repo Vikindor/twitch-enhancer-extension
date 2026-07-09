@@ -40,7 +40,7 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Provides a separate checkbox for each supported element:
   - Auto-pause promoted streams on the homepage
   - Cookies consent banner
-  - Header buttons for News from Luna and Bits
+  - Header buttons for News from Luna, Bits, and Go Ad-Free
   - Stories in the left navigation panel
   - Chat leaderboard and goals panel
   - Player extensions

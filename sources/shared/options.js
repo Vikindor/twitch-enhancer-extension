@@ -26,6 +26,7 @@ const DEFAULT_SETTINGS = {
       consentBanner: true,
       newsFromLuna: true,
       bitsButton: true,
+      goAdFreeButton: true,
       storiesLeftPanel: true,
       chatLeaderboardAndGoals: true,
       allPlayerExtensions: false,
@@ -234,6 +235,8 @@ async function loadOptions() {
   document.getElementById('annoyances-consentBanner').checked = blockAnnoyances.consentBanner !== false;
   document.getElementById('annoyances-newsFromLuna').checked = blockAnnoyances.newsFromLuna !== false;
   document.getElementById('annoyances-bitsButton').checked = blockAnnoyances.bitsButton !== false;
+  document.getElementById('annoyances-goAdFreeButton').checked =
+    blockAnnoyances.goAdFreeButton !== false;
   document.getElementById('annoyances-storiesLeftPanel').checked =
     blockAnnoyances.storiesLeftPanel !== false;
   document.getElementById('annoyances-chatLeaderboardAndGoals').checked =
@@ -303,6 +306,7 @@ async function saveOptions() {
         consentBanner: document.getElementById('annoyances-consentBanner').checked,
         newsFromLuna: document.getElementById('annoyances-newsFromLuna').checked,
         bitsButton: document.getElementById('annoyances-bitsButton').checked,
+        goAdFreeButton: document.getElementById('annoyances-goAdFreeButton').checked,
         storiesLeftPanel: document.getElementById('annoyances-storiesLeftPanel').checked,
         chatLeaderboardAndGoals:
           document.getElementById('annoyances-chatLeaderboardAndGoals').checked,

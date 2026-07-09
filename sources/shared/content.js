@@ -15,6 +15,7 @@
     consentBanner: 'data-twitch-enhancer-block-consent-banner',
     newsFromLuna: 'data-twitch-enhancer-block-news-from-luna',
     bitsButton: 'data-twitch-enhancer-block-bits-button',
+    goAdFreeButton: 'data-twitch-enhancer-block-go-ad-free-button',
     storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
     allPlayerExtensions: 'data-twitch-enhancer-block-all-player-extensions',
@@ -53,6 +54,7 @@
         consentBanner: true,
         newsFromLuna: true,
         bitsButton: true,
+        goAdFreeButton: true,
         storiesLeftPanel: true,
         chatLeaderboardAndGoals: true,
         allPlayerExtensions: false,
@@ -153,6 +155,10 @@
         typeof blockAnnoyances.newsFromLuna === 'boolean' ? blockAnnoyances.newsFromLuna : true,
       bitsButton:
         typeof blockAnnoyances.bitsButton === 'boolean' ? blockAnnoyances.bitsButton : true,
+      goAdFreeButton:
+        typeof blockAnnoyances.goAdFreeButton === 'boolean'
+          ? blockAnnoyances.goAdFreeButton
+          : true,
       storiesLeftPanel:
         typeof blockAnnoyances.storiesLeftPanel === 'boolean'
           ? blockAnnoyances.storiesLeftPanel
