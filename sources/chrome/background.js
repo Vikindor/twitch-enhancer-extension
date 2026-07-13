@@ -18,6 +18,9 @@ const DEFAULT_SETTINGS = {
       autoRecoverOverlays: true,
       requestWakeLock: false
     },
+    chatReplyPreview: {
+      enabled: true
+    },
     blockAnnoyances: {
       enabled: false,
       autoPausePromotedStreams: true,
@@ -63,6 +66,10 @@ async function ensureDefaults() {
       keepTabActive: {
         ...DEFAULT_SETTINGS.modules.keepTabActive,
         ...(modules.keepTabActive || {})
+      },
+      chatReplyPreview: {
+        ...DEFAULT_SETTINGS.modules.chatReplyPreview,
+        ...(modules.chatReplyPreview || {})
       },
       blockAnnoyances: {
         ...DEFAULT_SETTINGS.modules.blockAnnoyances,

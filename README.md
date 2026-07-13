@@ -4,7 +4,7 @@
 
 Modular browser extension for Twitch that combines several quality-of-life improvements in one place. Designed as a unified replacement for multiple separate Twitch userscripts, it offers shared settings, per-module toggles, and separate builds for **Chrome/Chromium** and **Firefox**.
 
-It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), **Auto Claim Bonus**, **Block Annoyances**, [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers), and [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language).
+It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), **Chat Reply Preview**, **Auto Claim Bonus**, **Block Annoyances**, [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers), and [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language).
 
 Especially useful for people who like to **keep streams running in the background** to support streamers, farm **channel points**, or keep streams running for **Drops** with less manual babysitting.
 
@@ -29,12 +29,18 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 <img src="media/screenshot_2.jpg" width="75%" alt="Features screenshot 2" title="Features"/>
 
-### 3️⃣ Auto Claim Bonus
+### 3️⃣ Chat Reply Preview
+
+- Makes Twitch chat's `Replying to ...` labels clickable
+- Shows the original message's full text in a popup
+- Keeps popup text selectable for easy copying
+
+### 4️⃣ Auto Claim Bonus
 
 - Polls for the `Claim Bonus` button under the chat
 - Claims channel points bonuses automatically
 
-### 4️⃣ Block Annoyances (disabled by default)
+### 5️⃣ Block Annoyances (disabled by default)
 
 - Hides selected Twitch UI elements without blocking ads or modifying stream delivery
 - Provides a separate checkbox for each supported element:
@@ -50,12 +56,12 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 <img src="media/screenshot_3.jpg" width="75%" alt="Features screenshot 3" title="Features"/>
 
-### 5️⃣ Force Sort Viewers
+### 6️⃣ Force Sort Viewers
 
 - Nudges Twitch directory pages toward `Viewers: High to Low` sorting
 - Supports per-load and per-tab-session run policies
 
-### 6️⃣ Show Stream Language
+### 7️⃣ Show Stream Language
 
 - Displays the stream language like `[EN]` / `[JA]` / etc.
 - Two visual modes: a badge on the preview card or a suffix next to the streamer's username

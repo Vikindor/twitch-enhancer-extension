@@ -6,6 +6,7 @@
     'modules/toggle-video-quality.js',
     'modules/auto-claim-bonus.js',
     'modules/keep-tab-active.js',
+    'modules/chat-reply-preview.js',
     'modules/block-annoyances.js',
     'modules/show-stream-language.js',
     'modules/force-sort-viewers.js',
@@ -47,6 +48,9 @@
         enabled: true,
         autoRecoverOverlays: true,
         requestWakeLock: false
+      },
+      chatReplyPreview: {
+        enabled: true
       },
       blockAnnoyances: {
         enabled: false,
@@ -98,6 +102,9 @@
     const keepActive = modules.keepTabActive && typeof modules.keepTabActive === 'object'
       ? modules.keepTabActive
       : {};
+    const replyPreview = modules.chatReplyPreview && typeof modules.chatReplyPreview === 'object'
+      ? modules.chatReplyPreview
+      : {};
     const blockAnnoyances = modules.blockAnnoyances && typeof modules.blockAnnoyances === 'object'
       ? modules.blockAnnoyances
       : {};
@@ -141,6 +148,10 @@
         typeof keepActive.autoRecoverOverlays === 'boolean' ? keepActive.autoRecoverOverlays : true,
       requestWakeLock:
         typeof keepActive.requestWakeLock === 'boolean' ? keepActive.requestWakeLock : false
+    };
+
+    fallback.modules.chatReplyPreview = {
+      enabled: typeof replyPreview.enabled === 'boolean' ? replyPreview.enabled : true
     };
 
     fallback.modules.blockAnnoyances = {

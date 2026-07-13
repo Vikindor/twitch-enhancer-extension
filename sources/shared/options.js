@@ -20,6 +20,9 @@ const DEFAULT_SETTINGS = {
       autoRecoverOverlays: true,
       requestWakeLock: false
     },
+    chatReplyPreview: {
+      enabled: true
+    },
     blockAnnoyances: {
       enabled: false,
       autoPausePromotedStreams: true,
@@ -228,6 +231,10 @@ async function loadOptions() {
   document.getElementById('keep-requestWakeLock').checked = keepActive.requestWakeLock !== false;
   setModuleDisabledState('keepTabActive', keepActive.enabled === true);
 
+  const replyPreview = modules.chatReplyPreview || DEFAULT_SETTINGS.modules.chatReplyPreview;
+  document.getElementById('reply-preview-enabled').checked = replyPreview.enabled !== false;
+  setModuleDisabledState('chatReplyPreview', replyPreview.enabled !== false);
+
   const blockAnnoyances = modules.blockAnnoyances || DEFAULT_SETTINGS.modules.blockAnnoyances;
   document.getElementById('annoyances-enabled').checked = blockAnnoyances.enabled === true;
   document.getElementById('annoyances-autoPausePromotedStreams').checked =
@@ -298,6 +305,9 @@ async function saveOptions() {
         enabled: document.getElementById('keep-enabled').checked,
         autoRecoverOverlays: document.getElementById('keep-autoRecoverOverlays').checked,
         requestWakeLock: document.getElementById('keep-requestWakeLock').checked
+      },
+      chatReplyPreview: {
+        enabled: document.getElementById('reply-preview-enabled').checked
       },
       blockAnnoyances: {
         enabled: document.getElementById('annoyances-enabled').checked,
@@ -380,6 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('keep-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('keepTabActive', event.target.checked);
+  });
+  document.getElementById('reply-preview-enabled').addEventListener('change', (event) => {
+    setModuleDisabledState('chatReplyPreview', event.target.checked);
   });
   document.getElementById('annoyances-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('blockAnnoyances', event.target.checked);
