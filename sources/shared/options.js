@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS = {
       goAdFreeButton: true,
       storiesLeftPanel: true,
       chatLeaderboardAndGoals: true,
+      stickyCommunityHighlight: true,
       allPlayerExtensions: false,
       extensionsDockButtons: false,
       primeBenefitsExtension: true,
@@ -248,6 +249,8 @@ async function loadOptions() {
     blockAnnoyances.storiesLeftPanel !== false;
   document.getElementById('annoyances-chatLeaderboardAndGoals').checked =
     blockAnnoyances.chatLeaderboardAndGoals !== false;
+  document.getElementById('annoyances-stickyCommunityHighlight').checked =
+    blockAnnoyances.stickyCommunityHighlight !== false;
   document.getElementById('annoyances-allPlayerExtensions').checked =
     blockAnnoyances.allPlayerExtensions === true;
   document.getElementById('annoyances-extensionsDockButtons').checked =
@@ -320,6 +323,8 @@ async function saveOptions() {
         storiesLeftPanel: document.getElementById('annoyances-storiesLeftPanel').checked,
         chatLeaderboardAndGoals:
           document.getElementById('annoyances-chatLeaderboardAndGoals').checked,
+        stickyCommunityHighlight:
+          document.getElementById('annoyances-stickyCommunityHighlight').checked,
         allPlayerExtensions: document.getElementById('annoyances-allPlayerExtensions').checked,
         extensionsDockButtons:
           document.getElementById('annoyances-extensionsDockButtons').checked,

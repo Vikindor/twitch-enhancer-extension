@@ -11,6 +11,7 @@ html[data-twitch-enhancer-block-go-ad-free-button]
 html[data-twitch-enhancer-block-stories-left-panel] [class*="storiesLeftNavSection"],
 html[data-twitch-enhancer-block-chat-leaderboard-and-goals]
   .chat-room__content > div:has(> div > div > div > .tw-transition-group),
+html[data-twitch-enhancer-block-sticky-community-highlight] .sticky-community-highlight,
 html[data-twitch-enhancer-block-all-player-extensions]
   .video-player__overlay > div:has(> div > .extensions-video-overlay-size-container),
 html[data-twitch-enhancer-block-extensions-dock-buttons] .extensions-dock__layout,

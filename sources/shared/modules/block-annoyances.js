@@ -13,6 +13,7 @@
     goAdFreeButton: 'data-twitch-enhancer-block-go-ad-free-button',
     storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
+    stickyCommunityHighlight: 'data-twitch-enhancer-block-sticky-community-highlight',
     allPlayerExtensions: 'data-twitch-enhancer-block-all-player-extensions',
     extensionsDockButtons: 'data-twitch-enhancer-block-extensions-dock-buttons',
     primeBenefitsExtension: 'data-twitch-enhancer-block-prime-benefits-extension',

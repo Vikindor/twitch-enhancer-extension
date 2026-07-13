@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS = {
       goAdFreeButton: true,
       storiesLeftPanel: true,
       chatLeaderboardAndGoals: true,
+      stickyCommunityHighlight: true,
       allPlayerExtensions: false,
       extensionsDockButtons: false,
       primeBenefitsExtension: true,
