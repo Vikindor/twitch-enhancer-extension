@@ -36,6 +36,7 @@
           .twitch-enhancer-reply-preview-popup {
             position: fixed;
             z-index: 999999;
+            box-sizing: border-box;
             max-width: min(42rem, calc(100vw - 2rem));
             padding: 0.75rem 0.9rem;
             border: 1px solid rgba(255, 255, 255, 0.16);
@@ -43,8 +44,6 @@
             background: #18181b;
             color: #efeff1;
             box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.45);
-            font-size: 1.3rem;
-            line-height: 1.35;
             white-space: normal;
             overflow-wrap: anywhere;
           }
@@ -52,7 +51,6 @@
           .twitch-enhancer-reply-preview-popup__title {
             margin-bottom: 0.35rem;
             color: #adadb8;
-            font-size: 1.2rem;
           }
         `;
         (document.head || document.documentElement).appendChild(style);
@@ -139,12 +137,18 @@
         }
 
         const rect = anchor.getBoundingClientRect();
+        const chatRect = anchor.closest('.chat-room__content')?.getBoundingClientRect();
         const margin = 8;
+        const boundaryLeft = chatRect?.left ?? 0;
+        const boundaryRight = chatRect?.right ?? window.innerWidth;
+        const boundaryWidth = chatRect?.width ?? window.innerWidth;
+
+        popup.style.maxWidth = `${Math.max(0, boundaryWidth - margin * 2)}px`;
+
         const popupRect = popup.getBoundingClientRect();
-        const left = Math.min(
-          Math.max(margin, rect.left),
-          window.innerWidth - popupRect.width - margin
-        );
+        const minimumLeft = boundaryLeft + margin;
+        const maximumLeft = Math.max(minimumLeft, boundaryRight - popupRect.width - margin);
+        const left = Math.min(Math.max(minimumLeft, rect.left), maximumLeft);
         const top = Math.max(margin, rect.top - popupRect.height - margin);
 
         popup.style.left = `${left}px`;
@@ -163,6 +167,14 @@
         popup = document.createElement('div');
         popup.className = 'twitch-enhancer-reply-preview-popup';
         popup.setAttribute('role', 'tooltip');
+
+        const chatLine = anchor.closest('.chat-line__message');
+        const chatText = chatLine?.querySelector('[data-a-target="chat-message-text"]') || chatLine;
+        if (chatText) {
+          const chatTextStyle = getComputedStyle(chatText);
+          popup.style.fontSize = chatTextStyle.fontSize;
+          popup.style.lineHeight = chatTextStyle.lineHeight;
+        }
 
         const title = document.createElement('div');
         title.className = 'twitch-enhancer-reply-preview-popup__title';
