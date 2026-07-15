@@ -37,7 +37,8 @@ Especially useful for people who like to **keep streams running in the backgroun
 ### 4️⃣ Block Annoyances (disabled by default)
 
 - Hides selected Twitch UI elements without blocking ads or modifying stream delivery
-- Provides a separate checkbox for each supported element:
+- Provides a separate checkbox for each supported behavior or element:
+  - Phone number reminder prompt (automatically selects `No Thanks`)
   - Auto-pause promoted streams on the homepage
   - Cookies consent banner
   - Header buttons for News from Luna, Bits, and Go Ad-Free

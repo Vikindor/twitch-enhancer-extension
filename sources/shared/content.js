@@ -55,6 +55,7 @@
       },
       blockAnnoyances: {
         enabled: false,
+        dismissPhoneNumberPrompt: true,
         autoPausePromotedStreams: true,
         consentBanner: true,
         newsFromLuna: true,
@@ -158,6 +159,10 @@
 
     fallback.modules.blockAnnoyances = {
       enabled: typeof blockAnnoyances.enabled === 'boolean' ? blockAnnoyances.enabled : false,
+      dismissPhoneNumberPrompt:
+        typeof blockAnnoyances.dismissPhoneNumberPrompt === 'boolean'
+          ? blockAnnoyances.dismissPhoneNumberPrompt
+          : true,
       autoPausePromotedStreams:
         typeof blockAnnoyances.autoPausePromotedStreams === 'boolean'
           ? blockAnnoyances.autoPausePromotedStreams

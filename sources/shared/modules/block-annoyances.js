@@ -28,6 +28,8 @@
     create() {
       const originalPlay = HTMLMediaElement.prototype.play;
       const stoppingPlayers = new WeakSet();
+      const dismissedPhonePromptButtons = new WeakSet();
+      let dismissPhoneNumberPromptEnabled = false;
       let autoPausePromotedStreamsEnabled = false;
       let promotedStreamsManuallyEnabled = false;
 
@@ -66,6 +68,20 @@
         if (typeof root.querySelectorAll === 'function') {
           root.querySelectorAll('video').forEach(disableNativeAutoplay);
         }
+      }
+
+      function dismissPhoneNumberPrompt(root) {
+        if (!dismissPhoneNumberPromptEnabled || !(root instanceof Element)) return;
+
+        const selector =
+          '[data-a-target="account-checkup-no-phone-warning-modal"] ' +
+          '[data-a-target="account-checkup-generic-modal-secondary-button"]';
+        const button = root.matches(selector) ? root : root.querySelector(selector);
+
+        if (!button || dismissedPhonePromptButtons.has(button)) return;
+
+        dismissedPhonePromptButtons.add(button);
+        button.click();
       }
 
       function stopCarouselPlayer(media) {
@@ -132,20 +148,23 @@
         stopCarouselPlayer(media);
       }, true);
 
-      const autoplayObserver = new MutationObserver((mutations) => {
-        if (!autoPausePromotedStreamsEnabled) return;
-
+      const pageObserver = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           if (mutation.type === 'attributes') {
-            disableNativeAutoplay(mutation.target);
+            if (autoPausePromotedStreamsEnabled) {
+              disableNativeAutoplay(mutation.target);
+            }
             continue;
           }
 
-          mutation.addedNodes.forEach(scanForCarouselVideos);
+          mutation.addedNodes.forEach((node) => {
+            scanForCarouselVideos(node);
+            dismissPhoneNumberPrompt(node);
+          });
         }
       });
 
-      autoplayObserver.observe(document.documentElement, {
+      pageObserver.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ['autoplay'],
         childList: true,
@@ -154,11 +173,17 @@
 
       function applySettings(settings) {
         const enabled = settings.enabled === true;
+        dismissPhoneNumberPromptEnabled =
+          enabled && settings.dismissPhoneNumberPrompt !== false;
         autoPausePromotedStreamsEnabled =
           enabled && settings.autoPausePromotedStreams !== false;
 
         for (const [id, attribute] of Object.entries(ANNOYANCE_ATTRIBUTES)) {
           document.documentElement.toggleAttribute(attribute, enabled && settings[id] !== false);
+        }
+
+        if (dismissPhoneNumberPromptEnabled) {
+          dismissPhoneNumberPrompt(document.documentElement);
         }
 
         if (autoPausePromotedStreamsEnabled) {

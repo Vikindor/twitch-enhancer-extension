@@ -25,6 +25,7 @@ const DEFAULT_SETTINGS = {
     },
     blockAnnoyances: {
       enabled: false,
+      dismissPhoneNumberPrompt: true,
       autoPausePromotedStreams: true,
       consentBanner: true,
       newsFromLuna: true,
@@ -238,6 +239,8 @@ async function loadOptions() {
 
   const blockAnnoyances = modules.blockAnnoyances || DEFAULT_SETTINGS.modules.blockAnnoyances;
   document.getElementById('annoyances-enabled').checked = blockAnnoyances.enabled === true;
+  document.getElementById('annoyances-dismissPhoneNumberPrompt').checked =
+    blockAnnoyances.dismissPhoneNumberPrompt !== false;
   document.getElementById('annoyances-autoPausePromotedStreams').checked =
     blockAnnoyances.autoPausePromotedStreams !== false;
   document.getElementById('annoyances-consentBanner').checked = blockAnnoyances.consentBanner !== false;
@@ -314,6 +317,8 @@ async function saveOptions() {
       },
       blockAnnoyances: {
         enabled: document.getElementById('annoyances-enabled').checked,
+        dismissPhoneNumberPrompt:
+          document.getElementById('annoyances-dismissPhoneNumberPrompt').checked,
         autoPausePromotedStreams:
           document.getElementById('annoyances-autoPausePromotedStreams').checked,
         consentBanner: document.getElementById('annoyances-consentBanner').checked,

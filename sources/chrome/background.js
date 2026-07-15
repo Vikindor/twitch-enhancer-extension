@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS = {
     },
     blockAnnoyances: {
       enabled: false,
+      dismissPhoneNumberPrompt: true,
       autoPausePromotedStreams: true,
       consentBanner: true,
       newsFromLuna: true,
