@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS = {
       storiesLeftPanel: true,
       chatLeaderboardAndGoals: true,
       stickyCommunityHighlight: true,
+      chatBitsBalance: true,
       allPlayerExtensions: false,
       extensionsDockButtons: false,
       primeBenefitsExtension: true,

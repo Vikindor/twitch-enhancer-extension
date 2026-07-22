@@ -45,6 +45,7 @@ Especially useful for people who like to **keep streams running in the backgroun
   - Stories in the left navigation panel
   - Chat leaderboard and goals panel
   - Hype Train and other sticky community highlights in chat
+  - Bits balance at the bottom of chat
   - Player extensions
   - Channel header buttons for Bits, Gift Subs, Subscribe, and Continue Sub
 - Can block all player extensions at once, including potentially useful ones
