@@ -33,6 +33,10 @@ html[data-twitch-enhancer-block-subscribe-button]
 html[data-twitch-enhancer-block-continue-sub-button]
   [data-target="channel-header-right"] div:has(
     > div > div > button[data-a-target="manage-sub-button"]
+  ),
+html[data-twitch-enhancer-block-subscription-offer-banner]
+  .channel-info-content > div > div:has(
+    a[href*="/legal/exclusive-offer-sub/"]
   ) {
   display: none !important;
 }

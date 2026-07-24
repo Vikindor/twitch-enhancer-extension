@@ -41,7 +41,8 @@ const DEFAULT_SETTINGS = {
       underPlayerBitsButton: true,
       giftSubsButton: true,
       subscribeButton: true,
-      continueSubButton: true
+      continueSubButton: true,
+      subscriptionOfferBanner: true
     },
     showStreamLanguage: {
       enabled: true,
@@ -269,6 +270,8 @@ async function loadOptions() {
   document.getElementById('annoyances-subscribeButton').checked = blockAnnoyances.subscribeButton !== false;
   document.getElementById('annoyances-continueSubButton').checked =
     blockAnnoyances.continueSubButton !== false;
+  document.getElementById('annoyances-subscriptionOfferBanner').checked =
+    blockAnnoyances.subscriptionOfferBanner !== false;
   setModuleDisabledState('blockAnnoyances', blockAnnoyances.enabled === true);
   syncBlockAnnoyancesDependencies();
 
@@ -342,7 +345,9 @@ async function saveOptions() {
         underPlayerBitsButton: document.getElementById('annoyances-underPlayerBitsButton').checked,
         giftSubsButton: document.getElementById('annoyances-giftSubsButton').checked,
         subscribeButton: document.getElementById('annoyances-subscribeButton').checked,
-        continueSubButton: document.getElementById('annoyances-continueSubButton').checked
+        continueSubButton: document.getElementById('annoyances-continueSubButton').checked,
+        subscriptionOfferBanner:
+          document.getElementById('annoyances-subscriptionOfferBanner').checked
       },
       showStreamLanguage: {
         enabled: document.getElementById('language-enabled').checked,

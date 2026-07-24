@@ -21,7 +21,8 @@
     underPlayerBitsButton: 'data-twitch-enhancer-block-under-player-bits-button',
     giftSubsButton: 'data-twitch-enhancer-block-gift-subs-button',
     subscribeButton: 'data-twitch-enhancer-block-subscribe-button',
-    continueSubButton: 'data-twitch-enhancer-block-continue-sub-button'
+    continueSubButton: 'data-twitch-enhancer-block-continue-sub-button',
+    subscriptionOfferBanner: 'data-twitch-enhancer-block-subscription-offer-banner'
   };
 
   registerModule({

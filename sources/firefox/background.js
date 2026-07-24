@@ -39,7 +39,8 @@ const DEFAULT_SETTINGS = {
       underPlayerBitsButton: true,
       giftSubsButton: true,
       subscribeButton: true,
-      continueSubButton: true
+      continueSubButton: true,
+      subscriptionOfferBanner: true
     },
     showStreamLanguage: {
       enabled: true,

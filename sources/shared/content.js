@@ -27,7 +27,8 @@
     underPlayerBitsButton: 'data-twitch-enhancer-block-under-player-bits-button',
     giftSubsButton: 'data-twitch-enhancer-block-gift-subs-button',
     subscribeButton: 'data-twitch-enhancer-block-subscribe-button',
-    continueSubButton: 'data-twitch-enhancer-block-continue-sub-button'
+    continueSubButton: 'data-twitch-enhancer-block-continue-sub-button',
+    subscriptionOfferBanner: 'data-twitch-enhancer-block-subscription-offer-banner'
   };
   const isTwitchExtensionFrame = /\.ext-twitch\.tv$/i.test(window.location.hostname);
 
@@ -72,7 +73,8 @@
         underPlayerBitsButton: true,
         giftSubsButton: true,
         subscribeButton: true,
-        continueSubButton: true
+        continueSubButton: true,
+        subscriptionOfferBanner: true
       },
       showStreamLanguage: {
         enabled: true,
@@ -218,6 +220,10 @@
       continueSubButton:
         typeof blockAnnoyances.continueSubButton === 'boolean'
           ? blockAnnoyances.continueSubButton
+          : true,
+      subscriptionOfferBanner:
+        typeof blockAnnoyances.subscriptionOfferBanner === 'boolean'
+          ? blockAnnoyances.subscriptionOfferBanner
           : true
     };
 

@@ -48,6 +48,7 @@ Especially useful for people who like to **keep streams running in the backgroun
   - Bits balance at the bottom of chat
   - Player extensions
   - Channel header buttons for Bits, Gift Subs, Subscribe, and Continue Sub
+  - Subscription offer banners in channel information
 - Can block all player extensions at once, including potentially useful ones
 - Alternatively, can block only extension dock buttons or the Prime Benefits dropdown
 
