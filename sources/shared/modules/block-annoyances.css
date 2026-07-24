@@ -27,7 +27,8 @@ html[data-twitch-enhancer-block-gift-subs-button]
   ),
 html[data-twitch-enhancer-block-subscribe-button]
   [data-target="channel-header-right"] div:has(
-    > [class*="InjectLayout"] > button[data-a-target="subscribe-button"]
+    > [class*="InjectLayout"] > button[data-a-target="subscribe-button"],
+    > [class*="InjectLayout"] > div > button[data-a-target="subscribe-button"]
   ),
 html[data-twitch-enhancer-block-continue-sub-button]
   [data-target="channel-header-right"] div:has(
