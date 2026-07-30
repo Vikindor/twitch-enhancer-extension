@@ -419,6 +419,18 @@
           thumb.appendChild(stack);
         }
 
+        const liveBadge = thumb.querySelector(
+          '[class*="tw-channel-status-text-indicator"]'
+        );
+        if (liveBadge) {
+          const thumbRect = thumb.getBoundingClientRect();
+          const liveBadgeRect = liveBadge.getBoundingClientRect();
+          const scaleY = thumb.offsetHeight ? thumbRect.height / thumb.offsetHeight : 1;
+          if (scaleY > 0) {
+            stack.style.top = `${(liveBadgeRect.top - thumbRect.top) / scaleY}px`;
+          }
+        }
+
         let element = thumb.querySelector('.__langBadge');
         if (!element) {
           element = document.createElement('div');

@@ -286,6 +286,18 @@
           thumb.appendChild(stack);
         }
 
+        const liveBadge = thumb.querySelector(
+          '[class*="tw-channel-status-text-indicator"]'
+        );
+        if (liveBadge) {
+          const thumbRect = thumb.getBoundingClientRect();
+          const liveBadgeRect = liveBadge.getBoundingClientRect();
+          const scaleY = thumb.offsetHeight ? thumbRect.height / thumb.offsetHeight : 1;
+          if (scaleY > 0) {
+            stack.style.top = `${(liveBadgeRect.top - thumbRect.top) / scaleY}px`;
+          }
+        }
+
         const languageBadge = thumb.querySelector('.__langBadge');
         if (languageBadge && languageBadge.parentElement !== stack) {
           languageBadge.style.position = 'static';
