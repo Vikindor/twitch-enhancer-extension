@@ -9,121 +9,173 @@
   registerModule({
     id: 'forceSortViewers',
     create() {
-      const TARGET_LABELS = [
+      const TARGET_LABELS = new Set([
+        // English
         'Viewers (High to Low)',
+        // Dansk — Danish
         'Seere (høj-lav)',
+        // Deutsch — German
         'Zuschauer (viel -> wenig)',
+        // Español - España — Spanish (Spain)
         'Espectadores (descend.)',
+        // Español - Latinoamérica — Spanish (Latin America)
         'Más espectadores',
+        // Français — French
         'Spectateurs (décroissant)',
+        // Italiano — Italian
         'Spettatori (decr.)',
+        // Magyar — Hungarian
         'Nézők száma (csökkenő)',
+        // Nederlands — Dutch
         'Kijkers (hoog - laag)',
+        // Norsk — Norwegian
         'Seere (høyt til lavt)',
+        // Polski — Polish
         'Widzów (najwięcej)',
+        // Português — Portuguese
         'Espetadores (ordem desc.)',
+        // Português - Brasil — Portuguese (Brazil)
         'Espectadores (ordem decrescente)',
+        // Română — Romanian
         'Vizualizatori (mare la mic)',
+        // Slovenčina — Slovak
         'Divákov (zostupne)',
+        // Suomi — Finnish
         'Katsojaluku (suurin ensin)',
+        // Svenska — Swedish
         'Tittare (flest först)',
+        // Tiếng Việt — Vietnamese
         'Lượng xem (Cao đến thấp)',
+        // Türkçe — Turkish
         'İzleyici (çoktan aza)',
+        // Čeština — Czech
         'Diváků (sestupně)',
+        // Ελληνικά — Greek
         'Θεατές (Φθίν. ταξιν.)',
+        // Български — Bulgarian
         'Зрители (низходящ ред)',
+        // Русский — Russian
         'Аудитория (по убыв.)',
+        // Українська — Ukrainian
+        'Глядачі (за спаданням)',
+        // ภาษาไทย — Thai
         'ผู้ชม (สูงไปต่ำ)',
+        // العربية — Arabic
         'المشاهدون (من الأعلى إلى الأقل)',
+        // 中文 简体 — Chinese (Simplified)
         '观众人数（高到低）',
+        // 中文 繁體 — Chinese (Traditional)
         '觀眾人數 (高到低)',
+        // 日本語 — Japanese
         '視聴者数（降順）',
+        // 한국어 — Korean
         '시청자 수 (높은 순)'
-      ];
+      ]);
+      const SORT_COMBO_SELECTOR =
+        '[role="combobox"][id*="browse-sort-drop-down"], ' +
+        '[role="combobox"][aria-controls*="browse-sort-drop-down"]';
+      const SORT_LABEL_SELECTOR = '[data-a-target="tw-core-button-label-text"]';
+      const SORT_OPTION_SELECTOR = '[role="menuitemradio"], [role="option"]';
+      const LOCATION_CHANGE_EVENT = 'twitch-enhancer-locationchange';
 
       let settings = {
         enabled: true,
         runPolicy: 'perLoad'
       };
 
-      function waitFor(selector, { timeout = 15000, interval = 150, filter = null } = {}) {
-        return new Promise((resolve, reject) => {
-          const t0 = Date.now();
-          (function poll() {
-            if (!settings.enabled) {
-              reject(new Error('disabled'));
-              return;
-            }
-
-            const nodes = Array.from(document.querySelectorAll(selector));
-            const el = filter ? nodes.find(filter) : nodes[0];
-            if (el) {
-              resolve(el);
-              return;
-            }
-            if (Date.now() - t0 > timeout) {
-              reject(new Error(`timeout:${selector}`));
-              return;
-            }
-            setTimeout(poll, interval);
-          })();
-        });
-      }
-
-      function safeClick(el) {
-        try {
-          el.click();
-        } catch (_) {}
-      }
-
-      function isVisible(el) {
-        return !!(el && (el.offsetParent || el.getClientRects().length));
-      }
-
       function normalizeText(text) {
         return (text || '').replace(/\s+/g, ' ').trim();
       }
 
       function isTargetLabel(text) {
-        return TARGET_LABELS.includes(normalizeText(text));
+        return TARGET_LABELS.has(normalizeText(text));
       }
 
-      function extractOptionLabel(el) {
+      function extractOptionLabel(element) {
         return normalizeText(
-          el?.getAttribute('aria-label') ||
-          el?.getAttribute('title') ||
-          el?.textContent ||
-          ''
+          element?.getAttribute('aria-label') ||
+            element?.getAttribute('title') ||
+            element?.textContent ||
+            ''
         );
       }
 
-      function blurAfterAutoAction(...relatedEls) {
+      function isVisible(element) {
+        return Boolean(
+          element && (element.offsetParent || element.getClientRects().length)
+        );
+      }
+
+      function safeClick(element) {
+        try {
+          element.click();
+        } catch (_) {}
+      }
+
+      function waitFor(
+        selector,
+        { timeout = 15000, interval = 150, filter = null } = {}
+      ) {
+        return new Promise((resolve, reject) => {
+          const startedAt = Date.now();
+
+          function poll() {
+            if (!settings.enabled) {
+              reject(new Error('disabled'));
+              return;
+            }
+
+            const elements = Array.from(document.querySelectorAll(selector));
+            const element = filter ? elements.find(filter) : elements[0];
+            if (element) {
+              resolve(element);
+              return;
+            }
+
+            if (Date.now() - startedAt > timeout) {
+              reject(new Error(`timeout:${selector}`));
+              return;
+            }
+
+            setTimeout(poll, interval);
+          }
+
+          poll();
+        });
+      }
+
+      function blurAfterAutoAction(...relatedElements) {
         requestAnimationFrame(() => {
-          const activeEl = document.activeElement;
-          if (!activeEl || activeEl === document.body) return;
-          if (!relatedEls.includes(activeEl)) return;
+          const activeElement = document.activeElement;
+          if (
+            !activeElement ||
+            activeElement === document.body ||
+            !relatedElements.includes(activeElement)
+          ) {
+            return;
+          }
 
           try {
-            activeEl.blur();
+            activeElement.blur();
           } catch (_) {}
         });
       }
 
       function getNormalizedUrl() {
-        const u = new URL(location.href);
-        u.searchParams.delete('sort');
-        return `${u.pathname}${u.search}`;
+        const url = new URL(location.href);
+        url.searchParams.delete('sort');
+        return `${url.pathname}${url.search}`;
       }
 
       function getRunKey() {
-        if (settings.runPolicy === 'perLoad') {
-          return `tw_sort_viewers_high_to_low_${getNormalizedUrl()}_${performance.timeOrigin}`;
-        }
-        return `tw_sort_viewers_high_to_low_${getNormalizedUrl()}`;
+        const baseKey = `tw_sort_viewers_high_to_low_${getNormalizedUrl()}`;
+        return settings.runPolicy === 'perLoad'
+          ? `${baseKey}_${performance.timeOrigin}`
+          : baseKey;
       }
 
       function alreadyRan() {
-        return !!sessionStorage.getItem(getRunKey());
+        return Boolean(sessionStorage.getItem(getRunKey()));
       }
 
       function markRan() {
@@ -131,24 +183,28 @@
       }
 
       async function ensureTargetSort() {
-        if (!settings.enabled || alreadyRan()) return;
+        if (!settings.enabled || alreadyRan()) {
+          return;
+        }
 
         try {
-          const combo = await waitFor(
-            '[role="combobox"][id*="browse-sort-drop-down"], [role="combobox"][aria-controls*="browse-sort-drop-down"]'
+          const combo = await waitFor(SORT_COMBO_SELECTOR);
+          const labelElement = combo.querySelector(SORT_LABEL_SELECTOR);
+          const labelText = normalizeText(
+            labelElement ? labelElement.textContent : combo.textContent
           );
 
-          const labelEl = combo.querySelector('[data-a-target="tw-core-button-label-text"]');
-          const labelText = normalizeText(labelEl ? labelEl.textContent : combo.textContent);
           if (isTargetLabel(labelText)) {
             markRan();
             return;
           }
 
           safeClick(combo);
-          const option = await waitFor('[role="menuitemradio"], [role="option"]', {
-            filter: (el) => isVisible(el) && isTargetLabel(extractOptionLabel(el))
+          const option = await waitFor(SORT_OPTION_SELECTOR, {
+            filter: (element) =>
+              isVisible(element) && isTargetLabel(extractOptionLabel(element))
           });
+
           safeClick(option);
           blurAfterAutoAction(combo, option);
           markRan();
@@ -163,33 +219,41 @@
         }, delayMs);
       }
 
-      (function hookHistory() {
-        const fire = () => window.dispatchEvent(new Event('twitch-enhancer-locationchange'));
-        const pushState = history.pushState;
-        const replaceState = history.replaceState;
+      function dispatchLocationChange() {
+        window.dispatchEvent(new Event(LOCATION_CHANGE_EVENT));
+      }
+
+      function hookHistory() {
+        const originalPushState = history.pushState;
+        const originalReplaceState = history.replaceState;
 
         history.pushState = function () {
-          pushState.apply(this, arguments);
-          fire();
+          originalPushState.apply(this, arguments);
+          dispatchLocationChange();
         };
         history.replaceState = function () {
-          replaceState.apply(this, arguments);
-          fire();
+          originalReplaceState.apply(this, arguments);
+          dispatchLocationChange();
         };
 
-        window.addEventListener('popstate', fire);
-      })();
+        window.addEventListener('popstate', dispatchLocationChange);
+      }
 
-      window.addEventListener('twitch-enhancer-locationchange', () => {
-        scheduleEnsure(600);
-      });
+      function start() {
+        hookHistory();
+        window.addEventListener(LOCATION_CHANGE_EVENT, () => {
+          scheduleEnsure(600);
+        });
+        scheduleEnsure(500);
+      }
 
-      scheduleEnsure(500);
+      start();
 
       return {
         updateSettings(nextSettings) {
           settings = {
-            enabled: typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
+            enabled:
+              typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
             runPolicy: nextSettings.runPolicy === 'perTab' ? 'perTab' : 'perLoad'
           };
 
