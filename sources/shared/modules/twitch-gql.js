@@ -7,7 +7,7 @@
 
   const subscribers = new Set();
   const pendingPayloads = [];
-  let clearPendingPayloadsQueued = false;
+  let bootstrapFinished = false;
 
   function isGQLUrl(input) {
     const url =
@@ -21,7 +21,7 @@
   }
 
   function publish(payload) {
-    if (!subscribers.size) {
+    if (!subscribers.size && !bootstrapFinished) {
       pendingPayloads.push(payload);
       return;
     }
@@ -42,23 +42,22 @@
 
     subscribers.add(subscriber);
 
-    pendingPayloads.forEach((payload) => {
-      try {
-        subscriber(payload);
-      } catch (error) {
-        console.error('Failed to process buffered Twitch GQL payload', error);
-      }
-    });
-
-    if (pendingPayloads.length && !clearPendingPayloadsQueued) {
-      clearPendingPayloadsQueued = true;
-      queueMicrotask(() => {
-        pendingPayloads.length = 0;
-        clearPendingPayloadsQueued = false;
+    if (!bootstrapFinished) {
+      pendingPayloads.forEach((payload) => {
+        try {
+          subscriber(payload);
+        } catch (error) {
+          console.error('Failed to process buffered Twitch GQL payload', error);
+        }
       });
     }
 
     return () => subscribers.delete(subscriber);
+  }
+
+  function finishBootstrap() {
+    bootstrapFinished = true;
+    pendingPayloads.length = 0;
   }
 
   const originalFetch = window.fetch;
@@ -104,6 +103,7 @@
   };
 
   window.__twitchEnhancerGQL = {
+    finishBootstrap,
     subscribe
   };
 })();

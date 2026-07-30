@@ -51,6 +51,10 @@
     }
   }
 
+  if (typeof window.__twitchEnhancerGQL?.finishBootstrap === 'function') {
+    window.__twitchEnhancerGQL.finishBootstrap();
+  }
+
   function updateModuleSettings(settings) {
     currentSettings = settings;
     for (const [moduleId, moduleInstance] of modules.entries()) {
