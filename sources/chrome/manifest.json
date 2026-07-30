@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Enhancer",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Make Twitch better for background watching, drops, and channel points",
   "icons": {
     "16": "icons/icon_16.png",
@@ -59,6 +59,8 @@
         "modules/keep-tab-active.js",
         "modules/chat-reply-preview.js",
         "modules/block-annoyances.js",
+        "modules/twitch-gql.js",
+        "modules/stream-card-ui.js",
         "modules/show-stream-language.js",
         "modules/show-drops-indicator.js",
         "modules/force-sort-viewers.js"

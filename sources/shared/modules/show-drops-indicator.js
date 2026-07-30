@@ -9,6 +9,8 @@
   registerModule({
     id: 'showDropsIndicator',
     create() {
+      const gql = window.__twitchEnhancerGQL;
+      const streamCards = window.__twitchEnhancerStreamCards;
       const dropsByLogin = new Map();
       const DROPS_TAG_NAMES = new Set([
         'dropsenabled', // English
@@ -37,20 +39,13 @@
         'dropsвключены', // Русский — Russian
         'dropsувімкнено', // Українська — Ukrainian
         'تم・تمكين・drops', // العربية — Arabic
-        // بهاس ملايو — Malay — not covered.
+        // بهاس ملايو — Malay — not covered
         // मानक हिन्दी — Standard Hindi — not covered
         'ใช้dropsได้', // ภาษาไทย — Thai
         '启用掉宝', // 中文 — Chinese
         'drops有効', // 日本語 — Japanese
-        '드롭활성화됨', // 한국어 — Korean
+        '드롭활성화됨' // 한국어 — Korean
       ]);
-      const CHANNEL_LINK_SELECTOR = [
-        'p[data-a-target="preview-card-channel-link"]',
-        'p[data-test-selector="TitleAndChannel__channelLink"]',
-        'a[data-a-target="preview-card-channel-link"]',
-        'a[data-test-selector="preview-card-channel-link"]',
-        'a[data-test-selector="TitleAndChannel__channelLink"]'
-      ].join(',');
       const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
       const ICON_PATHS = [
         {
@@ -78,7 +73,10 @@
       }
 
       function isDropsTag(tag) {
-        if (!tag) return false;
+        if (!tag) {
+          return false;
+        }
+
         const name =
           typeof tag === 'string'
             ? tag
@@ -98,14 +96,17 @@
         return /\bdrops\b/i.test(title);
       }
 
-      function collectDrops(any, seen = new WeakSet()) {
-        if (!any || typeof any !== 'object' || seen.has(any)) return;
-        seen.add(any);
+      function collectDrops(value, seen = new WeakSet()) {
+        if (!value || typeof value !== 'object' || seen.has(value)) {
+          return;
+        }
+        seen.add(value);
 
-        if (Array.isArray(any.freeformTags)) {
-          const login = getLogin(any);
+        if (Array.isArray(value.freeformTags)) {
+          const login = getLogin(value);
           if (login) {
-            const hasDrops = any.freeformTags.some(isDropsTag) || hasDropsInTitle(any);
+            const hasDrops =
+              value.freeformTags.some(isDropsTag) || hasDropsInTitle(value);
             if (dropsByLogin.get(login) !== hasDrops) {
               dropsByLogin.set(login, hasDrops);
               queueAnnotate();
@@ -113,77 +114,29 @@
           }
         }
 
-        if (Array.isArray(any)) {
-          any.forEach((item) => collectDrops(item, seen));
+        if (Array.isArray(value)) {
+          value.forEach((item) => collectDrops(item, seen));
           return;
         }
 
-        for (const key in any) {
-          if (!Object.prototype.hasOwnProperty.call(any, key)) continue;
-          const value = any[key];
-          if (value && typeof value === 'object') collectDrops(value, seen);
+        for (const key in value) {
+          if (!Object.prototype.hasOwnProperty.call(value, key)) {
+            continue;
+          }
+
+          const child = value[key];
+          if (child && typeof child === 'object') {
+            collectDrops(child, seen);
+          }
         }
       }
 
-      function getFetchUrl(input) {
-        if (typeof input === 'string') return input;
-        return input && typeof input.url === 'string' ? input.url : '';
-      }
+      function createIcon(className, mode) {
+        const indicator =
+          mode === 'badge'
+            ? streamCards.createBadge(className)
+            : document.createElement('span');
 
-      const originalFetch = window.fetch;
-      window.fetch = function (...args) {
-        const promise = originalFetch.apply(this, args);
-        try {
-          if (getFetchUrl(args[0]).includes('/gql')) {
-            promise
-              .then((response) => {
-                response
-                  .clone()
-                  .json()
-                  .then((payload) => collectDrops(payload))
-                  .catch(() => {});
-              })
-              .catch(() => {});
-          }
-        } catch (_) {}
-        return promise;
-      };
-
-      const OriginalXHR = window.XMLHttpRequest;
-      window.XMLHttpRequest = function PatchedXHR() {
-        const xhr = new OriginalXHR();
-        let isGQL = false;
-        const originalOpen = xhr.open;
-
-        xhr.open = function (method, url, ...rest) {
-          isGQL = Boolean(url && /\/gql(\?|$)/.test(String(url)));
-          return originalOpen.call(this, method, url, ...rest);
-        };
-        xhr.addEventListener('load', () => {
-          if (!isGQL) return;
-          try {
-            const contentType = (xhr.getResponseHeader('content-type') || '').toLowerCase();
-            if (contentType.includes('application/json')) {
-              collectDrops(JSON.parse(xhr.responseText));
-            }
-          } catch (_) {}
-        });
-
-        return xhr;
-      };
-
-      function getLoginFromLink(node) {
-        const anchor = node.tagName === 'A' ? node : node.closest('a[href^="/"]');
-        if (!anchor) return null;
-
-        const match = (anchor.getAttribute('href') || '').match(
-          /^\/([a-zA-Z0-9_]+)(?:\/|$)/
-        );
-        return match ? match[1].toLowerCase() : null;
-      }
-
-      function createIcon(className = '__dropsIndicator') {
-        const indicator = document.createElement('span');
         indicator.className = className;
         indicator.title = 'Drops enabled';
         indicator.setAttribute('role', 'img');
@@ -192,188 +145,86 @@
         indicator.style.alignItems = 'center';
         indicator.style.justifyContent = 'center';
         indicator.style.flex = '0 0 auto';
-        indicator.style.height = '1cap';
-        indicator.style.color = 'rgb(162,126,217)';
-        indicator.style.pointerEvents = 'none';
-        indicator.style.order = '998';
+        indicator.style.order = '0';
+
+        if (mode === 'suffix') {
+          indicator.style.height = '1cap';
+          indicator.style.color = 'rgb(162,126,217)';
+          indicator.style.pointerEvents = 'none';
+        }
 
         const svg = document.createElementNS(SVG_NAMESPACE, 'svg');
         svg.setAttribute('viewBox', '0 0 20 14');
         svg.setAttribute('aria-hidden', 'true');
         svg.style.display = 'block';
         svg.style.width = 'auto';
-        svg.style.height = '1cap';
+        svg.style.height = mode === 'badge' ? '1em' : '1cap';
         svg.style.fill = 'currentColor';
 
         ICON_PATHS.forEach((definition) => {
           const path = document.createElementNS(SVG_NAMESPACE, 'path');
           path.setAttribute('d', definition.d);
-          if (definition.fillRule) path.setAttribute('fill-rule', definition.fillRule);
-          if (definition.clipRule) path.setAttribute('clip-rule', definition.clipRule);
+          if (definition.fillRule) {
+            path.setAttribute('fill-rule', definition.fillRule);
+          }
+          if (definition.clipRule) {
+            path.setAttribute('clip-rule', definition.clipRule);
+          }
           svg.appendChild(path);
         });
+
         indicator.appendChild(svg);
         return indicator;
       }
 
-      function getCardAndRow(node) {
-        const card = node.closest('article,[data-target="directory-first-item"]') || node;
-        const primaryNode =
-          card.querySelector(
-            'p[data-a-target="preview-card-channel-link"], ' +
-              'p[data-test-selector="TitleAndChannel__channelLink"]'
-          ) || node;
-
-        let row = primaryNode.parentElement || primaryNode;
-        if (row.nextElementSibling && row.parentElement) {
-          row = row.parentElement;
-        }
-
-        return { card, row };
-      }
-
-      function restoreLanguageSuffix(row) {
-        const suffix = row?.querySelector(':scope > .__langSuffixRight');
-        if (suffix) suffix.style.marginLeft = 'auto';
-      }
-
       function updateSuffix(node, login) {
-        const { card, row } = getCardAndRow(node);
+        const card = streamCards.getCard(node);
         let indicator = card.querySelector('.__dropsIndicator');
 
         if (!settings.enabled || !dropsByLogin.get(login)) {
-          if (indicator) {
-            const oldRow = indicator.parentElement;
-            indicator.remove();
-            restoreLanguageSuffix(oldRow);
-          }
+          streamCards.removeDecoration(indicator);
           return;
         }
 
+        const { stack } = streamCards.getSuffixStack(node);
         if (!indicator) {
-          indicator = createIcon();
+          indicator = createIcon('__dropsIndicator', 'suffix');
         }
-
-        const suffix = row.querySelector(':scope > .__langSuffixRight');
-        indicator.style.marginLeft = 'auto';
-        indicator.style.marginRight = suffix ? '0.4rem' : '0';
-
-        if (suffix) {
-          suffix.style.marginLeft = '0';
-          row.insertBefore(indicator, suffix);
-        } else {
-          row.appendChild(indicator);
-        }
+        stack.appendChild(indicator);
 
         card.querySelectorAll('.__dropsIndicator').forEach((element) => {
-          if (element !== indicator) element.remove();
+          if (element !== indicator) {
+            streamCards.removeDecoration(element);
+          }
         });
       }
 
-      function getBadgeStack(thumb) {
-        let stack = thumb.querySelector(':scope > .__streamCardBadgeStack');
-        if (!stack) {
-          stack = document.createElement('div');
-          stack.className = '__streamCardBadgeStack';
-          stack.style.position = 'absolute';
-          stack.style.top = '8px';
-          stack.style.right = '8px';
-          stack.style.display = 'flex';
-          stack.style.alignItems = 'center';
-          stack.style.gap = '0.4rem';
-          stack.style.pointerEvents = 'none';
-          stack.style.zIndex = '3';
-          thumb.appendChild(stack);
-        }
-
-        const liveBadge = thumb.querySelector(
-          '[class*="tw-channel-status-text-indicator"]'
-        );
-        if (liveBadge) {
-          const thumbRect = thumb.getBoundingClientRect();
-          const liveBadgeRect = liveBadge.getBoundingClientRect();
-          const scaleY = thumb.offsetHeight ? thumbRect.height / thumb.offsetHeight : 1;
-          if (scaleY > 0) {
-            stack.style.top = `${(liveBadgeRect.top - thumbRect.top) / scaleY}px`;
-          }
-        }
-
-        const languageBadge = thumb.querySelector('.__langBadge');
-        if (languageBadge && languageBadge.parentElement !== stack) {
-          languageBadge.style.position = 'static';
-          languageBadge.style.top = '';
-          languageBadge.style.right = '';
-          languageBadge.style.zIndex = '';
-          stack.appendChild(languageBadge);
-        }
-
-        return stack;
-      }
-
-      function updateBadge(anchor, login) {
-        const card =
-          anchor.closest('article') ||
-          anchor.closest('div[data-target="directory-first-item"]') ||
-          anchor.closest('div') ||
-          anchor;
-        const thumb =
-          card.querySelector('[data-a-target="preview-card-image-link"]') ||
-          card.querySelector('[data-a-target="preview-card-thumbnail"]') ||
-          card.querySelector('figure') ||
-          card;
+      function updateBadge(node, login) {
+        const card = streamCards.getCard(node);
         let badge = card.querySelector('.__dropsBadge');
 
         if (!settings.enabled || !dropsByLogin.get(login)) {
-          if (badge) {
-            const stack = badge.parentElement;
-            badge.remove();
-            if (stack?.classList.contains('__streamCardBadgeStack') && !stack.children.length) {
-              stack.remove();
-            }
-          }
+          streamCards.removeDecoration(badge);
           return;
         }
 
-        if (getComputedStyle(thumb).position === 'static') {
-          thumb.style.position = 'relative';
-        }
-
-        const stack = getBadgeStack(thumb);
+        const stack = streamCards.getBadgeStack(card);
         if (!badge) {
-          badge = createIcon('__dropsBadge');
-          badge.style.boxSizing = 'content-box';
-          badge.style.height = '16px';
-          badge.style.padding = '2px 6px';
-          badge.style.borderRadius = '4px';
-          badge.style.fontSize = '12px';
-          badge.style.lineHeight = '16px';
-          badge.style.background = 'rgb(235,4,0)';
-          badge.style.color = '#fff';
-          badge.style.order = '0';
-          badge.firstElementChild.style.height = '1em';
+          badge = createIcon('__dropsBadge', 'badge');
         }
-
-        const languageBadge = stack.querySelector('.__langBadge');
-        stack.insertBefore(badge, languageBadge || stack.firstChild);
+        stack.appendChild(badge);
 
         card.querySelectorAll('.__dropsBadge').forEach((element) => {
-          if (element !== badge) element.remove();
+          if (element !== badge) {
+            streamCards.removeDecoration(element);
+          }
         });
       }
 
       function clearIndicators(root = document) {
-        root.querySelectorAll('.__dropsIndicator').forEach((indicator) => {
-          const row = indicator.parentElement;
-          indicator.remove();
-          restoreLanguageSuffix(row);
-        });
-        root.querySelectorAll('.__dropsBadge').forEach((badge) => {
-          const stack = badge.parentElement;
-          badge.remove();
-          if (stack?.classList.contains('__streamCardBadgeStack') && !stack.children.length) {
-            stack.remove();
-          }
-        });
+        root
+          .querySelectorAll('.__dropsIndicator, .__dropsBadge')
+          .forEach(streamCards.removeDecoration);
       }
 
       function annotate(root = document) {
@@ -382,43 +233,43 @@
           return;
         }
 
-        root.querySelectorAll(CHANNEL_LINK_SELECTOR).forEach((node) => {
-          const login = getLoginFromLink(node);
-          if (!login) return;
+        root.querySelectorAll(streamCards.CHANNEL_LINK_SELECTOR).forEach((node) => {
+          const login = streamCards.getLoginFromLink(node);
+          if (!login) {
+            return;
+          }
 
-          const card = node.closest('article,[data-target="directory-first-item"]') || node;
+          const card = streamCards.getCard(node);
           if (settings.visualMode === 'badge') {
-            card.querySelectorAll('.__dropsIndicator').forEach((element) => {
-              const row = element.parentElement;
-              element.remove();
-              restoreLanguageSuffix(row);
-            });
+            card
+              .querySelectorAll('.__dropsIndicator')
+              .forEach(streamCards.removeDecoration);
             updateBadge(node, login);
           } else {
-            card.querySelectorAll('.__dropsBadge').forEach((element) => {
-              const stack = element.parentElement;
-              element.remove();
-              if (stack?.classList.contains('__streamCardBadgeStack') && !stack.children.length) {
-                stack.remove();
-              }
-            });
+            card.querySelectorAll('.__dropsBadge').forEach(streamCards.removeDecoration);
             updateSuffix(node, login);
           }
         });
       }
 
       function queueAnnotate() {
-        if (raf) cancelAnimationFrame(raf);
+        if (raf) {
+          cancelAnimationFrame(raf);
+        }
         raf = requestAnimationFrame(() => annotate(document));
       }
 
       const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           for (const node of mutation.addedNodes || []) {
-            if (node.nodeType === Node.ELEMENT_NODE) annotate(node);
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              annotate(node);
+            }
           }
         }
       });
+
+      gql.subscribe(collectDrops);
 
       function start() {
         observer.observe(document.documentElement, { childList: true, subtree: true });

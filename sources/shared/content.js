@@ -8,6 +8,8 @@
     'modules/keep-tab-active.js',
     'modules/chat-reply-preview.js',
     'modules/block-annoyances.js',
+    'modules/twitch-gql.js',
+    'modules/stream-card-ui.js',
     'modules/show-stream-language.js',
     'modules/show-drops-indicator.js',
     'modules/force-sort-viewers.js',

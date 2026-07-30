@@ -9,18 +9,66 @@
   registerModule({
     id: 'showStreamLanguage',
     create() {
-      const langByLogin = new Map();
+      const gql = window.__twitchEnhancerGQL;
+      const streamCards = window.__twitchEnhancerStreamCards;
+      const languageByLogin = new Map();
+      const languageById = new Map();
       const idByLogin = new Map();
       const loginById = new Map();
-      const langById = new Map();
-      const ANY_LINK_SELECTORS = [
-        'a[data-a-target="preview-card-title-link"]',
-        'a[data-a-target="preview-card-channel-link"]',
-        'a[data-test-selector="preview-card-title-link"]',
-        'a[data-test-selector="preview-card-channel-link"]',
-        'a[data-test-selector="TitleAndChannel__titleLink"]',
-        'a[data-test-selector="TitleAndChannel__channelLink"]'
-      ].join(',');
+      const LANGUAGE_TAG_CODES = new Map(
+        Object.entries({
+          arabic: 'AR',
+          qatar: 'AR',
+          uae: 'AR',
+          'العربية': 'AR',
+          bulgarian: 'BG',
+          'български': 'BG',
+          czech: 'CS',
+          cz: 'CS',
+          czsk: 'CS',
+          'čeština': 'CS',
+          danish: 'DA',
+          dansk: 'DA',
+          deutsch: 'DE',
+          greek: 'EL',
+          'ελληνικά': 'EL',
+          australia: 'EN',
+          english: 'EN',
+          'español': 'ES',
+          espanol: 'ES',
+          suomi: 'FI',
+          francais: 'FR',
+          'français': 'FR',
+          magyar: 'HU',
+          italiano: 'IT',
+          '日本語': 'JA',
+          '한국어': 'KO',
+          lietuva: 'LT',
+          lithuania: 'LT',
+          dutch: 'NL',
+          nederlands: 'NL',
+          norsk: 'NO',
+          polski: 'PL',
+          portugues: 'PT',
+          'português': 'PT',
+          portuguese: 'PT',
+          romania: 'RO',
+          romanian: 'RO',
+          'română': 'RO',
+          'русский': 'RU',
+          'slovenčina': 'SK',
+          svenska: 'SV',
+          'ภาษาไทย': 'TH',
+          tagalog: 'TL',
+          turkish: 'TR',
+          'türkçe': 'TR',
+          ukrainian: 'UK',
+          'українська': 'UK',
+          '中文': 'ZH',
+          '中文(简体)': 'ZH',
+          '中文(繁體)': 'ZH'
+        })
+      );
 
       let settings = {
         enabled: true,
@@ -28,38 +76,36 @@
       };
       let raf = null;
 
-      const toUpperCode = (value) => (typeof value === 'string' ? value.trim().toUpperCase() : null);
-      const isIsoLike = (value) => typeof value === 'string' && /^[a-z]{2}(?:-[a-z]{2})?$/i.test(value.trim());
-      const tagNameToCode = new Map(Object.entries({
-        arabic: 'AR', qatar: 'AR', uae: 'AR', 'العربية': 'AR', bulgarian: 'BG', 'български': 'BG',
-        czech: 'CS', cz: 'CS', czsk: 'CS', 'čeština': 'CS', danish: 'DA', dansk: 'DA', deutsch: 'DE',
-        greek: 'EL', 'ελληνικά': 'EL', australia: 'EN', english: 'EN', 'español': 'ES', espanol: 'ES',
-        suomi: 'FI', francais: 'FR', 'français': 'FR', magyar: 'HU', italiano: 'IT', '日本語': 'JA',
-        '한국어': 'KO', lietuva: 'LT', lithuania: 'LT', dutch: 'NL', nederlands: 'NL', norsk: 'NO',
-        polski: 'PL', portugues: 'PT', 'português': 'PT', portuguese: 'PT', romania: 'RO',
-        romanian: 'RO', 'română': 'RO', 'русский': 'RU', 'slovenčina': 'SK', svenska: 'SV', 'ภาษาไทย': 'TH',
-        tagalog: 'TL', turkish: 'TR', 'türkçe': 'TR', ukrainian: 'UK', 'українська': 'UK',
-        '中文': 'ZH', '中文(简体)': 'ZH', '中文(繁體)': 'ZH'
-      }));
-
-      function clearDecorations(root = document) {
-        root.querySelectorAll('.__langChannelInline, .__langSuffixRight, .__langBadge').forEach((element) => {
-          element.remove();
-        });
-        root.querySelectorAll('.__streamCardBadgeStack:empty').forEach((element) => {
-          element.remove();
-        });
+      function normalizeLanguage(value) {
+        return typeof value === 'string' ? value.trim().toUpperCase() : null;
       }
 
-      function tagToCode(tagObj) {
-        if (!tagObj) return null;
-        if (typeof tagObj === 'string') return tagNameToCode.get(tagObj.trim().toLowerCase()) || null;
-        const name = tagObj.localizedName || tagObj.name || tagObj.tagName || tagObj.label || tagObj.slug;
-        return name ? tagNameToCode.get(String(name).trim().toLowerCase()) || null : null;
+      function isLanguageCode(value) {
+        return (
+          typeof value === 'string' &&
+          /^[a-z]{2}(?:-[a-z]{2})?$/i.test(value.trim())
+        );
       }
 
-      function extractPair(node) {
-        if (!node || typeof node !== 'object') return null;
+      function getTagLanguage(tag) {
+        if (!tag) {
+          return null;
+        }
+
+        const name =
+          typeof tag === 'string'
+            ? tag
+            : tag.localizedName || tag.name || tag.tagName || tag.label || tag.slug;
+
+        return name
+          ? LANGUAGE_TAG_CODES.get(String(name).trim().toLowerCase()) || null
+          : null;
+      }
+
+      function extractLanguagePair(node) {
+        if (!node || typeof node !== 'object') {
+          return null;
+        }
 
         const login =
           (node.broadcaster && (node.broadcaster.login || node.broadcasterLogin)) ||
@@ -68,34 +114,59 @@
           (node.channel && (node.channel.login || node.channel.name)) ||
           null;
 
-        let lang = null;
-        if (typeof node.broadcasterLanguage === 'string' && node.broadcasterLanguage) lang = node.broadcasterLanguage;
-        if (!lang && typeof node.language === 'string' && isIsoLike(node.language)) lang = node.language;
-        if (!lang && node.stream && typeof node.stream.language === 'string' && isIsoLike(node.stream.language)) lang = node.stream.language;
-        if (!lang && node.channel) {
-          const channel = node.channel;
-          if (typeof channel.broadcasterLanguage === 'string' && isIsoLike(channel.broadcasterLanguage)) lang = channel.broadcasterLanguage;
-          else if (typeof channel.language === 'string' && isIsoLike(channel.language)) lang = channel.language;
+        let language = null;
+        if (
+          typeof node.broadcasterLanguage === 'string' &&
+          node.broadcasterLanguage
+        ) {
+          language = node.broadcasterLanguage;
         }
-        if (!lang) {
-          const tags = Array.isArray(node.contentTags) ? node.contentTags : Array.isArray(node.freeformTags) ? node.freeformTags : null;
+        if (!language && isLanguageCode(node.language)) {
+          language = node.language;
+        }
+        if (!language && node.stream && isLanguageCode(node.stream.language)) {
+          language = node.stream.language;
+        }
+        if (!language && node.channel) {
+          if (isLanguageCode(node.channel.broadcasterLanguage)) {
+            language = node.channel.broadcasterLanguage;
+          } else if (isLanguageCode(node.channel.language)) {
+            language = node.channel.language;
+          }
+        }
+
+        if (!language) {
+          const tags = Array.isArray(node.contentTags)
+            ? node.contentTags
+            : Array.isArray(node.freeformTags)
+              ? node.freeformTags
+              : null;
+
           if (tags) {
             for (const tag of tags) {
-              const code = tagToCode(tag);
-              if (code) {
-                lang = code;
+              const tagLanguage = getTagLanguage(tag);
+              if (tagLanguage) {
+                language = tagLanguage;
                 break;
               }
             }
           }
         }
 
-        if (login && lang) return { login: String(login).toLowerCase(), lang: toUpperCode(lang) };
-        return null;
+        if (!login || !language) {
+          return null;
+        }
+
+        return {
+          login: String(login).toLowerCase(),
+          language: normalizeLanguage(language)
+        };
       }
 
-      function extractTriple(node) {
-        if (!node || typeof node !== 'object') return null;
+      function extractLanguageRecord(node) {
+        if (!node || typeof node !== 'object') {
+          return null;
+        }
 
         const login =
           (node.broadcaster && (node.broadcaster.login || node.broadcasterLogin)) ||
@@ -105,7 +176,6 @@
           node.login ||
           (node.channel && (node.channel.login || node.channel.name)) ||
           null;
-
         const id =
           (node.user && node.user.id) ||
           (node.userByAttribute && node.userByAttribute.id) ||
@@ -114,144 +184,142 @@
           node.id ||
           null;
 
-        let lang = null;
-        if (typeof node.broadcasterLanguage === 'string' && node.broadcasterLanguage) lang = node.broadcasterLanguage;
-        if (!lang && typeof node.language === 'string' && isIsoLike(node.language)) lang = node.language;
-        if (!lang && node.stream && typeof node.stream.language === 'string' && isIsoLike(node.stream.language)) lang = node.stream.language;
-        if (!lang && node.broadcastSettings && typeof node.broadcastSettings.language === 'string') lang = node.broadcastSettings.language;
-        if (!lang && node.channel) {
-          const channel = node.channel;
-          if (typeof channel.broadcasterLanguage === 'string' && isIsoLike(channel.broadcasterLanguage)) lang = channel.broadcasterLanguage;
-          else if (typeof channel.language === 'string' && isIsoLike(channel.language)) lang = channel.language;
+        let language = null;
+        if (
+          typeof node.broadcasterLanguage === 'string' &&
+          node.broadcasterLanguage
+        ) {
+          language = node.broadcasterLanguage;
+        }
+        if (!language && isLanguageCode(node.language)) {
+          language = node.language;
+        }
+        if (!language && node.stream && isLanguageCode(node.stream.language)) {
+          language = node.stream.language;
+        }
+        if (
+          !language &&
+          node.broadcastSettings &&
+          typeof node.broadcastSettings.language === 'string'
+        ) {
+          language = node.broadcastSettings.language;
+        }
+        if (!language && node.channel) {
+          if (isLanguageCode(node.channel.broadcasterLanguage)) {
+            language = node.channel.broadcasterLanguage;
+          } else if (isLanguageCode(node.channel.language)) {
+            language = node.channel.language;
+          }
         }
 
-        const outLogin = login ? String(login).toLowerCase() : null;
-        const outLang = lang ? toUpperCode(lang) : null;
-        if (outLogin || id || outLang) return { login: outLogin, id, lang: outLang };
-        return null;
+        const normalizedLogin = login ? String(login).toLowerCase() : null;
+        const normalizedLanguage = language
+          ? normalizeLanguage(language)
+          : null;
+
+        if (!normalizedLogin && !id && !normalizedLanguage) {
+          return null;
+        }
+
+        return {
+          login: normalizedLogin,
+          id,
+          language: normalizedLanguage
+        };
       }
 
-      function collectLanguages(any, seen = new WeakSet()) {
-        if (!any || typeof any !== 'object') return;
-        if (seen.has(any)) return;
-        seen.add(any);
+      function collectLanguages(value, seen = new WeakSet()) {
+        if (!value || typeof value !== 'object' || seen.has(value)) {
+          return false;
+        }
+        seen.add(value);
 
-        const pair = extractPair(any);
-        if (pair) {
-          const prev = langByLogin.get(pair.login);
-          if (prev !== pair.lang) {
-            langByLogin.set(pair.login, pair.lang);
+        const pair = extractLanguagePair(value);
+        if (
+          pair &&
+          languageByLogin.get(pair.login) !== pair.language
+        ) {
+          languageByLogin.set(pair.login, pair.language);
+          queueAnnotate();
+        }
+
+        const record = extractLanguageRecord(value);
+        if (record) {
+          let changed = false;
+
+          if (record.login && record.id) {
+            if (idByLogin.get(record.login) !== record.id) {
+              idByLogin.set(record.login, record.id);
+              changed = true;
+            }
+            if (loginById.get(record.id) !== record.login) {
+              loginById.set(record.id, record.login);
+              changed = true;
+            }
+          }
+
+          if (record.language) {
+            if (
+              record.id &&
+              languageById.get(record.id) !== record.language
+            ) {
+              languageById.set(record.id, record.language);
+              changed = true;
+            }
+            if (record.login && !languageByLogin.has(record.login)) {
+              languageByLogin.set(record.login, record.language);
+              changed = true;
+            }
+
+            if (!record.login && record.id) {
+              const knownLogin = loginById.get(record.id);
+              if (knownLogin && !languageByLogin.get(knownLogin)) {
+                languageByLogin.set(knownLogin, record.language);
+                changed = true;
+              }
+            }
+            if (!record.id && record.login) {
+              const knownId = idByLogin.get(record.login);
+              if (knownId && !languageById.get(knownId)) {
+                languageById.set(knownId, record.language);
+                changed = true;
+              }
+            }
+          }
+
+          if (changed) {
             queueAnnotate();
           }
         }
 
-        const triple = extractTriple(any);
-        if (triple) {
-          let touched = false;
-
-          if (triple.login && triple.id) {
-            if (idByLogin.get(triple.login) !== triple.id) {
-              idByLogin.set(triple.login, triple.id);
-              touched = true;
-            }
-            if (loginById.get(triple.id) !== triple.login) {
-              loginById.set(triple.id, triple.login);
-              touched = true;
-            }
-          }
-          if (triple.lang) {
-            if (triple.id && langById.get(triple.id) !== triple.lang) {
-              langById.set(triple.id, triple.lang);
-              touched = true;
-            }
-            if (triple.login && !langByLogin.has(triple.login)) {
-              langByLogin.set(triple.login, triple.lang);
-              touched = true;
-            }
-
-            if (!triple.login && triple.id) {
-              const knownLogin = loginById.get(triple.id);
-              if (knownLogin && !langByLogin.get(knownLogin)) {
-                langByLogin.set(knownLogin, triple.lang);
-                touched = true;
-              }
-            }
-            if (!triple.id && triple.login) {
-              const knownId = idByLogin.get(triple.login);
-              if (knownId && !langById.get(knownId)) {
-                langById.set(knownId, triple.lang);
-                touched = true;
-              }
-            }
-          }
-
-          if (touched) queueAnnotate();
+        if (Array.isArray(value)) {
+          value.forEach((item) => collectLanguages(item, seen));
+          return;
         }
 
-        if (Array.isArray(any)) {
-          for (const item of any) collectLanguages(item, seen);
-        } else {
-          for (const key in any) {
-            if (!Object.prototype.hasOwnProperty.call(any, key)) continue;
-            const value = any[key];
-            if (value && typeof value === 'object') collectLanguages(value, seen);
+        for (const key in value) {
+          if (!Object.prototype.hasOwnProperty.call(value, key)) {
+            continue;
+          }
+
+          const child = value[key];
+          if (child && typeof child === 'object') {
+            collectLanguages(child, seen);
           }
         }
-      }
 
-      function getFetchUrl(input) {
-        if (typeof input === 'string') return input;
-        if (input && typeof input.url === 'string') return input.url;
-        return '';
-      }
-
-      const originalFetch = window.fetch;
-      window.fetch = function (...args) {
-        const promise = originalFetch.apply(this, args);
-        try {
-          const url = getFetchUrl(args[0]);
-          if (url.includes('/gql')) {
-            promise.then((response) => {
-              response.clone().json().then((payload) => collectLanguages(payload)).catch(() => {});
-            }).catch(() => {});
-          }
-        } catch (_) {}
-        return promise;
-      };
-
-      const OriginalXHR = window.XMLHttpRequest;
-      window.XMLHttpRequest = function PatchedXHR() {
-        const xhr = new OriginalXHR();
-        let isGQL = false;
-        const originalOpen = xhr.open;
-        xhr.open = function (method, url, ...rest) {
-          isGQL = url && /\/gql(\?|$)/.test(String(url));
-          return originalOpen.call(this, method, url, ...rest);
-        };
-        xhr.addEventListener('load', function () {
-          if (!isGQL) return;
-          try {
-            const contentType = (xhr.getResponseHeader('content-type') || '').toLowerCase();
-            if (!contentType.includes('application/json')) return;
-            collectLanguages(JSON.parse(xhr.responseText));
-          } catch (_) {}
-        });
-        return xhr;
-      };
-
-      function getLoginFromLink(node) {
-        const anchor = node.tagName === 'A' ? node : node.closest('a[href^="/"]');
-        if (!anchor) return null;
-        const href = anchor.getAttribute('href') || '';
-        const match = href.match(/^\/([a-zA-Z0-9_]+)(?:\/|$)/);
-        return match ? match[1].toLowerCase() : null;
+        return true;
       }
 
       function inferLanguageFromText(text) {
-        if (!text) return null;
+        if (!text) {
+          return null;
+        }
+
         const normalized = text.replace(/https?:\/\/\S+/g, '');
         if (/[ㄱ-ㅎ가-힣]/.test(normalized)) return 'KO';
-        if (/[\u3040-\u309F]/.test(normalized) || /[\u30A0-\u30FF]/.test(normalized)) return 'JA';
+        if (/[\u3040-\u309F]/.test(normalized)) return 'JA';
+        if (/[\u30A0-\u30FF]/.test(normalized)) return 'JA';
         if (/[\u4E00-\u9FFF]/.test(normalized)) return 'ZH';
         if (/[\u0600-\u06FF]/.test(normalized)) return 'AR';
         if (/[\u0590-\u05FF]/.test(normalized)) return 'HE';
@@ -260,21 +328,32 @@
         return null;
       }
 
-      function inferLangFromCard(card) {
+      function inferLanguageFromCard(card) {
         try {
           const titled = card.querySelector('h4[title], h3[title], p[title]');
-          const titleFromAttr = titled ? titled.getAttribute('title') : '';
-          if (titleFromAttr) return inferLanguageFromText(titleFromAttr);
+          const title = titled ? titled.getAttribute('title') : '';
+          if (title) {
+            return inferLanguageFromText(title);
+          }
 
-          const titleEl =
+          const titleElement =
             card.querySelector('a[data-a-target="preview-card-title-link"]') ||
             card.querySelector('a[data-test-selector="preview-card-title-link"]') ||
             card.querySelector('[data-test-selector="TitleAndChannel__title"]');
 
-          return inferLanguageFromText(titleEl ? titleEl.textContent : '');
+          return inferLanguageFromText(titleElement ? titleElement.textContent : '');
         } catch (_) {
           return null;
         }
+      }
+
+      function resolveLanguage(login, card = null) {
+        let language = languageByLogin.get(login);
+        if (!language) {
+          const id = idByLogin.get(login);
+          language = id ? languageById.get(id) : null;
+        }
+        return language || (card ? inferLanguageFromCard(card) : null);
       }
 
       function getCurrentLogin() {
@@ -282,183 +361,118 @@
         return match ? match[1].toLowerCase() : null;
       }
 
-      function getInlineEl(mode) {
-        const element = document.createElement('span');
-        element.className = '__langChannelInline';
-        element.style.marginLeft = '0.2rem';
-        element.style.verticalAlign = 'middle';
-        element.style.pointerEvents = 'none';
-        element.style.fontWeight = '700';
+      function createChannelLabel() {
+        const label = document.createElement('span');
+        label.style.marginLeft = '0.2rem';
+        label.style.verticalAlign = 'middle';
+        label.style.pointerEvents = 'none';
+        label.style.fontWeight = '700';
 
-        if (mode === 'badge') {
-          element.style.padding = '2px 6px';
-          element.style.borderRadius = '4px';
-          element.style.fontSize = '12px';
-          element.style.lineHeight = '16px';
-          element.style.background = 'rgb(235,4,0)';
-          element.style.color = '#fff';
+        if (settings.visualMode === 'badge') {
+          label.style.padding = '2px 6px';
+          label.style.borderRadius = '4px';
+          label.style.fontSize = '12px';
+          label.style.lineHeight = '16px';
+          label.style.background = 'rgb(235,4,0)';
+          label.style.color = '#fff';
         } else {
-          element.style.whiteSpace = 'nowrap';
-          element.style.opacity = '0.9';
-          element.style.color = 'rgb(162,126,217)';
+          label.style.whiteSpace = 'nowrap';
+          label.style.opacity = '0.9';
+          label.style.color = 'rgb(162,126,217)';
         }
 
-        element.textContent = '[??]';
-        return element;
+        return label;
       }
 
-      function ensureChannelHeaderLang(root) {
-        const section =
-          root.querySelector('section#live-channel-stream-information') ||
-          root.querySelector('section[id="live-channel-stream-information"]');
-        if (!section) return;
+      function updateChannelHeader(root) {
+        const section = root.querySelector(
+          'section#live-channel-stream-information'
+        );
+        if (!section) {
+          return;
+        }
 
         const heading = section.querySelector('h1');
-        if (!heading) return;
+        if (!heading) {
+          return;
+        }
 
-        const verifiedSvg = section.querySelector('svg[aria-label*="Verified" i]');
-        const verifiedBox = verifiedSvg ? verifiedSvg.closest('[class]') : null;
-        const nameLink = (heading.closest && heading.closest('a[href^="/"]')) || null;
-        const reference = verifiedBox || nameLink;
-        if (!reference || !reference.parentElement) return;
+        const verifiedIcon = section.querySelector('svg[aria-label*="Verified" i]');
+        const verifiedContainer = verifiedIcon
+          ? verifiedIcon.closest('[class]')
+          : null;
+        const nameLink = heading.closest('a[href^="/"]');
+        const reference = verifiedContainer || nameLink;
+        if (!reference || !reference.parentElement) {
+          return;
+        }
 
         const parent = reference.parentElement;
         let container = parent.querySelector(':scope > .__langChannelInline');
-        const oldSpan = parent.querySelector(':scope > span.__langChannelInline');
-
         if (!container) {
           container = document.createElement('div');
           container.className = '__langChannelInline';
-          parent.insertBefore(container, reference.nextSibling);
-
-          if (oldSpan) {
-            oldSpan.classList.remove('__langChannelInline');
-            container.appendChild(oldSpan);
-          } else {
-            const inner = getInlineEl(settings.visualMode);
-            inner.classList.remove('__langChannelInline');
-            container.appendChild(inner);
-          }
-        } else if (container.previousSibling !== reference || container.parentElement !== parent) {
-          parent.insertBefore(container, reference.nextSibling);
+          container.appendChild(createChannelLabel());
         }
+        parent.insertBefore(container, reference.nextSibling);
 
         const login = getCurrentLogin();
-        const displayEl = container.firstElementChild || container;
-        let code = login ? langByLogin.get(login) : null;
-        if (!code && login) {
-          const id = idByLogin.get(login);
-          if (id) code = langById.get(id) || null;
-        }
-        displayEl.textContent = `[${code || '??'}]`;
+        const language = login ? resolveLanguage(login) : null;
+        const label = container.firstElementChild || container;
+        label.textContent = `[${language || '??'}]`;
       }
 
-      function ensureRightSuffix(node, login) {
-        const card = node.closest('article,[data-target="directory-first-item"]') || node;
-        const primaryNode =
-          card.querySelector('p[data-a-target="preview-card-channel-link"], p[data-test-selector="TitleAndChannel__channelLink"]') ||
-          node;
+      function updateSuffix(node, login) {
+        const card = streamCards.getCard(node);
+        const { stack } = streamCards.getSuffixStack(node);
+        let suffix = card.querySelector('.__langSuffixRight');
 
-        let row = primaryNode.parentElement || primaryNode;
-        if (row && row.nextElementSibling && row.parentElement) {
-          row = row.parentElement;
+        if (!suffix) {
+          suffix = document.createElement('div');
+          suffix.className = '__langSuffixRight';
+          suffix.style.fontWeight = '600';
+          suffix.style.opacity = '0.9';
+          suffix.style.color = 'rgb(162,126,217)';
+          suffix.style.order = '1';
         }
 
-        let badge = row.querySelector('.__langSuffixRight');
-        if (!badge) {
-          badge = document.createElement('div');
-          badge.className = '__langSuffixRight';
-          badge.style.marginLeft = 'auto';
-          badge.style.whiteSpace = 'nowrap';
-          badge.style.fontWeight = '600';
-          badge.style.opacity = '0.9';
-          badge.style.order = '999';
-          row.appendChild(badge);
-        }
-
-        badge.style.color = 'rgb(162,126,217)';
-        badge.style.pointerEvents = 'none';
-
-        let code = langByLogin.get(login);
-        if (!code) {
-          const inferred = inferLangFromCard(card);
-          if (inferred) code = inferred;
-        }
-        badge.textContent = `[${code || '??'}]`;
+        suffix.textContent = `[${resolveLanguage(login, card) || '??'}]`;
+        stack.appendChild(suffix);
 
         card.querySelectorAll('.__langSuffixRight').forEach((element) => {
-          if (element !== badge && element.parentElement !== row) element.remove();
+          if (element !== suffix) {
+            streamCards.removeDecoration(element);
+          }
         });
       }
 
-      function ensureBadge(anchor, login) {
-        const article = anchor.closest('article') || anchor.closest('div[data-target="directory-first-item"]') || anchor.closest('div') || anchor;
+      function updateBadge(node, login) {
+        const card = streamCards.getCard(node);
+        const stack = streamCards.getBadgeStack(card);
+        let badge = card.querySelector('.__langBadge');
 
-        const thumb =
-          article.querySelector('[data-a-target="preview-card-image-link"]') ||
-          article.querySelector('[data-a-target="preview-card-thumbnail"]') ||
-          article.querySelector('figure') ||
-          article;
-
-        if (getComputedStyle(thumb).position === 'static') {
-          thumb.style.position = 'relative';
+        if (!badge) {
+          badge = streamCards.createBadge('__langBadge');
+          badge.style.order = '1';
         }
 
-        let stack = thumb.querySelector(':scope > .__streamCardBadgeStack');
-        if (!stack) {
-          stack = document.createElement('div');
-          stack.className = '__streamCardBadgeStack';
-          stack.style.position = 'absolute';
-          stack.style.top = '8px';
-          stack.style.right = '8px';
-          stack.style.display = 'flex';
-          stack.style.alignItems = 'center';
-          stack.style.gap = '0.4rem';
-          stack.style.pointerEvents = 'none';
-          stack.style.zIndex = '3';
-          thumb.appendChild(stack);
-        }
+        badge.textContent = `[${resolveLanguage(login, card) || '??'}]`;
+        stack.appendChild(badge);
 
-        const liveBadge = thumb.querySelector(
-          '[class*="tw-channel-status-text-indicator"]'
-        );
-        if (liveBadge) {
-          const thumbRect = thumb.getBoundingClientRect();
-          const liveBadgeRect = liveBadge.getBoundingClientRect();
-          const scaleY = thumb.offsetHeight ? thumbRect.height / thumb.offsetHeight : 1;
-          if (scaleY > 0) {
-            stack.style.top = `${(liveBadgeRect.top - thumbRect.top) / scaleY}px`;
+        card.querySelectorAll('.__langBadge').forEach((element) => {
+          if (element !== badge) {
+            streamCards.removeDecoration(element);
           }
-        }
+        });
+      }
 
-        let element = thumb.querySelector('.__langBadge');
-        if (!element) {
-          element = document.createElement('div');
-          element.className = '__langBadge';
-          element.style.padding = '2px 6px';
-          element.style.borderRadius = '4px';
-          element.style.fontSize = '12px';
-          element.style.fontWeight = '700';
-          element.style.lineHeight = '16px';
-          element.style.background = 'rgb(235,4,0)';
-          element.style.color = '#fff';
-          element.style.pointerEvents = 'none';
-          element.textContent = '[??]';
-          stack.appendChild(element);
-        } else if (element.parentElement !== stack) {
-          element.style.position = 'static';
-          element.style.top = '';
-          element.style.right = '';
-          element.style.zIndex = '';
-          stack.appendChild(element);
-        }
-
-        let code = langByLogin.get(login);
-        if (!code) {
-          const inferred = inferLangFromCard(article);
-          if (inferred) code = inferred;
-        }
-        element.textContent = `[${code || '??'}]`;
+      function clearDecorations(root = document) {
+        root.querySelectorAll('.__langChannelInline').forEach((element) => {
+          element.remove();
+        });
+        root
+          .querySelectorAll('.__langSuffixRight, .__langBadge')
+          .forEach(streamCards.removeDecoration);
       }
 
       function annotate(root = document) {
@@ -467,45 +481,53 @@
           return;
         }
 
-        ensureChannelHeaderLang(root);
+        updateChannelHeader(root);
 
-        if (settings.visualMode === 'suffix') {
-          const nodes = root.querySelectorAll(
-            'p[data-a-target="preview-card-channel-link"], p[data-test-selector="TitleAndChannel__channelLink"], a[data-a-target="preview-card-channel-link"], a[data-test-selector="preview-card-channel-link"], a[data-test-selector="TitleAndChannel__channelLink"]'
-          );
-          nodes.forEach((node) => {
-            const login = getLoginFromLink(node);
-            if (!login) return;
-            ensureRightSuffix(node, login);
-          });
-        } else {
-          const links = root.querySelectorAll(ANY_LINK_SELECTORS);
-          links.forEach((anchor) => {
-            const login = getLoginFromLink(anchor);
-            if (!login) return;
-            ensureBadge(anchor, login);
-          });
-        }
+        const selector =
+          settings.visualMode === 'badge'
+            ? streamCards.ANY_LINK_SELECTOR
+            : streamCards.CHANNEL_LINK_SELECTOR;
+
+        root.querySelectorAll(selector).forEach((node) => {
+          const login = streamCards.getLoginFromLink(node);
+          if (!login) {
+            return;
+          }
+
+          const card = streamCards.getCard(node);
+          if (settings.visualMode === 'badge') {
+            card
+              .querySelectorAll('.__langSuffixRight')
+              .forEach(streamCards.removeDecoration);
+            updateBadge(node, login);
+          } else {
+            card.querySelectorAll('.__langBadge').forEach(streamCards.removeDecoration);
+            updateSuffix(node, login);
+          }
+        });
       }
 
       function queueAnnotate() {
-        if (raf) cancelAnimationFrame(raf);
+        if (raf) {
+          cancelAnimationFrame(raf);
+        }
         raf = requestAnimationFrame(() => annotate(document));
       }
 
       const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
-          if (!mutation.addedNodes || !mutation.addedNodes.length) continue;
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType === 1) annotate(node);
+          for (const node of mutation.addedNodes || []) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              annotate(node);
+            }
           }
         }
       });
 
+      gql.subscribe(collectLanguages);
+
       function start() {
-        try {
-          observer.observe(document.documentElement, { childList: true, subtree: true });
-        } catch (_) {}
+        observer.observe(document.documentElement, { childList: true, subtree: true });
         queueAnnotate();
       }
 
@@ -518,10 +540,10 @@
       return {
         updateSettings(nextSettings) {
           settings = {
-            enabled: typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
+            enabled:
+              typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
             visualMode: nextSettings.visualMode === 'badge' ? 'badge' : 'suffix'
           };
-
           queueAnnotate();
         }
       };
