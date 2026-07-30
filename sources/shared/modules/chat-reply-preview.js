@@ -6,15 +6,27 @@
     window.__twitchEnhancerModuleDefinitions.push(definition);
   }
 
+  const REPLY_SELECTOR = '.chat-line__message p[title]';
+  const REPLY_USER_SELECTOR = ':scope > span[dir="auto"]';
+  const REPLY_ICON_SELECTOR = ':scope > .tw-svg';
+  const MARKER_ATTRIBUTE = 'data-twitch-enhancer-reply-preview';
+  const POPUP_CLASS = 'twitch-enhancer-reply-preview-popup';
+  const POPUP_TITLE_CLASS = `${POPUP_CLASS}__title`;
+  const POPUP_TITLE_ID = 'twitch-enhancer-chat-reply-preview-title';
+  const STYLE_ID = 'twitch-enhancer-chat-reply-preview-style';
+
   registerModule({
     id: 'chatReplyPreview',
     create() {
-      const REPLY_SELECTOR = '.chat-line__message p[title]';
-      const MARKER_ATTRIBUTE = 'data-twitch-enhancer-reply-preview';
-      const STYLE_ID = 'twitch-enhancer-chat-reply-preview-style';
-      let enabled = true;
+      let enabled = false;
+      let observer = null;
       let popup = null;
-      let raf = null;
+      let popupAnchor = null;
+      let scanFrameId = null;
+
+      const pendingScanRoots = new Set();
+      const markedElements = new Set();
+      const originalAttributes = new WeakMap();
 
       function ensureStyle() {
         if (document.getElementById(STYLE_ID)) {
@@ -33,7 +45,7 @@
             background: rgba(255, 255, 255, 0.08);
           }
 
-          .twitch-enhancer-reply-preview-popup {
+          .${POPUP_CLASS} {
             position: fixed;
             z-index: 999999;
             box-sizing: border-box;
@@ -48,7 +60,7 @@
             overflow-wrap: anywhere;
           }
 
-          .twitch-enhancer-reply-preview-popup__title {
+          .${POPUP_TITLE_CLASS} {
             margin-bottom: 0.35rem;
             color: #adadb8;
           }
@@ -56,19 +68,22 @@
         (document.head || document.documentElement).appendChild(style);
       }
 
-      function isReplyPreview(element) {
-        return (
-          element instanceof HTMLElement &&
-          element.matches(REPLY_SELECTOR) &&
-          element.title &&
-          element.textContent.trim().startsWith('Replying to')
-        );
+      function getReplyUser(reply) {
+        const user = reply
+          ?.querySelector(REPLY_USER_SELECTOR)
+          ?.textContent
+          ?.trim();
+
+        return user?.startsWith('@') ? user : null;
       }
 
-      function extractReplyTarget(element) {
-        const reply = getReplyElement(element);
-        const user = reply?.querySelector('span')?.textContent?.trim();
-        return user || 'original message';
+      function isReplyPreview(element) {
+        return (
+          element instanceof HTMLParagraphElement &&
+          element.matches(REPLY_SELECTOR) &&
+          Boolean(element.title.trim()) &&
+          Boolean(getReplyUser(element))
+        );
       }
 
       function getReplyElement(element) {
@@ -85,7 +100,7 @@
         let candidate = reply.parentElement;
 
         while (candidate && candidate !== message) {
-          if (candidate.querySelector('.tw-svg')) {
+          if (candidate.querySelector(REPLY_ICON_SELECTOR)) {
             return candidate;
           }
 
@@ -95,40 +110,119 @@
         return reply;
       }
 
-      function markReplyPreviews(root = document) {
-        if (!enabled || !root || typeof root.querySelectorAll !== 'function') {
+      function saveOriginalAttributes(element) {
+        if (originalAttributes.has(element)) {
           return;
         }
 
-        root.querySelectorAll(REPLY_SELECTOR).forEach((reply) => {
-          if (!isReplyPreview(reply)) {
-            return;
-          }
-
-          const clickTarget = getReplyClickTarget(reply);
-          clickTarget.setAttribute(MARKER_ATTRIBUTE, 'true');
-          clickTarget.tabIndex = 0;
-          clickTarget.setAttribute('role', 'button');
-          clickTarget.setAttribute('aria-label', `Show full replied message from ${extractReplyTarget(reply)}`);
+        originalAttributes.set(element, {
+          role: element.getAttribute('role'),
+          ariaLabel: element.getAttribute('aria-label'),
+          tabIndex: element.getAttribute('tabindex')
         });
+      }
+
+      function restoreAttribute(element, name, value) {
+        if (value === null) {
+          element.removeAttribute(name);
+        } else {
+          element.setAttribute(name, value);
+        }
+      }
+
+      function markReplyPreview(reply) {
+        if (!isReplyPreview(reply)) {
+          return;
+        }
+
+        const clickTarget = getReplyClickTarget(reply);
+        if (clickTarget.hasAttribute(MARKER_ATTRIBUTE)) {
+          return;
+        }
+
+        saveOriginalAttributes(clickTarget);
+        clickTarget.setAttribute(MARKER_ATTRIBUTE, 'true');
+        clickTarget.setAttribute('tabindex', '0');
+        clickTarget.setAttribute('role', 'button');
+        clickTarget.setAttribute(
+          'aria-label',
+          `Show full replied message from ${getReplyUser(reply)}`
+        );
+        markedElements.add(clickTarget);
+      }
+
+      function scanRoot(root) {
+        if (!(root instanceof Element || root instanceof Document)) {
+          return;
+        }
+
+        if (root instanceof Element && root.matches(REPLY_SELECTOR)) {
+          markReplyPreview(root);
+        }
+
+        root.querySelectorAll(REPLY_SELECTOR).forEach(markReplyPreview);
+      }
+
+      function pruneRemovedMarkers() {
+        for (const element of markedElements) {
+          if (!element.isConnected) {
+            markedElements.delete(element);
+          }
+        }
+      }
+
+      function flushPendingScans() {
+        scanFrameId = null;
+
+        if (!enabled) {
+          pendingScanRoots.clear();
+          return;
+        }
+
+        for (const root of pendingScanRoots) {
+          scanRoot(root);
+        }
+
+        pendingScanRoots.clear();
+        pruneRemovedMarkers();
+
+        if (popupAnchor && !popupAnchor.isConnected) {
+          removePopup();
+        }
+      }
+
+      function queueScan(root) {
+        if (!enabled || !(root instanceof Element)) {
+          return;
+        }
+
+        pendingScanRoots.add(root);
+        if (scanFrameId === null) {
+          scanFrameId = requestAnimationFrame(flushPendingScans);
+        }
       }
 
       function unmarkReplyPreviews() {
-        document.querySelectorAll(`[${MARKER_ATTRIBUTE}]`).forEach((element) => {
-          element.removeAttribute(MARKER_ATTRIBUTE);
-          element.removeAttribute('role');
-          element.removeAttribute('aria-label');
-          if (element.getAttribute('tabindex') === '0') {
-            element.removeAttribute('tabindex');
+        for (const element of markedElements) {
+          if (element.isConnected) {
+            const attributes = originalAttributes.get(element);
+            element.removeAttribute(MARKER_ATTRIBUTE);
+
+            if (attributes) {
+              restoreAttribute(element, 'role', attributes.role);
+              restoreAttribute(element, 'aria-label', attributes.ariaLabel);
+              restoreAttribute(element, 'tabindex', attributes.tabIndex);
+            }
           }
-        });
+        }
+
+        markedElements.clear();
       }
 
       function removePopup() {
-        if (popup) {
-          popup.remove();
-          popup = null;
-        }
+        popup?.remove();
+        popup = null;
+        popupAnchor = null;
       }
 
       function positionPopup(anchor) {
@@ -136,70 +230,83 @@
           return;
         }
 
-        const rect = anchor.getBoundingClientRect();
+        const anchorRect = anchor.getBoundingClientRect();
         const chatRect = anchor.closest('.chat-room__content')?.getBoundingClientRect();
         const margin = 8;
         const boundaryLeft = chatRect?.left ?? 0;
         const boundaryRight = chatRect?.right ?? window.innerWidth;
         const boundaryWidth = chatRect?.width ?? window.innerWidth;
 
-        popup.style.maxWidth = `${Math.max(0, boundaryWidth - margin * 2)}px`;
+        popup.style.maxWidth = `${Math.max(1, boundaryWidth - margin * 2)}px`;
 
         const popupRect = popup.getBoundingClientRect();
         const minimumLeft = boundaryLeft + margin;
-        const maximumLeft = Math.max(minimumLeft, boundaryRight - popupRect.width - margin);
-        const left = Math.min(Math.max(minimumLeft, rect.left), maximumLeft);
-        const top = Math.max(margin, rect.top - popupRect.height - margin);
+        const maximumLeft = Math.max(
+          minimumLeft,
+          boundaryRight - popupRect.width - margin
+        );
+        const left = Math.min(
+          Math.max(minimumLeft, anchorRect.left),
+          maximumLeft
+        );
+        const top = Math.max(
+          margin,
+          anchorRect.top - popupRect.height - margin
+        );
 
         popup.style.left = `${left}px`;
         popup.style.top = `${top}px`;
       }
 
+      function applyChatTypography(element, chatLine) {
+        const chatText =
+          chatLine?.querySelector('[data-a-target="chat-message-text"]') ||
+          chatLine;
+
+        if (!chatText) {
+          return;
+        }
+
+        const chatTextStyle = getComputedStyle(chatText);
+        element.style.fontSize = chatTextStyle.fontSize;
+        element.style.lineHeight = chatTextStyle.lineHeight;
+      }
+
+      function createPopup(reply) {
+        const element = document.createElement('div');
+        element.className = POPUP_CLASS;
+        element.setAttribute('role', 'dialog');
+        element.setAttribute('aria-modal', 'false');
+        element.setAttribute('aria-labelledby', POPUP_TITLE_ID);
+
+        const title = document.createElement('div');
+        title.id = POPUP_TITLE_ID;
+        title.className = POPUP_TITLE_CLASS;
+        title.textContent = getReplyUser(reply);
+
+        const body = document.createElement('div');
+        body.textContent = reply.title.trim();
+
+        element.append(title, body);
+        return element;
+      }
+
       function showPopup(anchor) {
         const reply = getReplyElement(anchor);
-        const message = reply?.title?.trim();
-        if (!message) {
+        if (!reply) {
           return;
         }
 
         removePopup();
 
-        popup = document.createElement('div');
-        popup.className = 'twitch-enhancer-reply-preview-popup';
-        popup.setAttribute('role', 'tooltip');
-
-        const chatLine = anchor.closest('.chat-line__message');
-        const chatText = chatLine?.querySelector('[data-a-target="chat-message-text"]') || chatLine;
-        if (chatText) {
-          const chatTextStyle = getComputedStyle(chatText);
-          popup.style.fontSize = chatTextStyle.fontSize;
-          popup.style.lineHeight = chatTextStyle.lineHeight;
-        }
-
-        const title = document.createElement('div');
-        title.className = 'twitch-enhancer-reply-preview-popup__title';
-        title.textContent = extractReplyTarget(reply);
-
-        const body = document.createElement('div');
-        body.textContent = message;
-
-        popup.append(title, body);
+        popup = createPopup(reply);
+        popupAnchor = anchor;
+        applyChatTypography(popup, anchor.closest('.chat-line__message'));
         document.body.appendChild(popup);
         positionPopup(anchor);
       }
 
-      function queueScan() {
-        if (!enabled || raf) {
-          return;
-        }
-
-        raf = requestAnimationFrame(() => {
-          raf = null;
-          markReplyPreviews();
-        });
-      }
-
-      document.addEventListener('click', (event) => {
+      function handleClick(event) {
         if (!enabled || !(event.target instanceof Element)) {
           return;
         }
@@ -217,19 +324,19 @@
         event.preventDefault();
         event.stopPropagation();
         showPopup(preview);
-      }, true);
+      }
 
-      document.addEventListener('keydown', (event) => {
+      function handleKeyDown(event) {
         if (event.key === 'Escape') {
           removePopup();
           return;
         }
 
-        if (!enabled || (event.key !== 'Enter' && event.key !== ' ')) {
-          return;
-        }
-
-        if (!(event.target instanceof Element)) {
+        if (
+          !enabled ||
+          (event.key !== 'Enter' && event.key !== ' ') ||
+          !(event.target instanceof Element)
+        ) {
           return;
         }
 
@@ -240,46 +347,71 @@
 
         event.preventDefault();
         showPopup(preview);
-      }, true);
+      }
 
-      document.addEventListener('scroll', removePopup, true);
-      window.addEventListener('resize', removePopup);
+      function handleMutations(mutations) {
+        for (const mutation of mutations) {
+          mutation.addedNodes.forEach(queueScan);
+        }
+      }
 
-      const observer = new MutationObserver((mutations) => {
+      function startObserver() {
+        if (observer) {
+          return;
+        }
+
+        observer = new MutationObserver(handleMutations);
+        observer.observe(document.documentElement, {
+          childList: true,
+          subtree: true
+        });
+      }
+
+      function stopObserver() {
+        observer?.disconnect();
+        observer = null;
+
+        if (scanFrameId !== null) {
+          cancelAnimationFrame(scanFrameId);
+          scanFrameId = null;
+        }
+
+        pendingScanRoots.clear();
+      }
+
+      function enable() {
+        if (enabled) {
+          return;
+        }
+
+        enabled = true;
+        ensureStyle();
+        scanRoot(document);
+        startObserver();
+      }
+
+      function disable() {
         if (!enabled) {
           return;
         }
 
-        for (const mutation of mutations) {
-          if (mutation.type !== 'childList') {
-            continue;
-          }
+        enabled = false;
+        stopObserver();
+        removePopup();
+        unmarkReplyPreviews();
+      }
 
-          if (Array.from(mutation.addedNodes).some((node) => node instanceof Element)) {
-            queueScan();
-            return;
-          }
-        }
-      });
-
-      observer.observe(document.documentElement, {
-        childList: true,
-        subtree: true
-      });
-
-      ensureStyle();
-      markReplyPreviews();
+      document.addEventListener('click', handleClick, true);
+      document.addEventListener('keydown', handleKeyDown, true);
+      document.addEventListener('scroll', removePopup, true);
+      window.addEventListener('resize', removePopup);
 
       return {
-        updateSettings(nextSettings) {
-          enabled = nextSettings.enabled !== false;
-
-          if (enabled) {
-            ensureStyle();
-            markReplyPreviews();
+        updateSettings(settings) {
+          if (settings.enabled !== false) {
+            enable();
           } else {
-            removePopup();
-            unmarkReplyPreviews();
+            disable();
           }
         }
       };
