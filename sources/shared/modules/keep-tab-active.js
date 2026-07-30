@@ -6,85 +6,204 @@
     window.__twitchEnhancerModuleDefinitions.push(definition);
   }
 
+  const DEFAULT_SETTINGS = {
+    enabled: true,
+    autoRecoverOverlays: true,
+    requestWakeLock: false
+  };
+
+  const USER_GESTURE_WINDOW_MS = 1200;
+  const ACTIVITY_PULSE_INTERVAL_MS = 30000;
+  const OVERLAY_ACTION_COOLDOWN_MS = 3000;
+
+  const USER_GESTURE_EVENTS = [
+    'pointerdown',
+    'mousedown',
+    'mouseup',
+    'touchstart',
+    'keydown',
+    'click',
+    'keypress'
+  ];
+  const BLOCKED_LIFECYCLE_EVENTS = [
+    'visibilitychange',
+    'webkitvisibilitychange',
+    'freeze',
+    'pagehide'
+  ];
+
+  const PLAYER_VISIBILITY_SELECTOR =
+    '[data-a-target="player-overlay"],[data-a-target="player-container"]';
+  const START_WATCHING_BUTTON_SELECTOR =
+    '[data-a-target="content-classification-gate-overlay-start-watching-button"]';
+  const PLAYER_CONTENT_GATE_SELECTOR =
+    '[data-a-target="player-overlay-content-gate"]';
+
   registerModule({
     id: 'keepTabActive',
     create() {
-      let settings = {
-        enabled: true,
-        autoRecoverOverlays: true,
-        requestWakeLock: false
-      };
+      let settings = { ...DEFAULT_SETTINGS };
       let activated = false;
+      let lastUserGesture = 0;
+      let lastStartWatchingClick = 0;
+      let lastOverlayHandled = 0;
 
-      function activate() {
-        if (activated) {
-          return;
-        }
-        activated = true;
+      let mediaObserver = null;
+      let startWatchingObserver = null;
+      let streamRecoveryObserver = null;
+      let activityPulseIntervalId = null;
 
-        const uw = window;
-        let lastUserGesture = 0;
-        const userGestureWindowMs = 1200;
-        const markGesture = () => {
-          lastUserGesture = Date.now();
+      let originalPause = null;
+      let originalPlay = null;
+
+      function normalizeSettings(nextSettings) {
+        return {
+          enabled:
+            typeof nextSettings.enabled === 'boolean'
+              ? nextSettings.enabled
+              : DEFAULT_SETTINGS.enabled,
+          autoRecoverOverlays:
+            typeof nextSettings.autoRecoverOverlays === 'boolean'
+              ? nextSettings.autoRecoverOverlays
+              : DEFAULT_SETTINGS.autoRecoverOverlays,
+          requestWakeLock:
+            typeof nextSettings.requestWakeLock === 'boolean'
+              ? nextSettings.requestWakeLock
+              : DEFAULT_SETTINGS.requestWakeLock
         };
-        const gestureEvents = ['pointerdown', 'mousedown', 'mouseup', 'touchstart', 'keydown', 'click', 'keypress'];
+      }
 
-        const bindGestureTracking = () => {
-          gestureEvents.forEach((eventName) => {
-            uw.addEventListener(eventName, markGesture, { capture: true, passive: true });
+      function markUserGesture() {
+        lastUserGesture = Date.now();
+      }
+
+      function bindGestureTracking() {
+        USER_GESTURE_EVENTS.forEach((eventName) => {
+          window.addEventListener(eventName, markUserGesture, {
+            capture: true,
+            passive: true
           });
-        };
+        });
+      }
 
-        if (uw.document.readyState === 'loading') {
-          uw.addEventListener('DOMContentLoaded', bindGestureTracking, { once: true });
+      function installGestureTracking() {
+        if (document.readyState === 'loading') {
+          window.addEventListener('DOMContentLoaded', bindGestureTracking, {
+            once: true
+          });
         } else {
           bindGestureTracking();
         }
+      }
 
-        const defineConstProp = (proto, prop, val) => {
-          try {
-            const descriptor = Object.getOwnPropertyDescriptor(proto, prop);
-            if (descriptor && descriptor.get && String(descriptor.get).includes('teKeepActive')) return;
-            Object.defineProperty(proto, prop, {
-              configurable: true,
-              enumerable: true,
-              get: function teKeepActive() { return val; }
-            });
-          } catch (_) {}
-        };
-
-        const DocProto = (uw.Document && uw.Document.prototype) || Document.prototype;
-        defineConstProp(DocProto, 'hidden', false);
-        defineConstProp(DocProto, 'webkitHidden', false);
-        defineConstProp(DocProto, 'visibilityState', 'visible');
+      function defineConstantProperty(prototype, property, value) {
         try {
-          Object.defineProperty(DocProto, 'hasFocus', {
+          const descriptor = Object.getOwnPropertyDescriptor(
+            prototype,
+            property
+          );
+          if (
+            descriptor &&
+            descriptor.get &&
+            String(descriptor.get).includes('teKeepActive')
+          ) {
+            return;
+          }
+
+          Object.defineProperty(prototype, property, {
             configurable: true,
-            value: function () {
+            enumerable: true,
+            get: function teKeepActive() {
+              return value;
+            }
+          });
+        } catch (_) {}
+      }
+
+      function spoofDocumentActivity() {
+        const documentPrototype =
+          (window.Document && window.Document.prototype) ||
+          Document.prototype;
+
+        defineConstantProperty(documentPrototype, 'hidden', false);
+        defineConstantProperty(documentPrototype, 'webkitHidden', false);
+        defineConstantProperty(documentPrototype, 'visibilityState', 'visible');
+
+        try {
+          Object.defineProperty(documentPrototype, 'hasFocus', {
+            configurable: true,
+            value() {
               return true;
             }
           });
         } catch (_) {}
+      }
 
-        const stopOn = new Set(['visibilitychange', 'webkitvisibilitychange', 'freeze', 'pagehide']);
-        const addSilent = (target, type) => {
+      function stopEventImmediately(event) {
+        event.stopImmediatePropagation();
+      }
+
+      function addSilentEventBlocker(target, eventName) {
+        try {
+          target.addEventListener(eventName, stopEventImmediately, true);
+        } catch (_) {}
+      }
+
+      function blockBackgroundLifecycleEvents() {
+        BLOCKED_LIFECYCLE_EVENTS.forEach((eventName) => {
+          addSilentEventBlocker(document, eventName);
+        });
+        addSilentEventBlocker(window, 'blur');
+      }
+
+      function shouldAllowProgrammaticPause() {
+        return Date.now() - lastUserGesture <= USER_GESTURE_WINDOW_MS;
+      }
+
+      function resumeIfPaused(video) {
+        try {
+          if (video && video.paused && video.readyState > 2) {
+            const playPromise = originalPlay.call(video);
+            if (playPromise && typeof playPromise.catch === 'function') {
+              playPromise.catch(() => {});
+            }
+          }
+        } catch (_) {}
+      }
+
+      function handleAddedMedia(mutations) {
+        for (const mutation of mutations) {
+          mutation.addedNodes &&
+            mutation.addedNodes.forEach((node) => {
+              if (node && node.nodeType === 1) {
+                if (node.tagName === 'VIDEO') {
+                  resumeIfPaused(node);
+                }
+                node.querySelectorAll?.('video')?.forEach(resumeIfPaused);
+              }
+            });
+        }
+      }
+
+      function handleMediaPause(event) {
+        const element = event.target;
+        if (
+          element instanceof window.HTMLMediaElement &&
+          !shouldAllowProgrammaticPause()
+        ) {
           try {
-            target.addEventListener(type, (event) => {
-              event.stopImmediatePropagation();
-            }, true);
+            event.stopImmediatePropagation();
           } catch (_) {}
-        };
+          resumeIfPaused(element);
+        }
+      }
 
-        stopOn.forEach((type) => addSilent(uw.document, type));
-        addSilent(uw, 'blur');
-
-        const mediaPrototype = (uw.HTMLMediaElement || HTMLMediaElement).prototype;
-        const originalPause = mediaPrototype.pause;
-        const originalPlay = mediaPrototype.play;
-
-        const shouldAllowProgrammaticPause = () =>
-          (Date.now() - lastUserGesture) <= userGestureWindowMs;
+      function installMediaPlaybackGuard() {
+        const mediaPrototype = (
+          window.HTMLMediaElement || HTMLMediaElement
+        ).prototype;
+        originalPause = mediaPrototype.pause;
+        originalPlay = mediaPrototype.play;
 
         Object.defineProperty(mediaPrototype, 'pause', {
           configurable: true,
@@ -92,144 +211,171 @@
             if (shouldAllowProgrammaticPause()) {
               return originalPause.apply(this, arguments);
             }
+
             try {
               const playPromise = originalPlay.apply(this, []);
-              if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+              if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {});
+              }
             } catch (_) {}
           }
         });
 
-        const resumeIfPaused = (video) => {
-          try {
-            if (video && video.paused && video.readyState > 2) {
-              const playPromise = originalPlay.call(video);
-              if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
-            }
-          } catch (_) {}
-        };
+        mediaObserver = new window.MutationObserver(handleAddedMedia);
+        mediaObserver.observe(document.documentElement, {
+          childList: true,
+          subtree: true
+        });
 
-        new uw.MutationObserver((mutations) => {
-          for (const mutation of mutations) {
-            mutation.addedNodes && mutation.addedNodes.forEach((node) => {
-              if (node && node.nodeType === 1) {
-                if (node.tagName === 'VIDEO') resumeIfPaused(node);
-                node.querySelectorAll?.('video')?.forEach(resumeIfPaused);
-              }
-            });
-          }
-        }).observe(uw.document.documentElement, { childList: true, subtree: true });
+        document.addEventListener('pause', handleMediaPause, true);
+      }
 
-        uw.document.addEventListener('pause', (event) => {
-          const element = event.target;
-          if (element instanceof uw.HTMLMediaElement && !shouldAllowProgrammaticPause()) {
-            try {
-              event.stopImmediatePropagation();
-            } catch (_) {}
-            resumeIfPaused(element);
-          }
-        }, true);
-
-        const NativeIntersectionObserver = uw.IntersectionObserver;
-        if (typeof NativeIntersectionObserver === 'function') {
-          const IOProxy = function (callback, options) {
-            const wrapped = function (entries, observer) {
-              const patched = entries.map((entry) => {
-                const target = entry.target;
-                const isVideoish =
-                  target.tagName === 'VIDEO' ||
-                  target.closest?.('[data-a-target="player-overlay"],[data-a-target="player-container"]');
-                if (isVideoish) {
-                  const rect = target.getBoundingClientRect?.() || entry.boundingClientRect;
-                  return Object.assign({}, entry, {
-                    isIntersecting: true,
-                    intersectionRatio: 1,
-                    boundingClientRect: rect,
-                    intersectionRect: rect,
-                    rootBounds: entry.rootBounds
-                  });
-                }
-                return entry;
-              });
-              try {
-                return callback(patched, observer);
-              } catch (_) {
-                return undefined;
-              }
-            };
-            return new NativeIntersectionObserver(wrapped, options);
-          };
-          IOProxy.prototype = NativeIntersectionObserver.prototype;
-          uw.IntersectionObserver = IOProxy;
-        }
-
-        uw.setInterval(() => {
-          try {
-            uw.dispatchEvent(new uw.MouseEvent('mousemove', { bubbles: true }));
-          } catch (_) {}
-        }, 30000);
-
-        if (settings.requestWakeLock) {
-          try {
-            uw.navigator.wakeLock?.request?.('screen').catch(() => {});
-          } catch (_) {}
-        }
-
-        if (!settings.autoRecoverOverlays) {
+      function installIntersectionObserverProxy() {
+        const NativeIntersectionObserver = window.IntersectionObserver;
+        if (typeof NativeIntersectionObserver !== 'function') {
           return;
         }
 
-        let lastStartWatchingClick = 0;
-        const tryClickStartWatching = () => {
-          const now = Date.now();
-          if (now - lastStartWatchingClick < 3000) return;
+        const IntersectionObserverProxy = function (callback, options) {
+          const wrappedCallback = function (entries, observer) {
+            const patchedEntries = entries.map((entry) => {
+              const target = entry.target;
+              const isVideoish =
+                target.tagName === 'VIDEO' ||
+                target.closest?.(PLAYER_VISIBILITY_SELECTOR);
 
-          const button = uw.document.querySelector(
-            '[data-a-target="content-classification-gate-overlay-start-watching-button"]'
-          );
+              if (!isVideoish) {
+                return entry;
+              }
 
-          if (button && !button.disabled) {
-            lastStartWatchingClick = now;
-            button.click();
-          }
+              const rect =
+                target.getBoundingClientRect?.() || entry.boundingClientRect;
+              return Object.assign({}, entry, {
+                isIntersecting: true,
+                intersectionRatio: 1,
+                boundingClientRect: rect,
+                intersectionRect: rect,
+                rootBounds: entry.rootBounds
+              });
+            });
+
+            try {
+              return callback(patchedEntries, observer);
+            } catch (_) {
+              return undefined;
+            }
+          };
+
+          return new NativeIntersectionObserver(wrappedCallback, options);
         };
 
-        new uw.MutationObserver(tryClickStartWatching).observe(uw.document.documentElement, {
+        IntersectionObserverProxy.prototype =
+          NativeIntersectionObserver.prototype;
+        window.IntersectionObserver = IntersectionObserverProxy;
+      }
+
+      function dispatchActivityPulse() {
+        try {
+          window.dispatchEvent(
+            new window.MouseEvent('mousemove', { bubbles: true })
+          );
+        } catch (_) {}
+      }
+
+      function startActivityPulse() {
+        activityPulseIntervalId = window.setInterval(
+          dispatchActivityPulse,
+          ACTIVITY_PULSE_INTERVAL_MS
+        );
+      }
+
+      function requestScreenWakeLock() {
+        if (!settings.requestWakeLock) {
+          return;
+        }
+
+        try {
+          window.navigator.wakeLock?.request?.('screen').catch(() => {});
+        } catch (_) {}
+      }
+
+      function tryClickStartWatching() {
+        const now = Date.now();
+        if (
+          now - lastStartWatchingClick <
+          OVERLAY_ACTION_COOLDOWN_MS
+        ) {
+          return;
+        }
+
+        const button = document.querySelector(
+          START_WATCHING_BUTTON_SELECTOR
+        );
+
+        if (button && !button.disabled) {
+          lastStartWatchingClick = now;
+          button.click();
+        }
+      }
+
+      function tryRecoverStream() {
+        const overlay = document.querySelector(PLAYER_CONTENT_GATE_SELECTOR);
+        if (!overlay) {
+          return;
+        }
+
+        const now = Date.now();
+        if (now - lastOverlayHandled < OVERLAY_ACTION_COOLDOWN_MS) {
+          return;
+        }
+
+        const button = overlay.querySelector('button:not([disabled])');
+        if (button) {
+          lastOverlayHandled = now;
+          button.click();
+        }
+      }
+
+      function installOverlayRecovery() {
+        startWatchingObserver = new window.MutationObserver(
+          tryClickStartWatching
+        );
+        startWatchingObserver.observe(document.documentElement, {
           childList: true,
           subtree: true,
           attributes: true
         });
 
-        let lastOverlayHandled = 0;
-        const tryRecoverStream = () => {
-          const overlay = uw.document.querySelector('[data-a-target="player-overlay-content-gate"]');
-          if (!overlay) return;
-
-          const now = Date.now();
-          if (now - lastOverlayHandled < 3000) return;
-
-          const button = overlay.querySelector('button:not([disabled])');
-          if (button) {
-            lastOverlayHandled = now;
-            button.click();
-          }
-        };
-
-        new uw.MutationObserver(tryRecoverStream).observe(uw.document.documentElement, {
+        streamRecoveryObserver = new window.MutationObserver(tryRecoverStream);
+        streamRecoveryObserver.observe(document.documentElement, {
           childList: true,
           subtree: true,
           attributes: true
         });
       }
 
+      function activate() {
+        if (activated) {
+          return;
+        }
+        activated = true;
+
+        installGestureTracking();
+        spoofDocumentActivity();
+        blockBackgroundLifecycleEvents();
+        installMediaPlaybackGuard();
+        installIntersectionObserverProxy();
+        startActivityPulse();
+        requestScreenWakeLock();
+
+        if (settings.autoRecoverOverlays) {
+          installOverlayRecovery();
+        }
+      }
+
       return {
         updateSettings(nextSettings) {
-          settings = {
-            enabled: typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
-            autoRecoverOverlays:
-              typeof nextSettings.autoRecoverOverlays === 'boolean' ? nextSettings.autoRecoverOverlays : true,
-            requestWakeLock:
-              typeof nextSettings.requestWakeLock === 'boolean' ? nextSettings.requestWakeLock : false
-          };
+          settings = normalizeSettings(nextSettings);
 
           if (settings.enabled) {
             activate();
