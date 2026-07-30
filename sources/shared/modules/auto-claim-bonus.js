@@ -9,33 +9,42 @@
   registerModule({
     id: 'autoClaimBonus',
     create() {
+      const DEFAULT_INTERVAL_SECONDS = 15;
+      const MINIMUM_INTERVAL_SECONDS = 5;
+      const PRIMARY_CLAIM_BUTTON_SELECTOR = [
+        '.community-points-summary button[aria-label="Claim Bonus"]',
+        '[data-test-selector="community-points-summary"] button[aria-label="Claim Bonus"]'
+      ].join(',');
+      const FALLBACK_CLAIM_BUTTON_SELECTOR = 'button[aria-label="Claim Bonus"]';
+
       let settings = {
         enabled: true,
-        intervalSeconds: 15
+        intervalSeconds: DEFAULT_INTERVAL_SECONDS
       };
       let intervalId = null;
 
-      function getIntervalMs() {
-        const seconds =
-          typeof settings.intervalSeconds === 'number' &&
-          Number.isFinite(settings.intervalSeconds) &&
-          settings.intervalSeconds >= 5
-            ? Math.round(settings.intervalSeconds)
-            : 15;
+      function normalizeIntervalSeconds(value) {
+        return (
+          typeof value === 'number' &&
+          Number.isFinite(value) &&
+          value >= MINIMUM_INTERVAL_SECONDS
+            ? Math.round(value)
+            : DEFAULT_INTERVAL_SECONDS
+        );
+      }
 
-        return seconds * 1000;
+      function getIntervalMs() {
+        return settings.intervalSeconds * 1000;
       }
 
       function findClaimButton() {
         return (
-          document.querySelector(
-            '.community-points-summary button[aria-label="Claim Bonus"], [data-test-selector="community-points-summary"] button[aria-label="Claim Bonus"]'
-          ) ||
-          document.querySelector('button[aria-label="Claim Bonus"]')
+          document.querySelector(PRIMARY_CLAIM_BUTTON_SELECTOR) ||
+          document.querySelector(FALLBACK_CLAIM_BUTTON_SELECTOR)
         );
       }
 
-      function tryClaimBonus() {
+      function claimBonus() {
         if (!settings.enabled) {
           return;
         }
@@ -50,32 +59,35 @@
         } catch (_) {}
       }
 
-      function restartPolling() {
+      function stopPolling() {
         if (intervalId) {
           clearInterval(intervalId);
           intervalId = null;
         }
+      }
 
+      function startPolling() {
         if (!settings.enabled) {
           return;
         }
 
-        tryClaimBonus();
-        intervalId = window.setInterval(tryClaimBonus, getIntervalMs());
+        claimBonus();
+        intervalId = window.setInterval(claimBonus, getIntervalMs());
       }
 
-      restartPolling();
+      function restartPolling() {
+        stopPolling();
+        startPolling();
+      }
+
+      startPolling();
 
       return {
         updateSettings(nextSettings) {
           settings = {
-            enabled: typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
-            intervalSeconds:
-              typeof nextSettings.intervalSeconds === 'number' &&
-              Number.isFinite(nextSettings.intervalSeconds) &&
-              nextSettings.intervalSeconds >= 5
-                ? Math.round(nextSettings.intervalSeconds)
-                : 15
+            enabled:
+              typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
+            intervalSeconds: normalizeIntervalSeconds(nextSettings.intervalSeconds)
           };
 
           restartPolling();
