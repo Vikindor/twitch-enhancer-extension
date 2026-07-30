@@ -28,40 +28,62 @@
   registerModule({
     id: 'blockAnnoyances',
     create() {
+      const CAROUSEL_SELECTOR =
+        '[data-a-target="front-page-carousel"], [data-a-player-type="frontpage"]';
+      const FRONTPAGE_PLAYER_SELECTOR = '[data-a-player-type="frontpage"]';
+      const PLAY_PAUSE_BUTTON_SELECTOR =
+        '[data-a-target="player-play-pause-button"]';
+      const CAROUSEL_PLAY_BUTTON_SELECTOR =
+        '[data-a-target="front-page-carousel"] ' + PLAY_PAUSE_BUTTON_SELECTOR;
+      const CAROUSEL_VIDEO_SELECTOR =
+        '[data-a-target="front-page-carousel"] video, ' +
+        '[data-a-player-type="frontpage"] video';
+      const PHONE_PROMPT_BUTTON_SELECTOR =
+        '[data-a-target="account-checkup-no-phone-warning-modal"] ' +
+        '[data-a-target="account-checkup-generic-modal-secondary-button"]';
+      const PLAYER_STOP_GUARD_MS = 1000;
       const originalPlay = HTMLMediaElement.prototype.play;
       const stoppingPlayers = new WeakSet();
       const dismissedPhonePromptButtons = new WeakSet();
-      let dismissPhoneNumberPromptEnabled = false;
-      let autoPausePromotedStreamsEnabled = false;
-      let promotedStreamsManuallyEnabled = false;
+
+      const behavior = {
+        dismissPhoneNumberPromptEnabled: false,
+        autoPausePromotedStreamsEnabled: false,
+        promotedStreamsManuallyEnabled: false
+      };
 
       function isCarouselMedia(media) {
         return Boolean(
           media &&
-          typeof media.closest === 'function' &&
-          media.closest(
-            '[data-a-target="front-page-carousel"], [data-a-player-type="frontpage"]'
-          )
+            typeof media.closest === 'function' &&
+            media.closest(CAROUSEL_SELECTOR)
         );
       }
 
-      function shouldBlockPlayback(media) {
+      function shouldPausePlayback(media) {
         return (
-          autoPausePromotedStreamsEnabled &&
+          behavior.autoPausePromotedStreamsEnabled &&
           isCarouselMedia(media) &&
-          !promotedStreamsManuallyEnabled
+          !behavior.promotedStreamsManuallyEnabled
         );
       }
 
       function disableNativeAutoplay(media) {
-        if (!autoPausePromotedStreamsEnabled || !isCarouselMedia(media)) return;
+        if (
+          !behavior.autoPausePromotedStreamsEnabled ||
+          !isCarouselMedia(media)
+        ) {
+          return;
+        }
 
         media.autoplay = false;
         media.removeAttribute('autoplay');
       }
 
-      function scanForCarouselVideos(root) {
-        if (!autoPausePromotedStreamsEnabled || !root) return;
+      function disableCarouselAutoplay(root) {
+        if (!behavior.autoPausePromotedStreamsEnabled || !root) {
+          return;
+        }
 
         if (root instanceof HTMLVideoElement) {
           disableNativeAutoplay(root);
@@ -73,28 +95,34 @@
       }
 
       function dismissPhoneNumberPrompt(root) {
-        if (!dismissPhoneNumberPromptEnabled || !(root instanceof Element)) return;
+        if (
+          !behavior.dismissPhoneNumberPromptEnabled ||
+          !(root instanceof Element)
+        ) {
+          return;
+        }
 
-        const selector =
-          '[data-a-target="account-checkup-no-phone-warning-modal"] ' +
-          '[data-a-target="account-checkup-generic-modal-secondary-button"]';
-        const button = root.matches(selector) ? root : root.querySelector(selector);
+        const button = root.matches(PHONE_PROMPT_BUTTON_SELECTOR)
+          ? root
+          : root.querySelector(PHONE_PROMPT_BUTTON_SELECTOR);
 
-        if (!button || dismissedPhonePromptButtons.has(button)) return;
+        if (!button || dismissedPhonePromptButtons.has(button)) {
+          return;
+        }
 
         dismissedPhonePromptButtons.add(button);
         button.click();
       }
 
-      function stopCarouselPlayer(media) {
-        if (!shouldBlockPlayback(media)) return false;
+      function pauseCarouselPlayer(media) {
+        if (!shouldPausePlayback(media)) {
+          return false;
+        }
 
         const player =
-          media.closest('[data-a-player-type="frontpage"]') ||
+          media.closest(FRONTPAGE_PLAYER_SELECTOR) ||
           media.closest('[data-a-target="front-page-carousel"]');
-        const pauseButton = player?.querySelector(
-          '[data-a-target="player-play-pause-button"]'
-        );
+        const pauseButton = player?.querySelector(PLAY_PAUSE_BUTTON_SELECTOR);
 
         if (!player || !pauseButton || stoppingPlayers.has(player)) {
           return false;
@@ -102,105 +130,144 @@
 
         stoppingPlayers.add(player);
         pauseButton.click();
-        setTimeout(() => stoppingPlayers.delete(player), 1000);
+        setTimeout(() => {
+          stoppingPlayers.delete(player);
+        }, PLAYER_STOP_GUARD_MS);
         return true;
       }
 
-      HTMLMediaElement.prototype.play = function (...args) {
-        if (shouldBlockPlayback(this)) {
-          disableNativeAutoplay(this);
+      function handlePointerDown(event) {
+        if (
+          !behavior.autoPausePromotedStreamsEnabled ||
+          !event.isTrusted ||
+          !(event.target instanceof Element)
+        ) {
+          return;
         }
 
-        return originalPlay.apply(this, args);
-      };
-
-      document.addEventListener('pointerdown', (event) => {
-        if (!autoPausePromotedStreamsEnabled || !event.isTrusted) return;
-        if (!(event.target instanceof Element)) return;
-
-        const playButton = event.target.closest(
-          '[data-a-target="front-page-carousel"] ' +
-          '[data-a-target="player-play-pause-button"]'
-        );
+        const playButton = event.target.closest(CAROUSEL_PLAY_BUTTON_SELECTOR);
         const video = playButton
-          ?.closest('[data-a-player-type="frontpage"]')
+          ?.closest(FRONTPAGE_PLAYER_SELECTOR)
           ?.querySelector('video');
 
         if (video?.paused) {
-          promotedStreamsManuallyEnabled = true;
+          behavior.promotedStreamsManuallyEnabled = true;
         }
-      }, true);
+      }
 
-      document.addEventListener('keydown', (event) => {
+      function handleKeyDown(event) {
         const key = event.key.toLowerCase();
-        if (!autoPausePromotedStreamsEnabled || !event.isTrusted) return;
-        if (key !== 'k' && key !== ' ') return;
+        if (
+          !behavior.autoPausePromotedStreamsEnabled ||
+          !event.isTrusted ||
+          (key !== 'k' && key !== ' ')
+        ) {
+          return;
+        }
 
         const video = document.querySelector(
-          '[data-a-target="front-page-carousel"] [data-a-player-type="frontpage"] video'
+          '[data-a-target="front-page-carousel"] ' +
+            FRONTPAGE_PLAYER_SELECTOR +
+            ' video'
         );
 
         if (video?.paused) {
-          promotedStreamsManuallyEnabled = true;
+          behavior.promotedStreamsManuallyEnabled = true;
         }
-      }, true);
+      }
 
-      document.addEventListener('playing', (event) => {
-        const media = event.target;
-        stopCarouselPlayer(media);
-      }, true);
+      function handlePlaying(event) {
+        pauseCarouselPlayer(event.target);
+      }
 
-      const pageObserver = new MutationObserver((mutations) => {
+      function handleMutations(mutations) {
         for (const mutation of mutations) {
           if (mutation.type === 'attributes') {
-            if (autoPausePromotedStreamsEnabled) {
+            if (behavior.autoPausePromotedStreamsEnabled) {
               disableNativeAutoplay(mutation.target);
             }
             continue;
           }
 
           mutation.addedNodes.forEach((node) => {
-            scanForCarouselVideos(node);
+            disableCarouselAutoplay(node);
             dismissPhoneNumberPrompt(node);
           });
         }
-      });
+      }
 
-      pageObserver.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['autoplay'],
-        childList: true,
-        subtree: true
-      });
+      function installMediaPlaybackGuard() {
+        HTMLMediaElement.prototype.play = function (...args) {
+          if (shouldPausePlayback(this)) {
+            disableNativeAutoplay(this);
+          }
 
-      function applySettings(settings) {
+          return originalPlay.apply(this, args);
+        };
+
+        document.addEventListener('playing', handlePlaying, true);
+      }
+
+      function installManualPlaybackTracking() {
+        document.addEventListener('pointerdown', handlePointerDown, true);
+        document.addEventListener('keydown', handleKeyDown, true);
+      }
+
+      function startPageObserver() {
+        const observer = new MutationObserver(handleMutations);
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['autoplay'],
+          childList: true,
+          subtree: true
+        });
+      }
+
+      function updateBehaviorSettings(settings) {
         const enabled = settings.enabled === true;
-        dismissPhoneNumberPromptEnabled =
+        behavior.dismissPhoneNumberPromptEnabled =
           enabled && settings.dismissPhoneNumberPrompt !== false;
-        autoPausePromotedStreamsEnabled =
+        behavior.autoPausePromotedStreamsEnabled =
           enabled && settings.autoPausePromotedStreams !== false;
+      }
+
+      function applyAnnoyanceAttributes(settings) {
+        const enabled = settings.enabled === true;
 
         for (const [id, attribute] of Object.entries(ANNOYANCE_ATTRIBUTES)) {
-          document.documentElement.toggleAttribute(attribute, enabled && settings[id] !== false);
+          document.documentElement.toggleAttribute(
+            attribute,
+            enabled && settings[id] !== false
+          );
         }
+      }
 
-        if (dismissPhoneNumberPromptEnabled) {
+      function applyEnabledActions() {
+        if (behavior.dismissPhoneNumberPromptEnabled) {
           dismissPhoneNumberPrompt(document.documentElement);
         }
 
-        if (autoPausePromotedStreamsEnabled) {
-          scanForCarouselVideos(document);
-          document
-            .querySelectorAll(
-              '[data-a-target="front-page-carousel"] video, [data-a-player-type="frontpage"] video'
-            )
-            .forEach((video) => {
-              if (!video.paused && !promotedStreamsManuallyEnabled) {
-                stopCarouselPlayer(video);
-              }
-            });
+        if (!behavior.autoPausePromotedStreamsEnabled) {
+          return;
         }
+
+        disableCarouselAutoplay(document);
+        document.querySelectorAll(CAROUSEL_VIDEO_SELECTOR).forEach((video) => {
+          if (!video.paused && !behavior.promotedStreamsManuallyEnabled) {
+            pauseCarouselPlayer(video);
+          }
+        });
       }
+
+      function applySettings(settings) {
+        updateBehaviorSettings(settings);
+        applyAnnoyanceAttributes(settings);
+        applyEnabledActions();
+      }
+
+      installMediaPlaybackGuard();
+      installManualPlaybackTracking();
+      startPageObserver();
 
       return {
         updateSettings(settings) {
