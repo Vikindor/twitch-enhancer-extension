@@ -6,77 +6,154 @@
     window.__twitchEnhancerModuleDefinitions.push(definition);
   }
 
+  const DEFAULT_SETTINGS = {
+    enabled: true,
+    muteOnLow: true,
+    muteTarget: 'tab',
+    persistSelection: true,
+    forceUnmuteBothOnHigh: true,
+    preferredHigh: null,
+    preferHighestBitrateMatch: true
+  };
+
+  const QUALITY_STORAGE_KEYS = {
+    highestAvailable: 'video-quality-highest-available',
+    bitrate: 'quality-bitrate',
+    quality: 'video-quality',
+    muted: 'video-muted'
+  };
+
+  const PLAYER_SELECTOR = '[data-a-target="video-player"]';
+  const REACT_FIBER_PREFIX = '__reactFiber';
+  const MAXIMUM_FIBER_SEARCH_DEPTH = 6;
+
   registerModule({
     id: 'toggleVideoQuality',
     create(context) {
-      let settings = {
-        enabled: true,
-        muteOnLow: true,
-        muteTarget: 'tab',
-        persistSelection: true,
-        forceUnmuteBothOnHigh: true,
-        preferredHigh: null,
-        preferHighestBitrateMatch: true
-      };
+      let settings = { ...DEFAULT_SETTINGS };
+
+      function normalizeSettings(nextSettings) {
+        return {
+          enabled:
+            typeof nextSettings.enabled === 'boolean'
+              ? nextSettings.enabled
+              : DEFAULT_SETTINGS.enabled,
+          muteOnLow:
+            typeof nextSettings.muteOnLow === 'boolean'
+              ? nextSettings.muteOnLow
+              : DEFAULT_SETTINGS.muteOnLow,
+          muteTarget:
+            nextSettings.muteTarget === 'video'
+              ? 'video'
+              : DEFAULT_SETTINGS.muteTarget,
+          persistSelection:
+            typeof nextSettings.persistSelection === 'boolean'
+              ? nextSettings.persistSelection
+              : DEFAULT_SETTINGS.persistSelection,
+          forceUnmuteBothOnHigh:
+            typeof nextSettings.forceUnmuteBothOnHigh === 'boolean'
+              ? nextSettings.forceUnmuteBothOnHigh
+              : DEFAULT_SETTINGS.forceUnmuteBothOnHigh,
+          preferredHigh:
+            typeof nextSettings.preferredHigh === 'number' &&
+            Number.isFinite(nextSettings.preferredHigh)
+              ? nextSettings.preferredHigh
+              : DEFAULT_SETTINGS.preferredHigh,
+          preferHighestBitrateMatch:
+            typeof nextSettings.preferHighestBitrateMatch === 'boolean'
+              ? nextSettings.preferHighestBitrateMatch
+              : DEFAULT_SETTINGS.preferHighestBitrateMatch
+        };
+      }
 
       function persistQuality(quality) {
-        if (!settings.persistSelection) return;
-        if (!quality || !quality.group) return;
+        if (
+          !settings.persistSelection ||
+          !quality ||
+          !quality.group
+        ) {
+          return;
+        }
 
         try {
-          localStorage.setItem('video-quality-highest-available', 'false');
+          localStorage.setItem(QUALITY_STORAGE_KEYS.highestAvailable, 'false');
 
           const bitrate = Number(quality.bitrate);
           if (Number.isFinite(bitrate) && bitrate > 0) {
-            localStorage.setItem('quality-bitrate', String(bitrate));
+            localStorage.setItem(
+              QUALITY_STORAGE_KEYS.bitrate,
+              String(bitrate)
+            );
           }
 
-          localStorage.setItem('video-quality', JSON.stringify({ default: quality.group }));
+          localStorage.setItem(
+            QUALITY_STORAGE_KEYS.quality,
+            JSON.stringify({ default: quality.group })
+          );
         } catch (_) {}
       }
 
-      function persistMute(isMuted) {
-        if (!settings.persistSelection) return;
+      function persistMute(muted) {
+        if (!settings.persistSelection) {
+          return;
+        }
 
         try {
-          localStorage.setItem('video-muted', JSON.stringify({ default: isMuted }));
+          localStorage.setItem(
+            QUALITY_STORAGE_KEYS.muted,
+            JSON.stringify({ default: muted })
+          );
         } catch (_) {}
       }
 
       function getTwitchPlayer() {
-        const node = document.querySelector('[data-a-target="video-player"]');
-        if (!node) return null;
+        const playerNode = document.querySelector(PLAYER_SELECTOR);
+        if (!playerNode) {
+          return null;
+        }
 
-        const fiberKey = Object.keys(node).find((key) => key.startsWith('__reactFiber'));
-        if (!fiberKey) return null;
+        const fiberKey = Object.keys(playerNode).find((key) =>
+          key.startsWith(REACT_FIBER_PREFIX)
+        );
+        if (!fiberKey) {
+          return null;
+        }
 
-        const fiber = node[fiberKey];
-        let found = null;
+        const fiber = playerNode[fiberKey];
+        let foundPlayer = null;
 
-        (function find(obj, depth = 0, maxDepth = 6, seen = new WeakSet()) {
-          if (!obj || typeof obj !== 'object') return;
-          if (seen.has(obj)) return;
-          seen.add(obj);
+        function findPlayerApi(
+          object,
+          depth = 0,
+          seen = new WeakSet()
+        ) {
+          if (!object || typeof object !== 'object' || seen.has(object)) {
+            return;
+          }
+          seen.add(object);
 
           if (
-            typeof obj.setQuality === 'function' &&
-            typeof obj.getQualities === 'function' &&
-            typeof obj.getQuality === 'function'
+            typeof object.setQuality === 'function' &&
+            typeof object.getQualities === 'function' &&
+            typeof object.getQuality === 'function'
           ) {
-            found = obj;
+            foundPlayer = object;
             return;
           }
 
-          if (depth > maxDepth) return;
+          if (depth > MAXIMUM_FIBER_SEARCH_DEPTH) {
+            return;
+          }
 
-          for (const key in obj) {
+          for (const key in object) {
             try {
-              find(obj[key], depth + 1, maxDepth, seen);
+              findPlayerApi(object[key], depth + 1, seen);
             } catch (_) {}
           }
-        })(fiber);
+        }
 
-        return found;
+        findPlayerApi(fiber);
+        return foundPlayer;
       }
 
       function extractHeight(quality) {
@@ -84,13 +161,44 @@
         return match ? parseInt(match[1], 10) : 0;
       }
 
-      function getHighestBitrateQuality(qualities) {
-        return qualities.reduce((max, quality) =>
-          quality.bitrate > max.bitrate ? quality : max
+      function getLowestBitrateQuality(qualities) {
+        return qualities.reduce((lowest, quality) =>
+          quality.bitrate < lowest.bitrate ? quality : lowest
         );
       }
 
-      async function setMuteState(player, muted) {
+      function getHighestBitrateQuality(qualities) {
+        return qualities.reduce((highest, quality) =>
+          quality.bitrate > highest.bitrate ? quality : highest
+        );
+      }
+
+      function getPreferredHighQuality(qualities) {
+        if (settings.preferredHigh === null) {
+          return null;
+        }
+
+        const preferredMatches = qualities.filter(
+          (quality) => extractHeight(quality) === settings.preferredHigh
+        );
+
+        if (!preferredMatches.length) {
+          return null;
+        }
+
+        return settings.preferHighestBitrateMatch
+          ? getHighestBitrateQuality(preferredMatches)
+          : preferredMatches[0];
+      }
+
+      function getHighQuality(qualities) {
+        return (
+          getPreferredHighQuality(qualities) ||
+          getHighestBitrateQuality(qualities)
+        );
+      }
+
+      async function muteConfiguredTarget(player) {
         if (!settings.muteOnLow) {
           return;
         }
@@ -98,15 +206,15 @@
         if (settings.muteTarget === 'tab') {
           // Browser tab muting survives page reloads on its own. Do not write
           // Twitch's video-muted preference here, or the player is muted too.
-          await context.requestTabMuted(muted);
+          await context.requestTabMuted(true);
           return;
         }
 
-        player.setMuted(muted);
-        persistMute(muted);
+        player.setMuted(true);
+        persistMute(true);
       }
 
-      async function forceUnmuteEverywhere(player) {
+      async function unmuteTabAndPlayer(player) {
         const results = await Promise.allSettled([
           context.requestTabMuted(false),
           Promise.resolve().then(() => {
@@ -115,13 +223,31 @@
           })
         ]);
 
-        const changedAnything =
-          (results[0].status === 'fulfilled' && results[0].value) ||
-          results[1].status === 'fulfilled';
+        const tabWasUnmuted =
+          results[0].status === 'fulfilled' && results[0].value;
+        const playerWasUnmuted = results[1].status === 'fulfilled';
 
-        if (changedAnything) {
+        if (tabWasUnmuted || playerWasUnmuted) {
           persistMute(false);
         }
+      }
+
+      async function switchToHighQuality(player, quality) {
+        player.setQuality(quality);
+
+        if (settings.forceUnmuteBothOnHigh) {
+          await unmuteTabAndPlayer(player);
+        }
+
+        persistQuality(quality);
+        return { ok: true, mode: 'high' };
+      }
+
+      async function switchToLowQuality(player, quality) {
+        player.setQuality(quality);
+        await muteConfiguredTarget(player);
+        persistQuality(quality);
+        return { ok: true, mode: 'low' };
       }
 
       async function toggleQuality() {
@@ -139,77 +265,30 @@
           return { ok: false, reason: 'qualities-not-found' };
         }
 
-        const current = player.getQuality();
-        if (!current || !current.group) {
+        const currentQuality = player.getQuality();
+        if (!currentQuality || !currentQuality.group) {
           return { ok: false, reason: 'current-quality-not-found' };
         }
 
-        const lowest = qualities.reduce((min, quality) =>
-          quality.bitrate < min.bitrate ? quality : min
-        );
+        const lowQuality = getLowestBitrateQuality(qualities);
+        const highQuality = getHighQuality(qualities);
+        const isCurrentlyLow = currentQuality.group === lowQuality.group;
 
-        let preferredHigh = null;
-        if (settings.preferredHigh != null) {
-          const preferredMatches = qualities.filter(
-            (quality) => extractHeight(quality) === settings.preferredHigh
-          );
-
-          if (preferredMatches.length) {
-            preferredHigh = settings.preferHighestBitrateMatch
-              ? getHighestBitrateQuality(preferredMatches)
-              : preferredMatches[0];
-          }
-        }
-
-        const highestAvailable = getHighestBitrateQuality(qualities);
-
-        const high = preferredHigh || highestAvailable;
-        const isCurrentlyLowest = current.group === lowest.group;
-
-        if (isCurrentlyLowest) {
-          player.setQuality(high);
-          if (settings.forceUnmuteBothOnHigh) {
-            await forceUnmuteEverywhere(player);
-          } else if (settings.muteOnLow) {
-            await setMuteState(player, false);
-          }
-          persistQuality(high);
-          return { ok: true, mode: 'high' };
-        }
-
-        player.setQuality(lowest);
-        if (settings.muteOnLow) {
-          await setMuteState(player, true);
-        }
-        persistQuality(lowest);
-        return { ok: true, mode: 'low' };
+        return isCurrentlyLow
+          ? switchToHighQuality(player, highQuality)
+          : switchToLowQuality(player, lowQuality);
       }
 
       return {
         updateSettings(nextSettings) {
-          settings = {
-            enabled: typeof nextSettings.enabled === 'boolean' ? nextSettings.enabled : true,
-            muteOnLow: typeof nextSettings.muteOnLow === 'boolean' ? nextSettings.muteOnLow : true,
-            muteTarget: nextSettings.muteTarget === 'video' ? 'video' : 'tab',
-            persistSelection:
-              typeof nextSettings.persistSelection === 'boolean' ? nextSettings.persistSelection : true,
-            forceUnmuteBothOnHigh:
-              typeof nextSettings.forceUnmuteBothOnHigh === 'boolean'
-                ? nextSettings.forceUnmuteBothOnHigh
-                : false,
-            preferredHigh:
-              typeof nextSettings.preferredHigh === 'number' && Number.isFinite(nextSettings.preferredHigh)
-                ? nextSettings.preferredHigh
-                : null,
-            preferHighestBitrateMatch:
-              typeof nextSettings.preferHighestBitrateMatch === 'boolean'
-                ? nextSettings.preferHighestBitrateMatch
-                : true
-          };
+          settings = normalizeSettings(nextSettings);
         },
         handleCommand(command) {
           if (command !== 'toggle') {
-            return Promise.resolve({ ok: false, reason: 'unknown-command' });
+            return Promise.resolve({
+              ok: false,
+              reason: 'unknown-command'
+            });
           }
 
           return toggleQuality();
