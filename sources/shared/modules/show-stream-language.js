@@ -17,56 +17,98 @@
       const loginById = new Map();
       const LANGUAGE_TAG_CODES = new Map(
         Object.entries({
-          arabic: 'AR',
-          qatar: 'AR',
-          uae: 'AR',
-          'العربية': 'AR',
-          bulgarian: 'BG',
-          'български': 'BG',
+          // English
+          australia: 'EN',
+          english: 'EN',
+          // Bahasa Indonesia — Indonesian
+          indonesian: 'ID',
+          // Català — Catalan
+          català: 'CA',
+          catalan: 'CA',
+          // Dansk — Danish
+          dansk: 'DA',
+          danish: 'DA',
+          // Deutsch — German
+          deutsch: 'DE',
+          // Español — Spanish
+          'español': 'ES',
+          espanol: 'ES',
+          // Français — French
+          'français': 'FR',
+          francais: 'FR',
+          // Italiano — Italian
+          italiano: 'IT',
+          // Magyar — Hungarian
+          magyar: 'HU',
+          // Nederlands — Dutch
+          nederlands: 'NL',
+          dutch: 'NL',
+          // Norsk — Norwegian
+          norsk: 'NO',
+          // Polski — Polish
+          polski: 'PL',
+          // Português — Portuguese
+          'português': 'PT',
+          portugues: 'PT',
+          portuguese: 'PT',
+          // Română — Romanian
+          'română': 'RO',
+          romanian: 'RO',
+          romania: 'RO',
+          // Slovenčina — Slovak
+          'slovenčina': 'SK',
+          // Suomi — Finnish
+          suomi: 'FI',
+          // Svenska — Swedish
+          svenska: 'SV',
+          // Tagalog
+          tagalog: 'TL',
+          // Tiếng Việt — Vietnamese
+          vietnamese: 'VI',
+          // Türkçe — Turkish
+          'türkçe': 'TR',
+          turkish: 'TR',
+          // Čeština — Czech
+          'čeština': 'CS',
           czech: 'CS',
           cz: 'CS',
           czsk: 'CS',
-          'čeština': 'CS',
-          danish: 'DA',
-          dansk: 'DA',
-          deutsch: 'DE',
-          greek: 'EL',
+          // Ελληνικά — Greek
           'ελληνικά': 'EL',
-          australia: 'EN',
-          english: 'EN',
-          'español': 'ES',
-          espanol: 'ES',
-          suomi: 'FI',
-          francais: 'FR',
-          'français': 'FR',
-          magyar: 'HU',
-          italiano: 'IT',
-          '日本語': 'JA',
-          '한국어': 'KO',
-          lietuva: 'LT',
-          lithuania: 'LT',
-          dutch: 'NL',
-          nederlands: 'NL',
-          norsk: 'NO',
-          polski: 'PL',
-          portugues: 'PT',
-          'português': 'PT',
-          portuguese: 'PT',
-          romania: 'RO',
-          romanian: 'RO',
-          'română': 'RO',
+          greek: 'EL',
+          // Български — Bulgarian
+          'български': 'BG',
+          bulgarian: 'BG',
+          // Русский — Russian
           'русский': 'RU',
-          'slovenčina': 'SK',
-          svenska: 'SV',
-          'ภาษาไทย': 'TH',
-          tagalog: 'TL',
-          turkish: 'TR',
-          'türkçe': 'TR',
-          ukrainian: 'UK',
+          // Українська — Ukrainian
           'українська': 'UK',
+          'український': 'UK',
+          ukrainian: 'UK',
+          // العربية — Arabic
+          'العربية': 'AR',
+          arabic: 'AR',
+          qatar: 'AR',
+          uae: 'AR',
+          // بهاس ملايو — Malay
+          malay: 'MS',
+          // मानक हिन्दी — Standard Hindi
+          hindi: 'HI',
+          // ภาษาไทย — Thai
+          'ภาษาไทย': 'TH',
+          // 中文 — Chinese
           '中文': 'ZH',
           '中文(简体)': 'ZH',
-          '中文(繁體)': 'ZH'
+          '中文(繁體)': 'ZH',
+          // 日本語 — Japanese
+          '日本語': 'JA',
+          // 한국어 — Korean
+          '한국어': 'KO',
+          // American Sign Language
+          americansignlanguage: 'ASL',
+          // Additional legacy fallbacks
+          lietuva: 'LT',
+          lithuania: 'LT'
         })
       );
 
