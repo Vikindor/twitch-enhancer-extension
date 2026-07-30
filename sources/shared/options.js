@@ -48,6 +48,10 @@ const DEFAULT_SETTINGS = {
       enabled: true,
       visualMode: 'suffix'
     },
+    showDropsIndicator: {
+      enabled: true,
+      visualMode: 'suffix'
+    },
     forceSortViewers: {
       enabled: true,
       runPolicy: 'perLoad'
@@ -280,6 +284,14 @@ async function loadOptions() {
   document.getElementById('language-visualMode').value = language.visualMode === 'badge' ? 'badge' : 'suffix';
   setModuleDisabledState('showStreamLanguage', language.enabled !== false);
 
+  const dropsIndicator =
+    modules.showDropsIndicator || DEFAULT_SETTINGS.modules.showDropsIndicator;
+  document.getElementById('drops-indicator-enabled').checked =
+    dropsIndicator.enabled !== false;
+  document.getElementById('drops-indicator-visualMode').value =
+    dropsIndicator.visualMode === 'badge' ? 'badge' : 'suffix';
+  setModuleDisabledState('showDropsIndicator', dropsIndicator.enabled !== false);
+
   const sort = modules.forceSortViewers || DEFAULT_SETTINGS.modules.forceSortViewers;
   document.getElementById('sort-enabled').checked = sort.enabled !== false;
   document.getElementById('sort-runPolicy').value = sort.runPolicy === 'perTab' ? 'perTab' : 'perLoad';
@@ -353,6 +365,13 @@ async function saveOptions() {
         enabled: document.getElementById('language-enabled').checked,
         visualMode: document.getElementById('language-visualMode').value === 'badge' ? 'badge' : 'suffix'
       },
+      showDropsIndicator: {
+        enabled: document.getElementById('drops-indicator-enabled').checked,
+        visualMode:
+          document.getElementById('drops-indicator-visualMode').value === 'badge'
+            ? 'badge'
+            : 'suffix'
+      },
       forceSortViewers: {
         enabled: document.getElementById('sort-enabled').checked,
         runPolicy: document.getElementById('sort-runPolicy').value === 'perTab' ? 'perTab' : 'perLoad'
@@ -423,6 +442,9 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   document.getElementById('language-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('showStreamLanguage', event.target.checked);
+  });
+  document.getElementById('drops-indicator-enabled').addEventListener('change', (event) => {
+    setModuleDisabledState('showDropsIndicator', event.target.checked);
   });
   document.getElementById('sort-enabled').addEventListener('change', (event) => {
     setModuleDisabledState('forceSortViewers', event.target.checked);

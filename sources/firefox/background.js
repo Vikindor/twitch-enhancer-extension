@@ -46,6 +46,10 @@ const DEFAULT_SETTINGS = {
       enabled: true,
       visualMode: 'suffix'
     },
+    showDropsIndicator: {
+      enabled: true,
+      visualMode: 'suffix'
+    },
     forceSortViewers: {
       enabled: true,
       runPolicy: 'perLoad'
@@ -82,6 +86,10 @@ async function ensureDefaults() {
       showStreamLanguage: {
         ...DEFAULT_SETTINGS.modules.showStreamLanguage,
         ...(modules.showStreamLanguage || {})
+      },
+      showDropsIndicator: {
+        ...DEFAULT_SETTINGS.modules.showDropsIndicator,
+        ...(modules.showDropsIndicator || {})
       },
       forceSortViewers: {
         ...DEFAULT_SETTINGS.modules.forceSortViewers,

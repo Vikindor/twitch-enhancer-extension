@@ -9,6 +9,7 @@
     'modules/chat-reply-preview.js',
     'modules/block-annoyances.js',
     'modules/show-stream-language.js',
+    'modules/show-drops-indicator.js',
     'modules/force-sort-viewers.js',
     'page.js'
   ];
@@ -80,6 +81,10 @@
         enabled: true,
         visualMode: 'suffix'
       },
+      showDropsIndicator: {
+        enabled: true,
+        visualMode: 'suffix'
+      },
       forceSortViewers: {
         enabled: true,
         runPolicy: 'perLoad'
@@ -118,6 +123,10 @@
     const language = modules.showStreamLanguage && typeof modules.showStreamLanguage === 'object'
       ? modules.showStreamLanguage
       : {};
+    const dropsIndicator =
+      modules.showDropsIndicator && typeof modules.showDropsIndicator === 'object'
+        ? modules.showDropsIndicator
+        : {};
     const sort = modules.forceSortViewers && typeof modules.forceSortViewers === 'object'
       ? modules.forceSortViewers
       : {};
@@ -230,6 +239,11 @@
     fallback.modules.showStreamLanguage = {
       enabled: typeof language.enabled === 'boolean' ? language.enabled : true,
       visualMode: language.visualMode === 'badge' ? 'badge' : 'suffix'
+    };
+
+    fallback.modules.showDropsIndicator = {
+      enabled: typeof dropsIndicator.enabled === 'boolean' ? dropsIndicator.enabled : true,
+      visualMode: dropsIndicator.visualMode === 'badge' ? 'badge' : 'suffix'
     };
 
     fallback.modules.forceSortViewers = {

@@ -394,6 +394,33 @@
           <div class="panel-content">
             <div class="module-header">
               <div class="module-copy">
+                <h2>Show Drops Indicator</h2>
+                <p>Shows a Drops icon on directory cards for streams with a recognized Drops tag</p>
+              </div>
+              <div class="module-toggle">
+                <input id="drops-indicator-enabled" type="checkbox">
+                <label for="drops-indicator-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="showDropsIndicator">
+              <div class="field">
+                <label for="drops-indicator-visualMode">Visual mode</label>
+                <select id="drops-indicator-visualMode">
+                  <option value="suffix">Icon next to the channel name</option>
+                  <option value="badge">Badge on the stream preview</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
                 <h2>Force Sort Viewers</h2>
                 <p>Automatically applies Viewers: High to Low sorting on Twitch directory pages so larger streams stay surfaced first</p>
               </div>

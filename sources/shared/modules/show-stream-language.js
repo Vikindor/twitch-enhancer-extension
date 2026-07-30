@@ -46,6 +46,9 @@
         root.querySelectorAll('.__langChannelInline, .__langSuffixRight, .__langBadge').forEach((element) => {
           element.remove();
         });
+        root.querySelectorAll('.__streamCardBadgeStack:empty').forEach((element) => {
+          element.remove();
+        });
       }
 
       function tagToCode(tagObj) {
@@ -401,13 +404,25 @@
           thumb.style.position = 'relative';
         }
 
+        let stack = thumb.querySelector(':scope > .__streamCardBadgeStack');
+        if (!stack) {
+          stack = document.createElement('div');
+          stack.className = '__streamCardBadgeStack';
+          stack.style.position = 'absolute';
+          stack.style.top = '8px';
+          stack.style.right = '8px';
+          stack.style.display = 'flex';
+          stack.style.alignItems = 'center';
+          stack.style.gap = '0.4rem';
+          stack.style.pointerEvents = 'none';
+          stack.style.zIndex = '3';
+          thumb.appendChild(stack);
+        }
+
         let element = thumb.querySelector('.__langBadge');
         if (!element) {
           element = document.createElement('div');
           element.className = '__langBadge';
-          element.style.position = 'absolute';
-          element.style.top = '8px';
-          element.style.right = '8px';
           element.style.padding = '2px 6px';
           element.style.borderRadius = '4px';
           element.style.fontSize = '12px';
@@ -416,9 +431,14 @@
           element.style.background = 'rgb(235,4,0)';
           element.style.color = '#fff';
           element.style.pointerEvents = 'none';
-          element.style.zIndex = '3';
           element.textContent = '[??]';
-          thumb.appendChild(element);
+          stack.appendChild(element);
+        } else if (element.parentElement !== stack) {
+          element.style.position = 'static';
+          element.style.top = '';
+          element.style.right = '';
+          element.style.zIndex = '';
+          stack.appendChild(element);
         }
 
         let code = langByLogin.get(login);
