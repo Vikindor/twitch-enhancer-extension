@@ -4,7 +4,7 @@
 
 Modular browser extension for Twitch that combines several quality-of-life improvements in one place. Designed as a unified replacement for multiple separate Twitch userscripts, it offers shared settings, per-module toggles, and separate builds for **Chrome/Chromium** and **Firefox**.
 
-It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), **Auto Claim Bonus**, **Block Annoyances**, **Chat Reply Preview**, [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers), and [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language).
+It currently includes [**Toggle Video Quality**](https://github.com/Vikindor/twitch-toggle-video-quality), **Auto Claim Bonus**, [**Keep Tab Active**](https://github.com/Vikindor/twitch-keep-tab-active), **Chat Reply Preview**, **Block Annoyances**, [**Show Stream Language**](https://github.com/Vikindor/twitch-show-stream-language), **Show Drops Indicator**, and [**Force Sort Viewers High to Low**](https://github.com/Vikindor/twitch-force-sort-viewers).
 
 Especially useful for people who like to **keep streams running in the background** to support streamers, farm **channel points**, or keep streams running for **Drops** with less manual babysitting.
 
@@ -14,14 +14,16 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 <img src="media/screenshot_1.jpg" width="75%" alt="Features screenshot 1" title="Features"/>
 
-### 1️⃣ Toggle Video Quality
+### 1️⃣  Toggle Video Quality
 
 - **Main action-button feature (LMB click on extension icon)**
-- Switches between low and preferred high quality
-- Supports tab mute or player mute
-- Can restore both tab and player audio when returning to high quality
+- Switches between low quality and either a preferred high resolution or the highest available quality
+- Can select the highest-bitrate variant of the preferred resolution
+- Supports browser-tab mute or Twitch-player mute when switching to low quality
+- Can persist the selected quality and mute state across page reloads
+- Can optionally restore both tab and player audio when returning to high quality
 
-### 2️⃣ Keep Tab Active
+### 2️⃣  Keep Tab Active
 
 - Multiple strategies to keep streams alive in the background
 - Can dismiss Twitch overlays such as `Start Watching` and network errors
@@ -29,12 +31,25 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 <img src="media/screenshot_2.jpg" width="75%" alt="Features screenshot 2" title="Features"/>
 
-### 3️⃣ Auto Claim Bonus
+### 3️⃣  Auto Claim Bonus
 
 - Polls for the `Claim Bonus` button under the chat
 - Claims channel points bonuses automatically
 
-### 4️⃣ Block Annoyances (disabled by default)
+### 4️⃣  Chat Reply Preview
+
+- Makes Twitch chat's `Replying to ...` labels clickable
+- Shows the original message's full text in a popup
+- Keeps popup text selectable for easy copying
+
+<img src="media/screenshot_3.jpg" width="75%" alt="Features screenshot 3" title="Features"/>
+
+### 5️⃣  Force Sort Viewers
+
+- Nudges Twitch directory pages toward `Viewers: High to Low` sorting
+- Supports per-load and per-tab-session run policies
+
+### 6️⃣  Block Annoyances (disabled by default)
 
 - Hides selected Twitch UI elements without blocking ads or modifying stream delivery
 - Provides a separate checkbox for each supported behavior or element:
@@ -52,30 +67,22 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Can block all player extensions at once, including potentially useful ones
 - Alternatively, can block only extension dock buttons or the Prime Benefits dropdown
 
-<img src="media/screenshot_3.jpg" width="75%" alt="Features screenshot 3" title="Features"/>
-
-### 5️⃣ Chat Reply Preview
-
-- Makes Twitch chat's `Replying to ...` labels clickable
-- Shows the original message's full text in a popup
-- Keeps popup text selectable for easy copying
-
 <img src="media/screenshot_4.jpg" width="75%" alt="Features screenshot 4" title="Features"/>
 
-### 6️⃣ Force Sort Viewers
-
-- Nudges Twitch directory pages toward `Viewers: High to Low` sorting
-- Supports per-load and per-tab-session run policies
-
-### 7️⃣ Show Stream Language
+### 7️⃣  Show Stream Language
 
 - Displays the stream language like `[EN]` / `[JA]` / etc.
 - Two visual modes: a badge on the preview card or a suffix next to the streamer's username
 
-### ➕ Per-module settings and toggles in a shared options page
+### 8️⃣  Show Drops Indicator
 
-<img src="media/screenshot_5_firefox.jpg" width="75%" alt="Options Firefox screenshot 4" title="Firefox"/>
-<img src="media/screenshot_5_google.jpg" width="75%" alt="Options Google screenshot 4" title="Google/Brave"/>
+- Marks directory cards for streams detected as Drops-enabled
+- Two visual modes: an icon badge on the preview card or an inline icon next to the streamer's username
+
+### ➕ Per-module settings in a shared options page
+
+<img src="media/screenshot_5_firefox.jpg" width="75%" alt="Options page in Firefox" title="Firefox"/>
+<img src="media/screenshot_5_google.jpg" width="75%" alt="Options page in a Chromium browser" title="Chrome/Brave"/>
 
 ## 🚀 Installation
 
@@ -123,5 +130,6 @@ node .\build.js
 - This extension does not block ads and does not attempt to bypass Twitch ad delivery.
 - The extension action button currently triggers `Toggle Video Quality` specifically.
 - `Keep Tab Active` may behave differently across browsers or Twitch updates.
+- Drops detection depends on the metadata exposed by Twitch and may not recognize every localized or custom Drops tag.
 - Browser throttling with a large number of open tabs is controlled by the browser itself, and the extension cannot override it.
 - If you run into throttling-related playback issues, using tab mute is generally more reliable than muting the Twitch player directly.
