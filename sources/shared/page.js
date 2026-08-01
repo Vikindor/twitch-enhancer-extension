@@ -5,6 +5,17 @@
     ? window.__twitchEnhancerModuleDefinitions
     : [];
 
+  const CONTENT_MESSAGE_SOURCE = 'twitch-enhancer-content';
+  const PAGE_MESSAGE_SOURCE = 'twitch-enhancer-page';
+  const MESSAGE_TYPES = {
+    command: 'twitch-enhancer-command',
+    init: 'twitch-enhancer-init',
+    pageReady: 'twitch-enhancer-page-ready',
+    pageStateResponse: 'twitch-enhancer-page-state-response',
+    setTabMuted: 'twitch-enhancer-set-tab-muted',
+    setTabMutedResult: 'twitch-enhancer-set-tab-muted-result'
+  };
+
   const modules = new Map();
   let currentSettings = null;
   let muteRequestCounter = 0;
@@ -13,7 +24,7 @@
   function postToContent(message) {
     window.postMessage(
       {
-        source: 'twitch-enhancer-page',
+        source: PAGE_MESSAGE_SOURCE,
         ...message
       },
       window.location.origin
@@ -25,7 +36,7 @@
       const requestId = `mute-${Date.now()}-${++muteRequestCounter}`;
       pendingMuteRequests.set(requestId, resolve);
       postToContent({
-        type: 'twitch-enhancer-set-tab-muted',
+        type: MESSAGE_TYPES.setTabMuted,
         requestId,
         muted
       });
@@ -77,19 +88,31 @@
     return moduleInstance.handleCommand(command);
   }
 
-  window.addEventListener('message', async (event) => {
-    if (event.source !== window || !event.data || event.data.source !== 'twitch-enhancer-content') {
+  function postCommandResult(requestId, result) {
+    postToContent({
+      type: MESSAGE_TYPES.pageStateResponse,
+      requestId,
+      result
+    });
+  }
+
+  async function handleContentMessage(event) {
+    if (
+      event.source !== window ||
+      !event.data ||
+      event.data.source !== CONTENT_MESSAGE_SOURCE
+    ) {
       return;
     }
 
     const { data } = event;
 
-    if (data.type === 'twitch-enhancer-init') {
+    if (data.type === MESSAGE_TYPES.init) {
       updateModuleSettings(data.settings || { modules: {} });
       return;
     }
 
-    if (data.type === 'twitch-enhancer-set-tab-muted-result') {
+    if (data.type === MESSAGE_TYPES.setTabMutedResult) {
       const resolve = pendingMuteRequests.get(data.requestId);
       if (resolve) {
         pendingMuteRequests.delete(data.requestId);
@@ -98,27 +121,20 @@
       return;
     }
 
-    if (data.type === 'twitch-enhancer-command') {
+    if (data.type === MESSAGE_TYPES.command) {
       try {
         const result = await runModuleCommand(data.moduleId, data.command);
-        postToContent({
-          type: 'twitch-enhancer-page-state-response',
-          requestId: data.requestId,
-          result
-        });
+        postCommandResult(data.requestId, result);
       } catch (error) {
-        postToContent({
-          type: 'twitch-enhancer-page-state-response',
-          requestId: data.requestId,
-          result: {
-            ok: false,
-            reason: 'unexpected-error',
-            message: String(error)
-          }
+        postCommandResult(data.requestId, {
+          ok: false,
+          reason: 'unexpected-error',
+          message: String(error)
         });
       }
     }
-  });
+  }
 
-  postToContent({ type: 'twitch-enhancer-page-ready' });
+  window.addEventListener('message', handleContentMessage);
+  postToContent({ type: MESSAGE_TYPES.pageReady });
 })();

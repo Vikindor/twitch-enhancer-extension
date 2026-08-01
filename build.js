@@ -2,37 +2,43 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const rootDir = __dirname;
-const sourcesDir = path.join(rootDir, 'sources');
-const sharedDir = path.join(sourcesDir, 'shared');
-const buildsDir = path.join(rootDir, 'builds');
-const packedDir = path.join(buildsDir, 'packed');
-const supportedBrowsers = ['chrome', 'firefox'];
+const ROOT_DIRECTORY = __dirname;
+const SOURCES_DIRECTORY = path.join(ROOT_DIRECTORY, 'sources');
+const SHARED_SOURCE_DIRECTORY = path.join(SOURCES_DIRECTORY, 'shared');
+const BUILDS_DIRECTORY = path.join(ROOT_DIRECTORY, 'builds');
+const PACKED_DIRECTORY = path.join(BUILDS_DIRECTORY, 'packed');
+const SUPPORTED_BROWSERS = ['chrome', 'firefox'];
 
-function ensureDir(dirPath) {
-  fs.mkdirSync(dirPath, { recursive: true });
+function ensureDirectory(directoryPath) {
+  fs.mkdirSync(directoryPath, { recursive: true });
 }
 
-function removeDir(dirPath) {
-  fs.rmSync(dirPath, { recursive: true, force: true });
+function removeDirectory(directoryPath) {
+  fs.rmSync(directoryPath, { recursive: true, force: true });
 }
 
-function copyDir(sourceDir, targetDir) {
-  ensureDir(targetDir);
+function copyDirectory(sourceDirectory, targetDirectory) {
+  ensureDirectory(targetDirectory);
 
-  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
-    const sourcePath = path.join(sourceDir, entry.name);
-    const targetPath = path.join(targetDir, entry.name);
+  for (const entry of fs.readdirSync(sourceDirectory, {
+    withFileTypes: true
+  })) {
+    const sourcePath = path.join(sourceDirectory, entry.name);
+    const targetPath = path.join(targetDirectory, entry.name);
 
     if (entry.isDirectory()) {
-      copyDir(sourcePath, targetPath);
+      copyDirectory(sourcePath, targetPath);
     } else {
       fs.copyFileSync(sourcePath, targetPath);
     }
   }
 }
 
-function zipDir(sourceDir, archivePath) {
+function escapePowerShellSingleQuotedString(value) {
+  return value.replace(/'/g, "''");
+}
+
+function createArchive(sourceDirectory, archivePath) {
   if (fs.existsSync(archivePath)) {
     fs.rmSync(archivePath, { force: true });
   }
@@ -40,8 +46,8 @@ function zipDir(sourceDir, archivePath) {
   const script = [
     "Add-Type -AssemblyName 'System.IO.Compression'",
     "Add-Type -AssemblyName 'System.IO.Compression.FileSystem'",
-    `$source = '${sourceDir.replace(/'/g, "''")}'`,
-    `$archive = '${archivePath.replace(/'/g, "''")}'`,
+    `$source = '${escapePowerShellSingleQuotedString(sourceDirectory)}'`,
+    `$archive = '${escapePowerShellSingleQuotedString(archivePath)}'`,
     "$sourcePath = (Resolve-Path $source).Path",
     "if (-not $sourcePath.EndsWith([System.IO.Path]::DirectorySeparatorChar)) { $sourcePath += [System.IO.Path]::DirectorySeparatorChar }",
     "$files = Get-ChildItem -Path $sourcePath -Recurse -File",
@@ -82,20 +88,24 @@ function zipDir(sourceDir, archivePath) {
 }
 
 function buildBrowser(browserName, options) {
-  const browserSourceDir = path.join(sourcesDir, browserName);
-  const outputDir = path.join(buildsDir, browserName);
-  const manifest = JSON.parse(fs.readFileSync(path.join(browserSourceDir, 'manifest.json'), 'utf8'));
-  const archivePath = path.join(packedDir, `twitch_enhancer_${browserName}_v${manifest.version}.zip`);
+  const browserSourceDirectory = path.join(SOURCES_DIRECTORY, browserName);
+  const outputDirectory = path.join(BUILDS_DIRECTORY, browserName);
+  const manifestPath = path.join(browserSourceDirectory, 'manifest.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const archivePath = path.join(
+    PACKED_DIRECTORY,
+    `twitch_enhancer_${browserName}_v${manifest.version}.zip`
+  );
 
-  removeDir(outputDir);
-  ensureDir(outputDir);
+  removeDirectory(outputDirectory);
+  ensureDirectory(outputDirectory);
 
-  copyDir(sharedDir, outputDir);
-  copyDir(browserSourceDir, outputDir);
-  console.log(`Built ${browserName} extension at ${outputDir}`);
+  copyDirectory(SHARED_SOURCE_DIRECTORY, outputDirectory);
+  copyDirectory(browserSourceDirectory, outputDirectory);
+  console.log(`Built ${browserName} extension at ${outputDirectory}`);
 
   if (!options.debug) {
-    zipDir(outputDir, archivePath);
+    createArchive(outputDirectory, archivePath);
     console.log(`Built ${browserName} archive at ${archivePath}`);
   }
 }
@@ -103,7 +113,7 @@ function buildBrowser(browserName, options) {
 function parseArgs(argv) {
   const options = {
     debug: false,
-    browsers: supportedBrowsers.slice()
+    browsers: [...SUPPORTED_BROWSERS]
   };
 
   const requestedBrowsers = [];
@@ -113,7 +123,7 @@ function parseArgs(argv) {
       continue;
     }
 
-    if (supportedBrowsers.includes(arg)) {
+    if (SUPPORTED_BROWSERS.includes(arg)) {
       requestedBrowsers.push(arg);
       continue;
     }
@@ -132,10 +142,10 @@ function parseArgs(argv) {
 function main() {
   const options = parseArgs(process.argv.slice(2));
 
-  removeDir(buildsDir);
-  ensureDir(buildsDir);
+  removeDirectory(BUILDS_DIRECTORY);
+  ensureDirectory(BUILDS_DIRECTORY);
   if (!options.debug) {
-    ensureDir(packedDir);
+    ensureDirectory(PACKED_DIRECTORY);
   }
 
   for (const browserName of options.browsers) {

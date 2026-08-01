@@ -59,53 +59,34 @@ const DEFAULT_SETTINGS = {
 
 async function ensureDefaults() {
   const current = await browser.storage.sync.get(DEFAULT_SETTINGS);
-  const modules = current.modules || {};
+  const storedModules = current.modules || {};
 
   await browser.storage.sync.set({
-    modules: {
-      toggleVideoQuality: {
-        ...DEFAULT_SETTINGS.modules.toggleVideoQuality,
-        ...(modules.toggleVideoQuality || {})
-      },
-      autoClaimBonus: {
-        ...DEFAULT_SETTINGS.modules.autoClaimBonus,
-        ...(modules.autoClaimBonus || {})
-      },
-      keepTabActive: {
-        ...DEFAULT_SETTINGS.modules.keepTabActive,
-        ...(modules.keepTabActive || {})
-      },
-      chatReplyPreview: {
-        ...DEFAULT_SETTINGS.modules.chatReplyPreview,
-        ...(modules.chatReplyPreview || {})
-      },
-      blockAnnoyances: {
-        ...DEFAULT_SETTINGS.modules.blockAnnoyances,
-        ...(modules.blockAnnoyances || {})
-      },
-      showStreamLanguage: {
-        ...DEFAULT_SETTINGS.modules.showStreamLanguage,
-        ...(modules.showStreamLanguage || {})
-      },
-      showDropsIndicator: {
-        ...DEFAULT_SETTINGS.modules.showDropsIndicator,
-        ...(modules.showDropsIndicator || {})
-      },
-      forceSortViewers: {
-        ...DEFAULT_SETTINGS.modules.forceSortViewers,
-        ...(modules.forceSortViewers || {})
-      }
-    }
+    modules: mergeModuleSettings(storedModules)
   });
 }
 
-browser.runtime.onInstalled.addListener(() => {
+function mergeModuleSettings(storedModules) {
+  return Object.fromEntries(
+    Object.entries(DEFAULT_SETTINGS.modules).map(
+      ([moduleId, defaultModuleSettings]) => [
+        moduleId,
+        {
+          ...defaultModuleSettings,
+          ...(storedModules[moduleId] || {})
+        }
+      ]
+    )
+  );
+}
+
+function handleInstalled() {
   ensureDefaults().catch((error) => {
     console.warn('Failed to initialize Twitch Enhancer settings:', error);
   });
-});
+}
 
-browser.action.onClicked.addListener(async (tab) => {
+async function handleActionClicked(tab) {
   if (!tab || tab.id == null) {
     return;
   }
@@ -117,19 +98,31 @@ browser.action.onClicked.addListener(async (tab) => {
   } catch (error) {
     console.warn('Failed to send toggle command to tab:', error);
   }
-});
+}
 
-browser.runtime.onMessage.addListener((message, sender) => {
+async function setTabMuted(tabId, muted) {
+  if (tabId == null) {
+    return { ok: false };
+  }
+
+  try {
+    await browser.tabs.update(tabId, {
+      muted
+    });
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: String(error) };
+  }
+}
+
+function handleMessage(message, sender) {
   if (!message || message.type !== 'set-tab-muted') {
     return false;
   }
 
-  const tabId = sender.tab && sender.tab.id;
-  if (tabId == null) {
-    return Promise.resolve({ ok: false });
-  }
+  return setTabMuted(sender.tab?.id, Boolean(message.muted));
+}
 
-  return browser.tabs.update(tabId, { muted: Boolean(message.muted) })
-    .then(() => ({ ok: true }))
-    .catch((error) => ({ ok: false, error: String(error) }));
-});
+browser.runtime.onInstalled.addListener(handleInstalled);
+browser.action.onClicked.addListener(handleActionClicked);
+browser.runtime.onMessage.addListener(handleMessage);

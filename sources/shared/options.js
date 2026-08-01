@@ -69,7 +69,9 @@ function storageSet(value) {
 
 function setAppVersion() {
   const versionNode = document.getElementById('app-version');
-  if (!versionNode) return;
+  if (!versionNode) {
+    return;
+  }
 
   const manifest = typeof api.runtime?.getManifest === 'function'
     ? api.runtime.getManifest()
@@ -118,7 +120,9 @@ function normalizePreferredHighInput(value) {
 
 function setModuleDisabledState(moduleName, enabled) {
   const container = document.querySelector(`[data-module-settings="${moduleName}"]`);
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   container.dataset.disabled = enabled ? 'false' : 'true';
   container.querySelectorAll('input, select').forEach((element) => {
@@ -131,7 +135,9 @@ function syncToggleMuteDependencies() {
   const muteTarget = document.getElementById('toggle-muteTarget');
   const muteTargetField = document.getElementById('toggle-muteTarget-field');
 
-  if (!muteOnLow || !muteTarget || !muteTargetField) return;
+  if (!muteOnLow || !muteTarget || !muteTargetField) {
+    return;
+  }
 
   const toggleModuleEnabled = document.getElementById('toggle-enabled')?.checked !== false;
   const enabled = toggleModuleEnabled && muteOnLow.checked;
@@ -202,6 +208,34 @@ function initSelectOpenState() {
     select.addEventListener('blur', () => {
       setSelectOpenState(select, false);
     });
+  });
+}
+
+function bindNumericInput(input, maxLength, normalizeValue) {
+  if (!input) {
+    return;
+  }
+
+  input.addEventListener('input', () => {
+    input.value = sanitizeDigitsInput(input.value, maxLength);
+  });
+
+  input.addEventListener('blur', () => {
+    input.value = String(
+      normalizeValue(sanitizeDigitsInput(input.value, maxLength)) ?? ''
+    );
+  });
+}
+
+function bindModuleToggle(inputId, moduleName, afterChange) {
+  const input = document.getElementById(inputId);
+  if (!input) {
+    return;
+  }
+
+  input.addEventListener('change', (event) => {
+    setModuleDisabledState(moduleName, event.target.checked);
+    afterChange?.();
   });
 }
 
@@ -386,77 +420,61 @@ async function saveOptions() {
   }, 1500);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+async function handleSaveOptions(claimIntervalInput) {
+  await saveOptions();
+
+  if (claimIntervalInput) {
+    claimIntervalInput.value = String(
+      normalizeClaimIntervalInput(
+        sanitizeDigitsInput(claimIntervalInput.value, 3)
+      )
+    );
+  }
+}
+
+function initializeOptionsPage() {
   setAppVersion();
   initSelectOpenState();
   loadOptions();
 
   const preferredHighInput = document.getElementById('toggle-preferredHigh');
-  if (preferredHighInput) {
-    preferredHighInput.addEventListener('input', () => {
-      preferredHighInput.value = sanitizeDigitsInput(preferredHighInput.value, 4);
-    });
+  bindNumericInput(
+    preferredHighInput,
+    4,
+    normalizePreferredHighInput
+  );
 
-    preferredHighInput.addEventListener('blur', () => {
-      preferredHighInput.value = String(normalizePreferredHighInput(
-        sanitizeDigitsInput(preferredHighInput.value, 4)
-      ) ?? '');
-    });
-  }
-
-  document.getElementById('toggle-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('toggleVideoQuality', event.target.checked);
-    syncToggleMuteDependencies();
-  });
-  document.getElementById('toggle-muteOnLow').addEventListener('change', syncToggleMuteDependencies);
+  bindModuleToggle(
+    'toggle-enabled',
+    'toggleVideoQuality',
+    syncToggleMuteDependencies
+  );
+  document
+    .getElementById('toggle-muteOnLow')
+    ?.addEventListener('change', syncToggleMuteDependencies);
 
   const claimIntervalInput = document.getElementById('claim-intervalSeconds');
-  if (claimIntervalInput) {
-    claimIntervalInput.addEventListener('input', () => {
-      claimIntervalInput.value = sanitizeDigitsInput(claimIntervalInput.value, 3);
-    });
+  bindNumericInput(claimIntervalInput, 3, normalizeClaimIntervalInput);
 
-    claimIntervalInput.addEventListener('blur', () => {
-      claimIntervalInput.value = String(normalizeClaimIntervalInput(
-        sanitizeDigitsInput(claimIntervalInput.value, 3)
-      ));
-    });
-  }
-
-  document.getElementById('claim-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('autoClaimBonus', event.target.checked);
-  });
-  document.getElementById('keep-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('keepTabActive', event.target.checked);
-  });
-  document.getElementById('reply-preview-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('chatReplyPreview', event.target.checked);
-  });
-  document.getElementById('annoyances-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('blockAnnoyances', event.target.checked);
-    syncBlockAnnoyancesDependencies();
-  });
-  document.getElementById('annoyances-allPlayerExtensions').addEventListener(
-    'change',
+  bindModuleToggle('claim-enabled', 'autoClaimBonus');
+  bindModuleToggle('keep-enabled', 'keepTabActive');
+  bindModuleToggle('reply-preview-enabled', 'chatReplyPreview');
+  bindModuleToggle(
+    'annoyances-enabled',
+    'blockAnnoyances',
     syncBlockAnnoyancesDependencies
   );
-  document.getElementById('language-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('showStreamLanguage', event.target.checked);
-  });
-  document.getElementById('drops-indicator-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('showDropsIndicator', event.target.checked);
-  });
-  document.getElementById('sort-enabled').addEventListener('change', (event) => {
-    setModuleDisabledState('forceSortViewers', event.target.checked);
-  });
+  bindModuleToggle('language-enabled', 'showStreamLanguage');
+  bindModuleToggle('drops-indicator-enabled', 'showDropsIndicator');
+  bindModuleToggle('sort-enabled', 'forceSortViewers');
 
-  document.getElementById('save').addEventListener('click', async () => {
-    await saveOptions();
+  document
+    .getElementById('annoyances-allPlayerExtensions')
+    ?.addEventListener('change', syncBlockAnnoyancesDependencies);
 
-    if (claimIntervalInput) {
-      claimIntervalInput.value = String(normalizeClaimIntervalInput(
-        sanitizeDigitsInput(claimIntervalInput.value, 3)
-      ));
-    }
+  document.getElementById('save')?.addEventListener('click', () => {
+    handleSaveOptions(claimIntervalInput);
   });
-});
+}
+
+document.addEventListener('DOMContentLoaded', initializeOptionsPage);

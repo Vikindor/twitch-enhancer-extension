@@ -59,53 +59,34 @@ const DEFAULT_SETTINGS = {
 
 async function ensureDefaults() {
   const current = await chrome.storage.sync.get(DEFAULT_SETTINGS);
-  const modules = current.modules || {};
+  const storedModules = current.modules || {};
 
   await chrome.storage.sync.set({
-    modules: {
-      toggleVideoQuality: {
-        ...DEFAULT_SETTINGS.modules.toggleVideoQuality,
-        ...(modules.toggleVideoQuality || {})
-      },
-      autoClaimBonus: {
-        ...DEFAULT_SETTINGS.modules.autoClaimBonus,
-        ...(modules.autoClaimBonus || {})
-      },
-      keepTabActive: {
-        ...DEFAULT_SETTINGS.modules.keepTabActive,
-        ...(modules.keepTabActive || {})
-      },
-      chatReplyPreview: {
-        ...DEFAULT_SETTINGS.modules.chatReplyPreview,
-        ...(modules.chatReplyPreview || {})
-      },
-      blockAnnoyances: {
-        ...DEFAULT_SETTINGS.modules.blockAnnoyances,
-        ...(modules.blockAnnoyances || {})
-      },
-      showStreamLanguage: {
-        ...DEFAULT_SETTINGS.modules.showStreamLanguage,
-        ...(modules.showStreamLanguage || {})
-      },
-      showDropsIndicator: {
-        ...DEFAULT_SETTINGS.modules.showDropsIndicator,
-        ...(modules.showDropsIndicator || {})
-      },
-      forceSortViewers: {
-        ...DEFAULT_SETTINGS.modules.forceSortViewers,
-        ...(modules.forceSortViewers || {})
-      }
-    }
+    modules: mergeModuleSettings(storedModules)
   });
 }
 
-chrome.runtime.onInstalled.addListener(() => {
+function mergeModuleSettings(storedModules) {
+  return Object.fromEntries(
+    Object.entries(DEFAULT_SETTINGS.modules).map(
+      ([moduleId, defaultModuleSettings]) => [
+        moduleId,
+        {
+          ...defaultModuleSettings,
+          ...(storedModules[moduleId] || {})
+        }
+      ]
+    )
+  );
+}
+
+function handleInstalled() {
   ensureDefaults().catch((error) => {
     console.warn('Failed to initialize Twitch Enhancer settings:', error);
   });
-});
+}
 
-chrome.action.onClicked.addListener(async (tab) => {
+async function handleActionClicked(tab) {
   if (!tab || tab.id == null) {
     return;
   }
@@ -117,9 +98,9 @@ chrome.action.onClicked.addListener(async (tab) => {
   } catch (error) {
     console.warn('Failed to send toggle command to tab:', error);
   }
-});
+}
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+function handleMessage(message, sender, sendResponse) {
   if (!message || message.type !== 'set-tab-muted') {
     return false;
   }
@@ -141,4 +122,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   });
 
   return true;
-});
+}
+
+chrome.runtime.onInstalled.addListener(handleInstalled);
+chrome.action.onClicked.addListener(handleActionClicked);
+chrome.runtime.onMessage.addListener(handleMessage);

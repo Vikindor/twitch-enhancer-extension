@@ -2,6 +2,18 @@
   'use strict';
 
   const api = globalThis.browser ?? globalThis.chrome;
+  const CONTENT_MESSAGE_SOURCE = 'twitch-enhancer-content';
+  const PAGE_MESSAGE_SOURCE = 'twitch-enhancer-page';
+  const MESSAGE_TYPES = {
+    command: 'twitch-enhancer-command',
+    init: 'twitch-enhancer-init',
+    pageReady: 'twitch-enhancer-page-ready',
+    pageStateResponse: 'twitch-enhancer-page-state-response',
+    runToggleVideoQuality: 'run-toggle-video-quality',
+    setTabMuted: 'set-tab-muted',
+    setTabMutedRequest: 'twitch-enhancer-set-tab-muted',
+    setTabMutedResult: 'twitch-enhancer-set-tab-muted-result'
+  };
   const PAGE_SCRIPT_IDS = [
     'modules/toggle-video-quality.js',
     'modules/auto-claim-bonus.js',
@@ -104,34 +116,21 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function getObject(value) {
+    return value && typeof value === 'object' ? value : {};
+  }
+
   function normalizeSettings(raw) {
     const fallback = deepClone(DEFAULT_SETTINGS);
-    const modules = raw && raw.modules && typeof raw.modules === 'object' ? raw.modules : {};
-    const toggle = modules.toggleVideoQuality && typeof modules.toggleVideoQuality === 'object'
-      ? modules.toggleVideoQuality
-      : {};
-    const autoClaim = modules.autoClaimBonus && typeof modules.autoClaimBonus === 'object'
-      ? modules.autoClaimBonus
-      : {};
-    const keepActive = modules.keepTabActive && typeof modules.keepTabActive === 'object'
-      ? modules.keepTabActive
-      : {};
-    const replyPreview = modules.chatReplyPreview && typeof modules.chatReplyPreview === 'object'
-      ? modules.chatReplyPreview
-      : {};
-    const blockAnnoyances = modules.blockAnnoyances && typeof modules.blockAnnoyances === 'object'
-      ? modules.blockAnnoyances
-      : {};
-    const language = modules.showStreamLanguage && typeof modules.showStreamLanguage === 'object'
-      ? modules.showStreamLanguage
-      : {};
-    const dropsIndicator =
-      modules.showDropsIndicator && typeof modules.showDropsIndicator === 'object'
-        ? modules.showDropsIndicator
-        : {};
-    const sort = modules.forceSortViewers && typeof modules.forceSortViewers === 'object'
-      ? modules.forceSortViewers
-      : {};
+    const modules = getObject(raw?.modules);
+    const toggle = getObject(modules.toggleVideoQuality);
+    const autoClaim = getObject(modules.autoClaimBonus);
+    const keepActive = getObject(modules.keepTabActive);
+    const replyPreview = getObject(modules.chatReplyPreview);
+    const blockAnnoyances = getObject(modules.blockAnnoyances);
+    const language = getObject(modules.showStreamLanguage);
+    const dropsIndicator = getObject(modules.showDropsIndicator);
+    const sort = getObject(modules.forceSortViewers);
 
     fallback.modules.toggleVideoQuality = {
       enabled: typeof toggle.enabled === 'boolean' ? toggle.enabled : true,
@@ -353,7 +352,7 @@
   function postToPage(message) {
     window.postMessage(
       {
-        source: 'twitch-enhancer-content',
+        source: CONTENT_MESSAGE_SOURCE,
         ...message
       },
       window.location.origin
@@ -365,63 +364,69 @@
     await waitForBridgeReady();
     const stored = await storageGet(DEFAULT_SETTINGS);
     const settings = normalizeSettings(stored);
-    postToPage({ type: 'twitch-enhancer-init', settings });
+    postToPage({ type: MESSAGE_TYPES.init, settings });
   }
 
-  window.addEventListener('message', async (event) => {
-    if (event.source !== window || !event.data || event.data.source !== 'twitch-enhancer-page') {
+  function resolveBridgeWaiters() {
+    while (bridgeWaiters.length) {
+      const resolve = bridgeWaiters.shift();
+      resolve();
+    }
+  }
+
+  async function handlePageMessage(event) {
+    if (
+      event.source !== window ||
+      !event.data ||
+      event.data.source !== PAGE_MESSAGE_SOURCE
+    ) {
       return;
     }
 
     const { data } = event;
 
-    if (data.type === 'twitch-enhancer-page-ready') {
+    if (data.type === MESSAGE_TYPES.pageReady) {
       bridgeReady = true;
-      while (bridgeWaiters.length) {
-        const resolve = bridgeWaiters.shift();
-        resolve();
-      }
+      resolveBridgeWaiters();
       await syncSettingsToPage();
       return;
     }
 
-    if (data.type === 'twitch-enhancer-set-tab-muted') {
+    if (data.type === MESSAGE_TYPES.setTabMutedRequest) {
       const response = await runtimeSendMessage({
-        type: 'set-tab-muted',
+        type: MESSAGE_TYPES.setTabMuted,
         muted: Boolean(data.muted)
       });
 
       postToPage({
-        type: 'twitch-enhancer-set-tab-muted-result',
+        type: MESSAGE_TYPES.setTabMutedResult,
         requestId: data.requestId,
         ok: Boolean(response && response.ok)
       });
       return;
     }
 
-    if (data.type === 'twitch-enhancer-page-state-response') {
+    if (data.type === MESSAGE_TYPES.pageStateResponse) {
       const resolve = pendingPageResponses.get(data.requestId);
       if (resolve) {
         pendingPageResponses.delete(data.requestId);
         resolve(data.result || { ok: false, reason: 'no-result' });
       }
     }
-  });
+  }
 
   injectPageScripts();
 
-  if (api.storage && api.storage.onChanged && typeof api.storage.onChanged.addListener === 'function') {
-    api.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName !== 'sync' || !changes.modules) {
-        return;
-      }
+  function handleStorageChanged(changes, areaName) {
+    if (areaName !== 'sync' || !changes.modules) {
+      return;
+    }
 
-      syncSettingsToPage().catch(() => {});
-    });
+    syncSettingsToPage().catch(() => {});
   }
 
-  api.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (!message || message.type !== 'run-toggle-video-quality') {
+  function handleRuntimeMessage(message, sender, sendResponse) {
+    if (!message || message.type !== MESSAGE_TYPES.runToggleVideoQuality) {
       return false;
     }
 
@@ -431,7 +436,7 @@
     syncSettingsToPage()
       .then(() => {
         postToPage({
-          type: 'twitch-enhancer-command',
+          type: MESSAGE_TYPES.command,
           requestId,
           moduleId: 'toggleVideoQuality',
           command: 'toggle'
@@ -443,5 +448,17 @@
       });
 
     return true;
-  });
+  }
+
+  window.addEventListener('message', handlePageMessage);
+
+  if (
+    api.storage &&
+    api.storage.onChanged &&
+    typeof api.storage.onChanged.addListener === 'function'
+  ) {
+    api.storage.onChanged.addListener(handleStorageChanged);
+  }
+
+  api.runtime.onMessage.addListener(handleRuntimeMessage);
 })();
