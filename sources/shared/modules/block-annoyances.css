@@ -17,6 +17,9 @@ html[data-twitch-enhancer-block-chat-bits-balance]
   > :first-child,
 html[data-twitch-enhancer-block-chat-bits-balance] [data-test-selector="bits-balance-string"],
 html[data-twitch-enhancer-block-chat-bits-balance]
+  [data-test-selector="community-points-summary"]
+  [class*="ScNewItemIndicator"],
+html[data-twitch-enhancer-block-chat-bits-balance]
   *:has(+ [data-test-selector="bits-balance-string"]),
 html[data-twitch-enhancer-block-all-player-extensions]
   .video-player__overlay > div:has(> div > .extensions-video-overlay-size-container),
