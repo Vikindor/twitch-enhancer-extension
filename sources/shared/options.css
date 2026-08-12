@@ -428,8 +428,8 @@ code {
   font-size: 0.95em;
 }
 
-.module-settings[data-disabled="true"],
-.field[data-disabled="true"] {
+.module-settings[data-disabled="true"] :is(input, select, label, .module-section-description, .tooltip-trigger),
+.field[data-disabled="true"] :is(input, select, label, .module-section-description, .tooltip-trigger) {
   opacity: 0.48;
   filter: saturate(0.74);
 }
