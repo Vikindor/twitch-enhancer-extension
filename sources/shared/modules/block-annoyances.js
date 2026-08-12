@@ -12,6 +12,7 @@
     bitsButton: 'data-twitch-enhancer-block-bits-button',
     goAdFreeButton: 'data-twitch-enhancer-block-go-ad-free-button',
     storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
+    saveYourStreakLeftPanel: 'data-twitch-enhancer-block-save-your-streak-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
     stickyCommunityHighlight: 'data-twitch-enhancer-block-sticky-community-highlight',
     chatBitsBalance: 'data-twitch-enhancer-block-chat-bits-balance',

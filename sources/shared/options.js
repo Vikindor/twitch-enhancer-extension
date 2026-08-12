@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS = {
       bitsButton: true,
       goAdFreeButton: true,
       storiesLeftPanel: true,
+      saveYourStreakLeftPanel: true,
       chatLeaderboardAndGoals: true,
       stickyCommunityHighlight: true,
       chatBitsBalance: true,
@@ -290,6 +291,8 @@ async function loadOptions() {
     blockAnnoyances.goAdFreeButton !== false;
   document.getElementById('annoyances-storiesLeftPanel').checked =
     blockAnnoyances.storiesLeftPanel !== false;
+  document.getElementById('annoyances-saveYourStreakLeftPanel').checked =
+    blockAnnoyances.saveYourStreakLeftPanel !== false;
   document.getElementById('annoyances-chatLeaderboardAndGoals').checked =
     blockAnnoyances.chatLeaderboardAndGoals !== false;
   document.getElementById('annoyances-stickyCommunityHighlight').checked =
@@ -378,6 +381,8 @@ async function saveOptions() {
         bitsButton: document.getElementById('annoyances-bitsButton').checked,
         goAdFreeButton: document.getElementById('annoyances-goAdFreeButton').checked,
         storiesLeftPanel: document.getElementById('annoyances-storiesLeftPanel').checked,
+        saveYourStreakLeftPanel:
+          document.getElementById('annoyances-saveYourStreakLeftPanel').checked,
         chatLeaderboardAndGoals:
           document.getElementById('annoyances-chatLeaderboardAndGoals').checked,
         stickyCommunityHighlight:

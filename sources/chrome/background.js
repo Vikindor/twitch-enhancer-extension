@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS = {
       bitsButton: true,
       goAdFreeButton: true,
       storiesLeftPanel: true,
+      saveYourStreakLeftPanel: true,
       chatLeaderboardAndGoals: true,
       stickyCommunityHighlight: true,
       chatBitsBalance: true,
