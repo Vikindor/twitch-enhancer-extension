@@ -24,7 +24,7 @@ html[data-twitch-enhancer-block-chat-bits-balance]
 html[data-twitch-enhancer-block-chat-bits-balance]
   *:has(+ [data-test-selector="bits-balance-string"]),
 html[data-twitch-enhancer-block-all-player-extensions]
-  .video-player__overlay > div:has(> div > .extensions-video-overlay-size-container),
+  .video-player__overlay > div:has(> .video-size.passthrough-events),
 html[data-twitch-enhancer-block-extensions-dock-buttons] .extensions-dock__layout,
 html[data-twitch-enhancer-block-prime-benefits-extension] .prime-extension-root,
 html[data-twitch-enhancer-block-under-player-bits-button]
