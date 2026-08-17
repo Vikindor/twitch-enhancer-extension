@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS = {
       newsFromLuna: true,
       bitsButton: true,
       goAdFreeButton: true,
+      footer: true,
       storiesLeftPanel: true,
       saveYourStreakLeftPanel: true,
       chatLeaderboardAndGoals: true,

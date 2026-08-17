@@ -32,6 +32,7 @@
     newsFromLuna: 'data-twitch-enhancer-block-news-from-luna',
     bitsButton: 'data-twitch-enhancer-block-bits-button',
     goAdFreeButton: 'data-twitch-enhancer-block-go-ad-free-button',
+    footer: 'data-twitch-enhancer-block-footer',
     storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
     saveYourStreakLeftPanel: 'data-twitch-enhancer-block-save-your-streak-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
@@ -79,6 +80,7 @@
         newsFromLuna: true,
         bitsButton: true,
         goAdFreeButton: true,
+        footer: true,
         storiesLeftPanel: true,
         saveYourStreakLeftPanel: true,
         chatLeaderboardAndGoals: true,
@@ -193,6 +195,8 @@
         typeof blockAnnoyances.goAdFreeButton === 'boolean'
           ? blockAnnoyances.goAdFreeButton
           : true,
+      footer:
+        typeof blockAnnoyances.footer === 'boolean' ? blockAnnoyances.footer : true,
       storiesLeftPanel:
         typeof blockAnnoyances.storiesLeftPanel === 'boolean'
           ? blockAnnoyances.storiesLeftPanel

@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS = {
       newsFromLuna: true,
       bitsButton: true,
       goAdFreeButton: true,
+      footer: true,
       storiesLeftPanel: true,
       saveYourStreakLeftPanel: true,
       chatLeaderboardAndGoals: true,
@@ -289,6 +290,7 @@ async function loadOptions() {
   document.getElementById('annoyances-bitsButton').checked = blockAnnoyances.bitsButton !== false;
   document.getElementById('annoyances-goAdFreeButton').checked =
     blockAnnoyances.goAdFreeButton !== false;
+  document.getElementById('annoyances-footer').checked = blockAnnoyances.footer !== false;
   document.getElementById('annoyances-storiesLeftPanel').checked =
     blockAnnoyances.storiesLeftPanel !== false;
   document.getElementById('annoyances-saveYourStreakLeftPanel').checked =
@@ -380,6 +382,7 @@ async function saveOptions() {
         newsFromLuna: document.getElementById('annoyances-newsFromLuna').checked,
         bitsButton: document.getElementById('annoyances-bitsButton').checked,
         goAdFreeButton: document.getElementById('annoyances-goAdFreeButton').checked,
+        footer: document.getElementById('annoyances-footer').checked,
         storiesLeftPanel: document.getElementById('annoyances-storiesLeftPanel').checked,
         saveYourStreakLeftPanel:
           document.getElementById('annoyances-saveYourStreakLeftPanel').checked,
