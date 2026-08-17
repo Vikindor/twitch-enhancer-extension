@@ -144,6 +144,22 @@
           : null;
       }
 
+      function getLanguageTags(node) {
+        if (Array.isArray(node.contentTags)) {
+          return node.contentTags;
+        }
+        if (Array.isArray(node.freeformTags)) {
+          return node.freeformTags;
+        }
+        if (Array.isArray(node.stream?.contentTags)) {
+          return node.stream.contentTags;
+        }
+        if (Array.isArray(node.stream?.freeformTags)) {
+          return node.stream.freeformTags;
+        }
+        return null;
+      }
+
       function extractLanguagePair(node) {
         if (!node || typeof node !== 'object') {
           return null;
@@ -178,11 +194,7 @@
         }
 
         if (!language) {
-          const tags = Array.isArray(node.contentTags)
-            ? node.contentTags
-            : Array.isArray(node.freeformTags)
-              ? node.freeformTags
-              : null;
+          const tags = getLanguageTags(node);
 
           if (tags) {
             for (const tag of tags) {
