@@ -13,6 +13,7 @@
       const streamCards = window.__twitchEnhancerStreamCards;
       const dropsByLogin = new Map();
       const DROPS_TAG_NAMES = new Set([
+        'drops', // common
         'dropsenabled', // English
         // Bahasa Indonesia — Indonesian — not covered
         // Català — Catalan — not covered
@@ -23,19 +24,19 @@
         'dropabilitati', // Italiano — Italian
         'dropokengedélyezve', // Magyar — Hungarian
         'dropsingeschakeld', // Nederlands — Dutch
-        'dropsaktivert', // Norsk — Norwegian — requires verification
+        'dropsaktivert', // Norsk — Norwegian
         'dropywłączone', // Polski — Polish
         'dropsativados', // Português — Portuguese
         'dropssuntactivate', // Română — Romanian
-        // Slovenčina — Slovak — not covered
+        'dropyzapnuté', // Slovenčina — Slovak
         'dropitkäytössä', // Suomi — Finnish
-        'dropsaktiverat', // Svenska — Swedish — requires verification
+        'dropsaktiverat', // Svenska — Swedish
         // Tagalog — not covered
         // Tiếng Việt — Vietnamese — not covered
         'droplaretkin', // Türkçe — Turkish
         'povolenédrops', // Čeština — Czech
         'ταdropενεργοποιήθηκαν', // Ελληνικά — Greek
-        // Български — Bulgarian — not covered
+        'сразрешениdrops', // Български — Bulgarian
         'dropsвключены', // Русский — Russian
         'dropsувімкнено', // Українська — Ukrainian
         'تم・تمكين・drops', // العربية — Arabic

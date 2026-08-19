@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Enhancer",
-  "version": "1.11.1",
+  "version": "1.11.2",
   "description": "Make Twitch better for background watching, drops, and channel points",
   "icons": {
     "16": "icons/icon_16.png",
