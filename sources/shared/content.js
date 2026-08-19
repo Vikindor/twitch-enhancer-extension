@@ -37,6 +37,7 @@
     saveYourStreakLeftPanel: 'data-twitch-enhancer-block-save-your-streak-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
     stickyCommunityHighlight: 'data-twitch-enhancer-block-sticky-community-highlight',
+    chatInputNotification: 'data-twitch-enhancer-block-chat-input-notification',
     chatBitsBalance: 'data-twitch-enhancer-block-chat-bits-balance',
     allPlayerExtensions: 'data-twitch-enhancer-block-all-player-extensions',
     extensionsDockButtons: 'data-twitch-enhancer-block-extensions-dock-buttons',
@@ -85,6 +86,7 @@
         saveYourStreakLeftPanel: true,
         chatLeaderboardAndGoals: true,
         stickyCommunityHighlight: true,
+        chatInputNotification: false,
         chatBitsBalance: true,
         allPlayerExtensions: false,
         extensionsDockButtons: false,
@@ -213,6 +215,10 @@
         typeof blockAnnoyances.stickyCommunityHighlight === 'boolean'
           ? blockAnnoyances.stickyCommunityHighlight
           : true,
+      chatInputNotification:
+        typeof blockAnnoyances.chatInputNotification === 'boolean'
+          ? blockAnnoyances.chatInputNotification
+          : false,
       chatBitsBalance:
         typeof blockAnnoyances.chatBitsBalance === 'boolean'
           ? blockAnnoyances.chatBitsBalance

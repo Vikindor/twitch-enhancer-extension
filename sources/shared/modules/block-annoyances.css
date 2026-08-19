@@ -15,6 +15,7 @@ html[data-twitch-enhancer-block-save-your-streak-left-panel]
 html[data-twitch-enhancer-block-chat-leaderboard-and-goals]
   .chat-room__content > div:first-child:has(.tw-transition-group),
 html[data-twitch-enhancer-block-sticky-community-highlight] .sticky-community-highlight,
+html[data-twitch-enhancer-block-chat-input-notification] .chat-input-tray__open,
 html[data-twitch-enhancer-block-chat-bits-balance]
   [data-test-selector="community-points-summary"]:has(button[aria-label="Claim Bonus"])
   > :first-child,
