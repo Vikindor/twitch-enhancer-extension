@@ -34,7 +34,7 @@ const DEFAULT_SETTINGS = {
       saveYourStreakLeftPanel: true,
       chatLeaderboardAndGoals: true,
       stickyCommunityHighlight: true,
-      chatInputNotification: false,
+      chatInputNotices: false,
       chatBitsBalance: true,
       allPlayerExtensions: false,
       extensionsDockButtons: false,

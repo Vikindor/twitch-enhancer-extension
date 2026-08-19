@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS = {
       saveYourStreakLeftPanel: true,
       chatLeaderboardAndGoals: true,
       stickyCommunityHighlight: true,
-      chatInputNotification: false,
+      chatInputNotices: false,
       chatBitsBalance: true,
       allPlayerExtensions: false,
       extensionsDockButtons: false,
@@ -300,8 +300,8 @@ async function loadOptions() {
     blockAnnoyances.chatLeaderboardAndGoals !== false;
   document.getElementById('annoyances-stickyCommunityHighlight').checked =
     blockAnnoyances.stickyCommunityHighlight !== false;
-  document.getElementById('annoyances-chatInputNotification').checked =
-    blockAnnoyances.chatInputNotification === true;
+  document.getElementById('annoyances-chatInputNotices').checked =
+    blockAnnoyances.chatInputNotices === true;
   document.getElementById('annoyances-chatBitsBalance').checked =
     blockAnnoyances.chatBitsBalance !== false;
   document.getElementById('annoyances-allPlayerExtensions').checked =
@@ -393,8 +393,8 @@ async function saveOptions() {
           document.getElementById('annoyances-chatLeaderboardAndGoals').checked,
         stickyCommunityHighlight:
           document.getElementById('annoyances-stickyCommunityHighlight').checked,
-        chatInputNotification:
-          document.getElementById('annoyances-chatInputNotification').checked,
+        chatInputNotices:
+          document.getElementById('annoyances-chatInputNotices').checked,
         chatBitsBalance: document.getElementById('annoyances-chatBitsBalance').checked,
         allPlayerExtensions: document.getElementById('annoyances-allPlayerExtensions').checked,
         extensionsDockButtons:

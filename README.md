@@ -57,8 +57,9 @@ Especially useful for people who like to **keep streams running in the backgroun
   - Auto-pause promoted streams on the homepage
   - Cookies consent banner
   - Header buttons for News from Luna, Bits, and Go Ad-Free
-  - Stories in the left navigation panel
-  - Chat leaderboard and goals panel
+  - Promotion banners
+  - Stories and Streaks in the left navigation panel
+  - Chat leaderboard / goals panel, and notices
   - Hype Train and other sticky community highlights in chat
   - Bits balance at the bottom of chat
   - Player extensions
