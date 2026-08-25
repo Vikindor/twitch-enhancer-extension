@@ -15,37 +15,39 @@
       const DROPS_TAG_NAMES = new Set([
         'drops', // common
         'dropsenabled', // English
-        // Bahasa Indonesia — Indonesian — not covered
-        // Català — Catalan — not covered
-        'dropsaktiveret', // Dansk — Danish
-        'dropsaktiviert', // Deutsch — German
-        'dropsactivados', // Español — Spanish
-        'dropsactivés', // Français — French
-        'dropabilitati', // Italiano — Italian
-        'dropokengedélyezve', // Magyar — Hungarian
-        'dropsingeschakeld', // Nederlands — Dutch
-        'dropsaktivert', // Norsk — Norwegian
-        'dropywłączone', // Polski — Polish
-        'dropsativados', // Português — Portuguese
-        'dropssuntactivate', // Română — Romanian
-        'dropyzapnuté', // Slovenčina — Slovak
-        'dropitkäytössä', // Suomi — Finnish
-        'dropsaktiverat', // Svenska — Swedish
-        // Tagalog — not covered
-        // Tiếng Việt — Vietnamese — not covered
-        'droplaretkin', // Türkçe — Turkish
-        'povolenédrops', // Čeština — Czech
-        'ταdropενεργοποιήθηκαν', // Ελληνικά — Greek
-        'сразрешениdrops', // Български — Bulgarian
-        'dropsвключены', // Русский — Russian
-        'dropsувімкнено', // Українська — Ukrainian
-        'تم・تمكين・drops', // العربية — Arabic
-        // بهاس ملايو — Malay — not covered
-        // मानक हिन्दी — Standard Hindi — not covered
-        'ใช้dropsได้', // ภาษาไทย — Thai
-        '启用掉宝', // 中文 — Chinese
-        'drops有効', // 日本語 — Japanese
-        '드롭활성화됨' // 한국어 — Korean
+        // Bahasa Indonesia - Indonesian - not covered
+        // Català — Catalan - not covered
+        'dropsaktiveret', // Dansk - Danish
+        'dropsaktiviert', // Deutsch - German
+        'dropsactivados', // Español - Spanish
+        'dropsactivés', // Français - French
+        'dropabilitati', // Italiano - Italian
+        'dropokengedélyezve', // Magyar - Hungarian
+        'dropsingeschakeld', // Nederlands - Dutch
+        'dropsaktivert', // Norsk - Norwegian
+        'dropywłączone', // Polski - Polish
+        'dropsativados', // Português - Portuguese
+        'dropssuntactivate', // Română - Romanian
+        'dropyzapnuté', // Slovenčina - Slovak
+        'dropitkäytössä', // Suomi - Finnish
+        'dropsaktiverat', // Svenska - Swedish
+        // Tagalog - not covered
+        // Tiếng Việt - Vietnamese - not covered
+        'droplaretkin', // Türkçe - Turkish
+        'povolenédrops', // Čeština - Czech
+        'ταdropενεργοποιήθηκαν', // Ελληνικά - Greek
+        'сразрешениdrops', // Български - Bulgarian
+        'dropsвключены', // Русский - Russian
+        'dropsувімкнено', // Українська - Ukrainian
+        'تم・تمكين・drops', // العربية - Arabic
+        // بهاس ملايو - Malay - not covered
+        // मानक हिन्दी - Standard Hindi - not covered
+        'ใช้dropsได้', // ภาษาไทย - Thai
+        '启用掉宝', // 中文 - Chinese
+        'drops有効', // 日本語 - Japanese
+        '드롭활성화됨', // 한국어 - Korean
+		// Additional fallbacks
+		'dropsenable'
       ]);
       const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
       const ICON_PATHS = [

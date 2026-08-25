@@ -20,95 +20,100 @@
           // English
           australia: 'EN',
           english: 'EN',
-          // Bahasa Indonesia — Indonesian
+          // Bahasa Indonesia - Indonesian
           indonesian: 'ID',
-          // Català — Catalan
+          // Català - Catalan
           català: 'CA',
           catalan: 'CA',
-          // Dansk — Danish
+          // Dansk - Danish
           dansk: 'DA',
           danish: 'DA',
-          // Deutsch — German
+          // Deutsch - German
           deutsch: 'DE',
-          // Español — Spanish
+          // Español - Spanish
           'español': 'ES',
           espanol: 'ES',
-          // Français — French
+          // Français - French
           'français': 'FR',
           francais: 'FR',
-          // Italiano — Italian
+          // Italiano - Italian
           italiano: 'IT',
-          // Magyar — Hungarian
+          // Magyar - Hungarian
           magyar: 'HU',
-          // Nederlands — Dutch
+          // Nederlands - Dutch
           nederlands: 'NL',
           dutch: 'NL',
-          // Norsk — Norwegian
+          // Norsk - Norwegian
           norsk: 'NO',
-          // Polski — Polish
+          // Polski - Polish
           polski: 'PL',
-          // Português — Portuguese
+          // Português - Portuguese
           'português': 'PT',
           portugues: 'PT',
           portuguese: 'PT',
-          // Română — Romanian
+          // Română - Romanian
           'română': 'RO',
           romanian: 'RO',
           romania: 'RO',
-          // Slovenčina — Slovak
+          // Slovenčina - Slovak
           'slovenčina': 'SK',
-          // Suomi — Finnish
+          // Suomi - Finnish
           suomi: 'FI',
-          // Svenska — Swedish
+          // Svenska - Swedish
           svenska: 'SV',
           // Tagalog
           tagalog: 'TL',
-          // Tiếng Việt — Vietnamese
+          // Tiếng Việt - Vietnamese
           vietnamese: 'VI',
-          // Türkçe — Turkish
+          // Türkçe - Turkish
           'türkçe': 'TR',
           turkish: 'TR',
-          // Čeština — Czech
+          // Čeština - Czech
           'čeština': 'CS',
           czech: 'CS',
           cz: 'CS',
           czsk: 'CS',
-          // Ελληνικά — Greek
+          // Ελληνικά - Greek
           'ελληνικά': 'EL',
           greek: 'EL',
-          // Български — Bulgarian
+          // Български - Bulgarian
           'български': 'BG',
           bulgarian: 'BG',
-          // Русский — Russian
+          // Русский - Russian
           'русский': 'RU',
-          // Українська — Ukrainian
+          // Українська - Ukrainian
           'українська': 'UK',
           'український': 'UK',
           ukrainian: 'UK',
-          // العربية — Arabic
+          // العربية - Arabic
           'العربية': 'AR',
           arabic: 'AR',
           qatar: 'AR',
           uae: 'AR',
-          // بهاس ملايو — Malay
+          // بهاس ملايو - Malay
           malay: 'MS',
-          // मानक हिन्दी — Standard Hindi
+          // मानक हिन्दी - Standard Hindi
           hindi: 'HI',
-          // ภาษาไทย — Thai
+          // ภาษาไทย - Thai
           'ภาษาไทย': 'TH',
-          // 中文 — Chinese
+          // 中文 - Chinese
           '中文': 'ZH',
           '中文(简体)': 'ZH',
           '中文(繁體)': 'ZH',
-          // 日本語 — Japanese
+          // 日本語 - Japanese
           '日本語': 'JA',
-          // 한국어 — Korean
+          // 한국어 - Korean
           '한국어': 'KO',
           // American Sign Language
           americansignlanguage: 'ASL',
-          // Additional legacy fallbacks
+          // Additional fallbacks
           lietuva: 'LT',
-          lithuania: 'LT'
+          lithuania: 'LT',
+          latvia: 'LV',
+          latvian: 'LV',
+          'latviešu': 'LV',
+          'беларусь': 'BE',
+          'беларускі': 'BE',
         })
       );
 
