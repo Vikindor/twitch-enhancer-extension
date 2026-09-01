@@ -62,3 +62,8 @@ html[data-twitch-enhancer-block-subscription-offer-banner]
   ) {
   display: none !important;
 }
+
+html[data-twitch-enhancer-block-channel-about-section]
+  div:has(> div > #live-channel-about-panel) {
+  display: none !important;
+}

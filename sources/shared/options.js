@@ -45,7 +45,8 @@ const DEFAULT_SETTINGS = {
       giftSubsButton: true,
       subscribeButton: true,
       continueSubButton: true,
-      subscriptionOfferBanner: true
+      subscriptionOfferBanner: true,
+      channelAboutSection: false
     },
     showStreamLanguage: {
       enabled: true,
@@ -318,6 +319,8 @@ async function loadOptions() {
     blockAnnoyances.continueSubButton !== false;
   document.getElementById('annoyances-subscriptionOfferBanner').checked =
     blockAnnoyances.subscriptionOfferBanner !== false;
+  document.getElementById('annoyances-channelAboutSection').checked =
+    blockAnnoyances.channelAboutSection === true;
   setModuleDisabledState('blockAnnoyances', blockAnnoyances.enabled === true);
   syncBlockAnnoyancesDependencies();
 
@@ -406,7 +409,8 @@ async function saveOptions() {
         subscribeButton: document.getElementById('annoyances-subscribeButton').checked,
         continueSubButton: document.getElementById('annoyances-continueSubButton').checked,
         subscriptionOfferBanner:
-          document.getElementById('annoyances-subscriptionOfferBanner').checked
+          document.getElementById('annoyances-subscriptionOfferBanner').checked,
+        channelAboutSection: document.getElementById('annoyances-channelAboutSection').checked
       },
       showStreamLanguage: {
         enabled: document.getElementById('language-enabled').checked,

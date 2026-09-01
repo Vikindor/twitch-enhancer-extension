@@ -43,7 +43,8 @@ const DEFAULT_SETTINGS = {
       giftSubsButton: true,
       subscribeButton: true,
       continueSubButton: true,
-      subscriptionOfferBanner: true
+      subscriptionOfferBanner: true,
+      channelAboutSection: false
     },
     showStreamLanguage: {
       enabled: true,
