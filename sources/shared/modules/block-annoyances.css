@@ -50,8 +50,15 @@ html[data-twitch-enhancer-block-continue-sub-button]
     > div > div > button[data-a-target="manage-sub-button"]
   ),
 html[data-twitch-enhancer-block-subscription-offer-banner]
-  .channel-info-content > div > div:has(
-    a[href*="/legal/exclusive-offer-sub/"]
+  #live-channel-stream-information
+  + div
+  > div:first-child:has(
+    [href*="sub" i],
+    [src*="sub" i],
+    [alt*="sub" i],
+    [title*="sub" i],
+    [aria-label*="sub" i],
+    [class*="sub" i]
   ) {
   display: none !important;
 }
