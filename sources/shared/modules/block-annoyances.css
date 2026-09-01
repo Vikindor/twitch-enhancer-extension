@@ -13,7 +13,7 @@ html[data-twitch-enhancer-block-stories-left-panel] [class*="storiesLeftNavSecti
 html[data-twitch-enhancer-block-save-your-streak-left-panel]
   [class*="saveYourStreakSideNavRow"],
 html[data-twitch-enhancer-block-chat-leaderboard-and-goals]
-  .chat-room__content > div:first-child:has(.tw-transition-group),
+  .chat-room__content > div:first-child,
 html[data-twitch-enhancer-block-sticky-community-highlight] .sticky-community-highlight,
 html[data-twitch-enhancer-block-chat-input-notices] .chat-input-tray__open,
 html[data-twitch-enhancer-block-chat-bits-balance]
