@@ -17,6 +17,11 @@ html[data-twitch-enhancer-block-chat-leaderboard-and-goals]
 html[data-twitch-enhancer-block-sticky-community-highlight] .sticky-community-highlight,
 html[data-twitch-enhancer-block-chat-input-notices] .chat-input-tray__open,
 html[data-twitch-enhancer-block-chat-bits-balance]
+  [data-test-selector="chat-input-buttons-container"]
+  div:has(> div > [data-test-selector="community-points-summary"]):not(
+    :has([data-test-selector="copo-balance-string"])
+  ),
+html[data-twitch-enhancer-block-chat-bits-balance]
   [data-test-selector="community-points-summary"]:has(button[aria-label="Claim Bonus"])
   > :first-child,
 html[data-twitch-enhancer-block-chat-bits-balance] [data-test-selector="bits-balance-string"],
