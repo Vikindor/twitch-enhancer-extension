@@ -144,20 +144,24 @@
         });
       }
 
-      function blurAfterAutoAction(...relatedElements) {
+      function blurAfterAutoAction() {
         requestAnimationFrame(() => {
-          const activeElement = document.activeElement;
-          if (
-            !activeElement ||
-            activeElement === document.body ||
-            !relatedElements.includes(activeElement)
-          ) {
-            return;
-          }
+          requestAnimationFrame(() => {
+            const activeElement = document.activeElement;
+            if (
+              !activeElement ||
+              activeElement === document.body ||
+              activeElement.matches(
+                'input, textarea, select, [contenteditable="true"]'
+              )
+            ) {
+              return;
+            }
 
-          try {
-            activeElement.blur();
-          } catch (_) {}
+            try {
+              activeElement.blur();
+            } catch (_) {}
+          });
         });
       }
 
@@ -206,7 +210,7 @@
           });
 
           safeClick(option);
-          blurAfterAutoAction(combo, option);
+          blurAfterAutoAction();
           markRan();
         } catch (_) {
           // Ignore Twitch timing failures; the next navigation or reload will try again.
