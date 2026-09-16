@@ -473,12 +473,17 @@
           container.className = '__langChannelInline';
           container.appendChild(createChannelLabel());
         }
-        parent.insertBefore(container, reference.nextSibling);
+        if (container.previousSibling !== reference) {
+          parent.insertBefore(container, reference.nextSibling);
+        }
 
         const login = getCurrentLogin();
         const language = login ? resolveLanguage(login) : null;
         const label = container.firstElementChild || container;
-        label.textContent = `[${language || '??'}]`;
+        const text = `[${language || '??'}]`;
+        if (label.textContent !== text) {
+          label.textContent = text;
+        }
       }
 
       function updateSuffix(node, login) {
@@ -540,7 +545,7 @@
           return;
         }
 
-        updateChannelHeader(root);
+        updateChannelHeader(document);
 
         const selector =
           settings.visualMode === 'badge'
