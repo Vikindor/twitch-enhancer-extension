@@ -487,10 +487,26 @@
       </div>
 
       <div class="actions">
-        <button id="save" type="button">Save changes</button>
-        <div id="status"></div>
+        <button id="restore-defaults" class="button-secondary" type="button">Restore defaults</button>
+        <div class="actions-primary">
+          <div id="status" role="status" aria-live="polite"></div>
+          <button id="save" type="button">Save changes</button>
+        </div>
       </div>
     </main>
+
+    <dialog id="app-modal" class="modal" aria-labelledby="app-modal-title" aria-describedby="app-modal-message">
+      <div class="modal-content">
+        <div class="modal-copy">
+          <h2 id="app-modal-title"></h2>
+          <div id="app-modal-message" class="modal-message"></div>
+        </div>
+        <div class="modal-actions">
+          <button id="app-modal-cancel" class="button-secondary" type="button">Cancel</button>
+          <button id="app-modal-confirm" type="button">Confirm</button>
+        </div>
+      </div>
+    </dialog>
 
     <script src="options.js"></script>
   </body>

@@ -447,8 +447,19 @@ code {
   gap: 14px;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: space-between;
   padding: 2px 2px 0;
+}
+
+.actions-primary,
+.modal-actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.actions-primary {
+  margin-left: auto;
 }
 
 button {
@@ -474,6 +485,31 @@ button:active {
   background: linear-gradient(180deg, #8748eb, #7430df);
 }
 
+button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+button.button-secondary {
+  border: 1px solid var(--border-strong);
+  background: var(--control-background);
+  color: var(--text);
+  box-shadow: none;
+}
+
+button.button-secondary:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+button.button-secondary:active {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.58;
+}
+
 button.tooltip-trigger {
   padding: 0;
   box-shadow: none;
@@ -494,6 +530,46 @@ button.tooltip-trigger:active {
   min-height: 22px;
   color: var(--success);
   font-weight: 700;
+}
+
+.modal {
+  width: min(460px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  color: var(--text);
+  background: linear-gradient(180deg, rgba(36, 36, 40, 0.99), rgba(24, 24, 27, 0.99));
+  box-shadow: var(--shadow);
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+}
+
+.modal-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.modal-copy h2,
+.modal-message,
+.modal-message p {
+  margin: 0;
+}
+
+.modal-message {
+  color: var(--text-soft);
+}
+
+.modal-actions {
+  justify-content: space-between;
 }
 
 @media (max-width: 840px) {
@@ -520,6 +596,21 @@ button.tooltip-trigger:active {
   button {
     width: 100%;
     justify-content: center;
+  }
+
+  .actions-primary {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions,
+  .modal-actions button {
+    width: 100%;
   }
 
   #status {

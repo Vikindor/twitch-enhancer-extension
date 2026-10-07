@@ -63,12 +63,97 @@ const DEFAULT_SETTINGS = {
   }
 };
 
+let statusTimeoutId = null;
+let modalConfirmAction = null;
+
 function storageGet(defaults) {
   return Promise.resolve(api.storage.sync.get(defaults)).catch(() => defaults);
 }
 
 function storageSet(value) {
   return Promise.resolve(api.storage.sync.set(value));
+}
+
+function showStatus(message) {
+  const status = document.getElementById('status');
+  if (!status) {
+    return;
+  }
+
+  if (statusTimeoutId) {
+    clearTimeout(statusTimeoutId);
+  }
+
+  status.textContent = message;
+  statusTimeoutId = setTimeout(() => {
+    status.textContent = '';
+    statusTimeoutId = null;
+  }, 1500);
+}
+
+function openModal({
+  title,
+  message,
+  content = message,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  onConfirm
+}) {
+  const modal = document.getElementById('app-modal');
+  if (!modal || typeof modal.showModal !== 'function') {
+    return;
+  }
+
+  document.getElementById('app-modal-title').textContent = title;
+  const messageNode = document.getElementById('app-modal-message');
+  messageNode.replaceChildren();
+  if (content instanceof Node) {
+    messageNode.append(content);
+  } else {
+    messageNode.textContent = String(content || '');
+  }
+  document.getElementById('app-modal-confirm').textContent = confirmLabel;
+  document.getElementById('app-modal-cancel').textContent = cancelLabel;
+  modalConfirmAction = typeof onConfirm === 'function' ? onConfirm : null;
+  modal.showModal();
+}
+
+function closeModal() {
+  const modal = document.getElementById('app-modal');
+  if (modal?.open) {
+    modal.close();
+  }
+}
+
+function initializeModal() {
+  const modal = document.getElementById('app-modal');
+  const cancelButton = document.getElementById('app-modal-cancel');
+  const confirmButton = document.getElementById('app-modal-confirm');
+
+  if (!modal || !cancelButton || !confirmButton) {
+    return;
+  }
+
+  cancelButton.addEventListener('click', closeModal);
+  confirmButton.addEventListener('click', async () => {
+    const confirmAction = modalConfirmAction;
+    if (!confirmAction) {
+      closeModal();
+      return;
+    }
+
+    confirmButton.disabled = true;
+    try {
+      await confirmAction();
+      closeModal();
+    } finally {
+      confirmButton.disabled = false;
+    }
+  });
+
+  modal.addEventListener('close', () => {
+    modalConfirmAction = null;
+  });
 }
 
 function setAppVersion() {
@@ -430,11 +515,7 @@ async function saveOptions() {
     }
   });
 
-  const status = document.getElementById('status');
-  status.textContent = 'Saved';
-  setTimeout(() => {
-    status.textContent = '';
-  }, 1500);
+  showStatus('Saved');
 }
 
 async function handleSaveOptions(claimIntervalInput) {
@@ -452,6 +533,7 @@ async function handleSaveOptions(claimIntervalInput) {
 function initializeOptionsPage() {
   setAppVersion();
   initSelectOpenState();
+  initializeModal();
   loadOptions();
 
   const preferredHighInput = document.getElementById('toggle-preferredHigh');
@@ -491,6 +573,18 @@ function initializeOptionsPage() {
 
   document.getElementById('save')?.addEventListener('click', () => {
     handleSaveOptions(claimIntervalInput);
+  });
+
+  document.getElementById('restore-defaults')?.addEventListener('click', () => {
+    openModal({
+      title: 'Restore default settings?',
+      message: 'All settings will be reset to their default values.',
+      onConfirm: async () => {
+        await storageSet(structuredClone(DEFAULT_SETTINGS));
+        await loadOptions();
+        showStatus('Defaults restored');
+      }
+    });
   });
 }
 
