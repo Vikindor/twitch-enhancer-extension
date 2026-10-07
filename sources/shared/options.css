@@ -111,6 +111,13 @@ main {
   flex-wrap: wrap;
 }
 
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .version-badge {
   display: inline-flex;
   align-items: center;
@@ -505,6 +512,13 @@ button.button-secondary:active {
   background: rgba(255, 255, 255, 0.13);
 }
 
+button.button-compact {
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
 button:disabled {
   cursor: default;
   opacity: 0.58;
@@ -565,7 +579,26 @@ button.tooltip-trigger:active {
 }
 
 .modal-message {
+  display: grid;
+  gap: 10px;
   color: var(--text-soft);
+}
+
+.modal-link {
+  width: fit-content;
+  color: #bf94ff;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.modal-link:hover {
+  color: #d7bbff;
+}
+
+.modal-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 .modal-actions {
@@ -596,6 +629,10 @@ button.tooltip-trigger:active {
   button {
     width: 100%;
     justify-content: center;
+  }
+
+  .page-header-top > button.button-compact {
+    width: auto;
   }
 
   .actions-primary {

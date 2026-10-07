@@ -1,4 +1,5 @@
 const api = globalThis.browser ?? globalThis.chrome;
+const SUPPORT_URL = 'https://vikindor.github.io/support/';
 
 const DEFAULT_SETTINGS = {
   modules: {
@@ -154,6 +155,23 @@ function initializeModal() {
   modal.addEventListener('close', () => {
     modalConfirmAction = null;
   });
+}
+
+function createSupportModalContent() {
+  const content = document.createDocumentFragment();
+  const description = document.createElement('p');
+  const link = document.createElement('a');
+
+  description.textContent =
+    'Have a question about the extension, found a problem, or want to share a suggestion? Get in touch using any of the options on the support page.';
+  link.className = 'modal-link';
+  link.href = SUPPORT_URL;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = SUPPORT_URL;
+
+  content.append(description, link);
+  return content;
 }
 
 function setAppVersion() {
@@ -583,6 +601,17 @@ function initializeOptionsPage() {
         await storageSet(structuredClone(DEFAULT_SETTINGS));
         await loadOptions();
         showStatus('Defaults restored');
+      }
+    });
+  });
+
+  document.getElementById('support')?.addEventListener('click', () => {
+    openModal({
+      title: 'Support',
+      content: createSupportModalContent(),
+      confirmLabel: 'Open support page',
+      onConfirm: () => {
+        window.open(SUPPORT_URL, '_blank', 'noopener,noreferrer');
       }
     });
   });
