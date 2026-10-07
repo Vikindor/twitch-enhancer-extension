@@ -29,12 +29,14 @@
   ];
   const ANNOYANCE_ATTRIBUTES = {
     consentBanner: 'data-twitch-enhancer-block-consent-banner',
+    shoppingCategoryHeader: 'data-twitch-enhancer-block-shopping-category-header',
     newsFromLuna: 'data-twitch-enhancer-block-news-from-luna',
     bitsButton: 'data-twitch-enhancer-block-bits-button',
     goAdFreeButton: 'data-twitch-enhancer-block-go-ad-free-button',
     footer: 'data-twitch-enhancer-block-footer',
     storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
     saveYourStreakLeftPanel: 'data-twitch-enhancer-block-save-your-streak-left-panel',
+    liveShoppingLeftPanel: 'data-twitch-enhancer-block-live-shopping-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
     stickyCommunityHighlight: 'data-twitch-enhancer-block-sticky-community-highlight',
     chatInputNotices: 'data-twitch-enhancer-block-chat-input-notices',
@@ -79,12 +81,14 @@
         dismissPhoneNumberPrompt: true,
         autoPausePromotedStreams: true,
         consentBanner: true,
+        shoppingCategoryHeader: true,
         newsFromLuna: true,
         bitsButton: true,
         goAdFreeButton: true,
         footer: true,
         storiesLeftPanel: true,
         saveYourStreakLeftPanel: true,
+        liveShoppingLeftPanel: true,
         chatLeaderboardAndGoals: true,
         stickyCommunityHighlight: true,
         chatInputNotices: false,
@@ -191,6 +195,10 @@
           : true,
       consentBanner:
         typeof blockAnnoyances.consentBanner === 'boolean' ? blockAnnoyances.consentBanner : true,
+      shoppingCategoryHeader:
+        typeof blockAnnoyances.shoppingCategoryHeader === 'boolean'
+          ? blockAnnoyances.shoppingCategoryHeader
+          : true,
       newsFromLuna:
         typeof blockAnnoyances.newsFromLuna === 'boolean' ? blockAnnoyances.newsFromLuna : true,
       bitsButton:
@@ -208,6 +216,10 @@
       saveYourStreakLeftPanel:
         typeof blockAnnoyances.saveYourStreakLeftPanel === 'boolean'
           ? blockAnnoyances.saveYourStreakLeftPanel
+          : true,
+      liveShoppingLeftPanel:
+        typeof blockAnnoyances.liveShoppingLeftPanel === 'boolean'
+          ? blockAnnoyances.liveShoppingLeftPanel
           : true,
       chatLeaderboardAndGoals:
         typeof blockAnnoyances.chatLeaderboardAndGoals === 'boolean'

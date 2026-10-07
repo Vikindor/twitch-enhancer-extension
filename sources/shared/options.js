@@ -29,12 +29,14 @@ const DEFAULT_SETTINGS = {
       dismissPhoneNumberPrompt: true,
       autoPausePromotedStreams: true,
       consentBanner: true,
+      shoppingCategoryHeader: true,
       newsFromLuna: true,
       bitsButton: true,
       goAdFreeButton: true,
       footer: true,
       storiesLeftPanel: true,
       saveYourStreakLeftPanel: true,
+      liveShoppingLeftPanel: true,
       chatLeaderboardAndGoals: true,
       stickyCommunityHighlight: true,
       chatInputNotices: false,
@@ -391,6 +393,8 @@ async function loadOptions() {
   document.getElementById('annoyances-autoPausePromotedStreams').checked =
     blockAnnoyances.autoPausePromotedStreams !== false;
   document.getElementById('annoyances-consentBanner').checked = blockAnnoyances.consentBanner !== false;
+  document.getElementById('annoyances-shoppingCategoryHeader').checked =
+    blockAnnoyances.shoppingCategoryHeader !== false;
   document.getElementById('annoyances-newsFromLuna').checked = blockAnnoyances.newsFromLuna !== false;
   document.getElementById('annoyances-bitsButton').checked = blockAnnoyances.bitsButton !== false;
   document.getElementById('annoyances-goAdFreeButton').checked =
@@ -400,6 +404,8 @@ async function loadOptions() {
     blockAnnoyances.storiesLeftPanel !== false;
   document.getElementById('annoyances-saveYourStreakLeftPanel').checked =
     blockAnnoyances.saveYourStreakLeftPanel !== false;
+  document.getElementById('annoyances-liveShoppingLeftPanel').checked =
+    blockAnnoyances.liveShoppingLeftPanel !== false;
   document.getElementById('annoyances-chatLeaderboardAndGoals').checked =
     blockAnnoyances.chatLeaderboardAndGoals !== false;
   document.getElementById('annoyances-stickyCommunityHighlight').checked =
@@ -488,6 +494,8 @@ async function saveOptions() {
         autoPausePromotedStreams:
           document.getElementById('annoyances-autoPausePromotedStreams').checked,
         consentBanner: document.getElementById('annoyances-consentBanner').checked,
+        shoppingCategoryHeader:
+          document.getElementById('annoyances-shoppingCategoryHeader').checked,
         newsFromLuna: document.getElementById('annoyances-newsFromLuna').checked,
         bitsButton: document.getElementById('annoyances-bitsButton').checked,
         goAdFreeButton: document.getElementById('annoyances-goAdFreeButton').checked,
@@ -495,6 +503,8 @@ async function saveOptions() {
         storiesLeftPanel: document.getElementById('annoyances-storiesLeftPanel').checked,
         saveYourStreakLeftPanel:
           document.getElementById('annoyances-saveYourStreakLeftPanel').checked,
+        liveShoppingLeftPanel:
+          document.getElementById('annoyances-liveShoppingLeftPanel').checked,
         chatLeaderboardAndGoals:
           document.getElementById('annoyances-chatLeaderboardAndGoals').checked,
         stickyCommunityHighlight:

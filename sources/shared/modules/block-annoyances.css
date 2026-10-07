@@ -1,4 +1,6 @@
 html[data-twitch-enhancer-block-consent-banner] [data-a-target="consent-banner"],
+html[data-twitch-enhancer-block-shopping-category-header]
+  .top-nav__menu div:has(> div > a[aria-label="Shopping"]),
 html[data-twitch-enhancer-block-news-from-luna] .top-nav__prime,
 html[data-twitch-enhancer-block-bits-button]
   .top-nav__menu div:has(
@@ -12,6 +14,7 @@ html[data-twitch-enhancer-block-footer] #twilight-sticky-footer-root,
 html[data-twitch-enhancer-block-stories-left-panel] [class*="storiesLeftNavSection"],
 html[data-twitch-enhancer-block-save-your-streak-left-panel]
   [class*="saveYourStreakSideNavRow"],
+html[data-twitch-enhancer-block-live-shopping-left-panel] [aria-label="Live Shopping"],
 html[data-twitch-enhancer-block-chat-leaderboard-and-goals]
   .chat-room__content > div:first-child,
 html[data-twitch-enhancer-block-sticky-community-highlight] .sticky-community-highlight,

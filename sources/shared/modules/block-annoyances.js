@@ -8,12 +8,14 @@
 
   const ANNOYANCE_ATTRIBUTES = {
     consentBanner: 'data-twitch-enhancer-block-consent-banner',
+    shoppingCategoryHeader: 'data-twitch-enhancer-block-shopping-category-header',
     newsFromLuna: 'data-twitch-enhancer-block-news-from-luna',
     bitsButton: 'data-twitch-enhancer-block-bits-button',
     goAdFreeButton: 'data-twitch-enhancer-block-go-ad-free-button',
     footer: 'data-twitch-enhancer-block-footer',
     storiesLeftPanel: 'data-twitch-enhancer-block-stories-left-panel',
     saveYourStreakLeftPanel: 'data-twitch-enhancer-block-save-your-streak-left-panel',
+    liveShoppingLeftPanel: 'data-twitch-enhancer-block-live-shopping-left-panel',
     chatLeaderboardAndGoals: 'data-twitch-enhancer-block-chat-leaderboard-and-goals',
     stickyCommunityHighlight: 'data-twitch-enhancer-block-sticky-community-highlight',
     chatInputNotices: 'data-twitch-enhancer-block-chat-input-notices',
