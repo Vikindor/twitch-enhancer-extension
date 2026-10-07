@@ -133,6 +133,21 @@ main {
   letter-spacing: 0.01em;
 }
 
+.new-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: var(--success);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
 h1 {
   margin: 0;
   font-size: clamp(26px, 4vw, 34px);
