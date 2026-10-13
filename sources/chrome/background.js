@@ -56,6 +56,12 @@ const DEFAULT_SETTINGS = {
       enabled: true,
       visualMode: 'suffix'
     },
+    redFlag: {
+      enabled: true,
+      visualMode: 'suffix',
+      color: 'red',
+      tags: []
+    },
     forceSortViewers: {
       enabled: true,
       runPolicy: 'perLoad'

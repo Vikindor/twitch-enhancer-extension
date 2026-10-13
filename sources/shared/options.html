@@ -206,7 +206,7 @@
             </div>
 
             <div class="module-settings" data-module-settings="chatReplyPreview">
-              <p class="note">Works with Twitch reply labels like <code>Replying to ...</code> when Twitch includes the original message text in the page</p>
+              <p>Works with Twitch reply labels like <code>Replying to ...</code> when Twitch includes the original message text in the page</p>
             </div>
           </div>
         </section>
@@ -485,6 +485,57 @@
           <div class="panel-content">
             <div class="module-header">
               <div class="module-copy">
+                <h2><span id="red-flag-title">Red flag</span> <span class="new-badge">new</span></h2>
+                <p>Shows a flag on streams whose tags match your list. Choose a flag color to highlight what matters to you.</p>
+              </div>
+              <div class="module-toggle">
+                <input id="red-flag-enabled" type="checkbox">
+                <label for="red-flag-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="redFlag">
+              <div class="field">
+                <label for="red-flag-visualMode">Visual mode</label>
+                <select id="red-flag-visualMode">
+                  <option value="suffix">Icon next to the channel name</option>
+                  <option value="badge">Badge on the stream preview</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="red-flag-color">Flag color</label>
+                <p>Applies only to the <code>Icon next to the channel name</code> option. Preview badges always use a white icon on a red background.</p>
+                <div class="color-select-row">
+                  <svg id="red-flag-color-preview" class="flag-color-preview" viewBox="0 0 14 10">
+                    <path d="M0 0h14l-4 5 4 5H0z"></path>
+                  </svg>
+                  <select id="red-flag-color">
+                    <option value="red">Red</option>
+                    <option value="orange">Orange</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="green">Green</option>
+                    <option value="blue">Blue</option>
+                    <option value="purple">Purple</option>
+                    <option value="pink">Pink</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="red-flag-tag-input">Tags to match</label>
+                <p>Matches whole tags, ignoring letter case. Press Enter to add each tag, then Save changes to apply your list.</p>
+                <input id="red-flag-tag-input" type="text" placeholder="Type a tag and press Enter" autocomplete="off">
+                <ul id="red-flag-tags" class="tag-list"></ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
                 <h2>Force Sort Viewers</h2>
                 <p>Automatically applies Viewers: High to Low sorting on Twitch directory pages so larger streams stay surfaced first</p>
               </div>
@@ -529,6 +580,7 @@
       </div>
     </dialog>
 
+    <script src="modules/flag-colors.js"></script>
     <script src="options.js"></script>
   </body>
 </html>

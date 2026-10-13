@@ -59,6 +59,12 @@ const DEFAULT_SETTINGS = {
       enabled: true,
       visualMode: 'suffix'
     },
+    redFlag: {
+      enabled: true,
+      visualMode: 'suffix',
+      color: 'red',
+      tags: []
+    },
     forceSortViewers: {
       enabled: true,
       runPolicy: 'perLoad'
@@ -68,6 +74,74 @@ const DEFAULT_SETTINGS = {
 
 let statusTimeoutId = null;
 let modalConfirmAction = null;
+let redFlagTagEditor = null;
+
+function updateFlagColorPreview() {
+  const select = document.getElementById('red-flag-color');
+  const color = select.value;
+  document.getElementById('red-flag-color-preview').style.color =
+    window.__twitchEnhancerFlagColors[color] || window.__twitchEnhancerFlagColors.red;
+  document.getElementById('red-flag-title').textContent =
+    `${select.selectedOptions[0]?.textContent || 'Red'} flag`;
+}
+
+function createTagEditor(input, list) {
+  let tags = [];
+
+  function render() {
+    list.replaceChildren();
+    tags.forEach((tag) => {
+      const chip = document.createElement('li');
+      chip.className = 'tag-chip';
+      const text = document.createElement('span');
+      text.textContent = tag;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'tag-remove';
+      remove.textContent = '×';
+      remove.disabled = input.disabled;
+      remove.addEventListener('click', () => {
+        const index = tags.indexOf(tag);
+        tags.splice(index, 1);
+        render();
+      });
+      chip.append(text, remove);
+      list.appendChild(chip);
+    });
+  }
+
+  function setTags(values) {
+    const seen = new Set();
+    tags = (Array.isArray(values) ? values : []).filter((tag) => {
+      if (typeof tag !== 'string' || !tag.trim()) {
+        return false;
+      }
+      const key = tag.trim().toLowerCase();
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    }).map((tag) => tag.trim());
+    input.value = '';
+    render();
+  }
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.isComposing) {
+      return;
+    }
+    event.preventDefault();
+    const tag = input.value.trim();
+    if (tag && !tags.some((existing) => existing.toLowerCase() === tag.toLowerCase())) {
+      tags.push(tag);
+      render();
+    }
+    input.value = '';
+  });
+
+  return { setTags, getTags: () => [...tags] };
+}
 
 function storageGet(defaults) {
   return Promise.resolve(api.storage.sync.get(defaults)).catch(() => defaults);
@@ -234,7 +308,7 @@ function setModuleDisabledState(moduleName, enabled) {
   }
 
   container.dataset.disabled = enabled ? 'false' : 'true';
-  container.querySelectorAll('input, select').forEach((element) => {
+  container.querySelectorAll('input, select, button').forEach((element) => {
     element.disabled = !enabled;
   });
 }
@@ -446,6 +520,18 @@ async function loadOptions() {
     dropsIndicator.visualMode === 'badge' ? 'badge' : 'suffix';
   setModuleDisabledState('showDropsIndicator', dropsIndicator.enabled !== false);
 
+  const redFlag = modules.redFlag || DEFAULT_SETTINGS.modules.redFlag;
+  document.getElementById('red-flag-enabled').checked = redFlag.enabled !== false;
+  document.getElementById('red-flag-visualMode').value = redFlag.visualMode === 'badge' ? 'badge' : 'suffix';
+  const colorSelect = document.getElementById('red-flag-color');
+  colorSelect.value = redFlag.color || 'red';
+  if (!colorSelect.value) {
+    colorSelect.value = 'red';
+  }
+  redFlagTagEditor.setTags(redFlag.tags);
+  updateFlagColorPreview();
+  setModuleDisabledState('redFlag', redFlag.enabled !== false);
+
   const sort = modules.forceSortViewers || DEFAULT_SETTINGS.modules.forceSortViewers;
   document.getElementById('sort-enabled').checked = sort.enabled !== false;
   document.getElementById('sort-runPolicy').value = sort.runPolicy === 'perTab' ? 'perTab' : 'perLoad';
@@ -536,6 +622,12 @@ async function saveOptions() {
             ? 'badge'
             : 'suffix'
       },
+      redFlag: {
+        enabled: document.getElementById('red-flag-enabled').checked,
+        visualMode: document.getElementById('red-flag-visualMode').value === 'badge' ? 'badge' : 'suffix',
+        color: document.getElementById('red-flag-color').value,
+        tags: redFlagTagEditor.getTags()
+      },
       forceSortViewers: {
         enabled: document.getElementById('sort-enabled').checked,
         runPolicy: document.getElementById('sort-runPolicy').value === 'perTab' ? 'perTab' : 'perLoad'
@@ -562,6 +654,10 @@ function initializeOptionsPage() {
   setAppVersion();
   initSelectOpenState();
   initializeModal();
+  redFlagTagEditor = createTagEditor(
+    document.getElementById('red-flag-tag-input'),
+    document.getElementById('red-flag-tags')
+  );
   loadOptions();
 
   const preferredHighInput = document.getElementById('toggle-preferredHigh');
@@ -593,6 +689,8 @@ function initializeOptionsPage() {
   );
   bindModuleToggle('language-enabled', 'showStreamLanguage');
   bindModuleToggle('drops-indicator-enabled', 'showDropsIndicator');
+  bindModuleToggle('red-flag-enabled', 'redFlag');
+  document.getElementById('red-flag-color').addEventListener('change', updateFlagColorPreview);
   bindModuleToggle('sort-enabled', 'forceSortViewers');
 
   document

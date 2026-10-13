@@ -287,12 +287,7 @@
         };
       }
 
-      function collectLanguages(value, seen = new WeakSet()) {
-        if (!value || typeof value !== 'object' || seen.has(value)) {
-          return false;
-        }
-        seen.add(value);
-
+      function collectLanguages(value) {
         const pair = extractLanguagePair(value);
         if (
           pair &&
@@ -350,24 +345,6 @@
             queueAnnotate();
           }
         }
-
-        if (Array.isArray(value)) {
-          value.forEach((item) => collectLanguages(item, seen));
-          return;
-        }
-
-        for (const key in value) {
-          if (!Object.prototype.hasOwnProperty.call(value, key)) {
-            continue;
-          }
-
-          const child = value[key];
-          if (child && typeof child === 'object') {
-            collectLanguages(child, seen);
-          }
-        }
-
-        return true;
       }
 
       function inferLanguageFromText(text) {
@@ -423,7 +400,6 @@
       function createChannelLabel() {
         const label = document.createElement('span');
         label.style.marginLeft = '0.2rem';
-        label.style.verticalAlign = 'middle';
         label.style.pointerEvents = 'none';
         label.style.fontWeight = '700';
 
@@ -471,6 +447,9 @@
         if (!container) {
           container = document.createElement('div');
           container.className = '__langChannelInline';
+          container.style.display = 'inline-flex';
+          container.style.alignItems = 'center';
+          container.style.alignSelf = 'center';
           container.appendChild(createChannelLabel());
         }
         if (container.previousSibling !== reference) {
@@ -588,7 +567,7 @@
         }
       });
 
-      gql.subscribe(collectLanguages);
+      gql.subscribeNodes(collectLanguages);
 
       function start() {
         observer.observe(document.documentElement, { childList: true, subtree: true });

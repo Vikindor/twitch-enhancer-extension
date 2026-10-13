@@ -99,12 +99,7 @@
         return /\bdrops\b/i.test(title);
       }
 
-      function collectDrops(value, seen = new WeakSet()) {
-        if (!value || typeof value !== 'object' || seen.has(value)) {
-          return;
-        }
-        seen.add(value);
-
+      function collectDrops(value) {
         if (Array.isArray(value.freeformTags)) {
           const login = getLogin(value);
           if (login) {
@@ -114,22 +109,6 @@
               dropsByLogin.set(login, hasDrops);
               queueAnnotate();
             }
-          }
-        }
-
-        if (Array.isArray(value)) {
-          value.forEach((item) => collectDrops(item, seen));
-          return;
-        }
-
-        for (const key in value) {
-          if (!Object.prototype.hasOwnProperty.call(value, key)) {
-            continue;
-          }
-
-          const child = value[key];
-          if (child && typeof child === 'object') {
-            collectDrops(child, seen);
           }
         }
       }
@@ -272,7 +251,7 @@
         }
       });
 
-      gql.subscribe(collectDrops);
+      gql.subscribeNodes(collectDrops);
 
       function start() {
         observer.observe(document.documentElement, { childList: true, subtree: true });

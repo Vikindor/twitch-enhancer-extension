@@ -80,6 +80,13 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Marks directory cards for streams detected as Drops-enabled
 - Two visual modes: an icon badge on the preview card or an inline icon next to the streamer's username
 
+### 9️⃣ Red flag
+
+- Marks streams when any of your selected tags matches, ignoring letter case
+- Supports an inline flag to the left of Drops and language indicators or a badge on the stream preview
+- Offers a choice of flag colors
+- Starts with an empty tag list; add tags with Enter and remove them using the × button in Options
+
 ### ➕ Per-module settings in a shared options page
 
 <img src="media/screenshot_5_firefox.jpg" width="75%" alt="Options page in Firefox" title="Firefox"/>

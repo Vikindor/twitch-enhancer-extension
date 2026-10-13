@@ -24,6 +24,8 @@
     'modules/stream-card-ui.js',
     'modules/show-stream-language.js',
     'modules/show-drops-indicator.js',
+    'modules/flag-colors.js',
+    'modules/red-flag.js',
     'modules/force-sort-viewers.js',
     'page.js'
   ];
@@ -111,6 +113,12 @@
         enabled: true,
         visualMode: 'suffix'
       },
+      redFlag: {
+        enabled: true,
+        visualMode: 'suffix',
+        color: 'red',
+        tags: []
+      },
       forceSortViewers: {
         enabled: true,
         runPolicy: 'perLoad'
@@ -142,6 +150,7 @@
     const blockAnnoyances = getObject(modules.blockAnnoyances);
     const language = getObject(modules.showStreamLanguage);
     const dropsIndicator = getObject(modules.showDropsIndicator);
+    const redFlag = getObject(modules.redFlag);
     const sort = getObject(modules.forceSortViewers);
 
     fallback.modules.toggleVideoQuality = {
@@ -279,6 +288,13 @@
     fallback.modules.showDropsIndicator = {
       enabled: typeof dropsIndicator.enabled === 'boolean' ? dropsIndicator.enabled : true,
       visualMode: dropsIndicator.visualMode === 'badge' ? 'badge' : 'suffix'
+    };
+
+    fallback.modules.redFlag = {
+      enabled: redFlag.enabled !== false,
+      visualMode: redFlag.visualMode === 'badge' ? 'badge' : 'suffix',
+      color: typeof redFlag.color === 'string' ? redFlag.color : 'red',
+      tags: Array.isArray(redFlag.tags) ? redFlag.tags.filter((tag) => typeof tag === 'string') : []
     };
 
     fallback.modules.forceSortViewers = {

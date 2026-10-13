@@ -6,7 +6,7 @@
   }
 
   const subscribers = new Set();
-  const pendingPayloads = [];
+  const pendingNodes = [];
   let bootstrapFinished = false;
 
   function isGQLUrl(input) {
@@ -20,22 +20,39 @@
     return url.includes('/gql');
   }
 
-  function publish(payload) {
-    if (!subscribers.size && !bootstrapFinished) {
-      pendingPayloads.push(payload);
-      return;
+  function publishNode(node) {
+    if (!bootstrapFinished) {
+      pendingNodes.push(node);
     }
-
     for (const subscriber of subscribers) {
       try {
-        subscriber(payload);
+        subscriber(node);
       } catch (error) {
         console.error('Failed to process Twitch GQL payload', error);
       }
     }
   }
 
-  function subscribe(subscriber) {
+  function publish(payload) {
+    const seen = new WeakSet();
+    const pending = [payload];
+    while (pending.length) {
+      const node = pending.pop();
+      if (!node || typeof node !== 'object' || seen.has(node)) {
+        continue;
+      }
+      seen.add(node);
+      publishNode(node);
+      const children = Object.values(node);
+      for (let index = children.length - 1; index >= 0; index--) {
+        if (children[index] && typeof children[index] === 'object') {
+          pending.push(children[index]);
+        }
+      }
+    }
+  }
+
+  function subscribeNodes(subscriber) {
     if (typeof subscriber !== 'function') {
       return () => {};
     }
@@ -43,9 +60,9 @@
     subscribers.add(subscriber);
 
     if (!bootstrapFinished) {
-      pendingPayloads.forEach((payload) => {
+      pendingNodes.forEach((node) => {
         try {
-          subscriber(payload);
+          subscriber(node);
         } catch (error) {
           console.error('Failed to process buffered Twitch GQL payload', error);
         }
@@ -57,7 +74,7 @@
 
   function finishBootstrap() {
     bootstrapFinished = true;
-    pendingPayloads.length = 0;
+    pendingNodes.length = 0;
   }
 
   const originalFetch = window.fetch;
@@ -104,6 +121,6 @@
 
   window.__twitchEnhancerGQL = {
     finishBootstrap,
-    subscribe
+    subscribeNodes
   };
 })();
