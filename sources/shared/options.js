@@ -308,7 +308,7 @@ function setModuleDisabledState(moduleName, enabled) {
   }
 
   container.dataset.disabled = enabled ? 'false' : 'true';
-  container.querySelectorAll('input, select, button').forEach((element) => {
+  container.querySelectorAll('input, select, button:not(.tooltip-trigger)').forEach((element) => {
     element.disabled = !enabled;
   });
 }

@@ -503,8 +503,15 @@
                 </select>
               </div>
               <div class="field">
-                <label for="red-flag-color">Flag color</label>
-                <p>Applies only to the <code>Icon next to the channel name</code> option. Preview badges always use a white icon on a red background.</p>
+                <div class="label-row">
+                  <label for="red-flag-color">Flag color</label>
+                  <div class="tooltip">
+                    <button class="tooltip-trigger" type="button">i</button>
+                    <div class="tooltip-bubble">
+                      Applies only to the <code>Icon next to the channel name</code> option. Preview badges always use a white icon on a red background.
+                    </div>
+                  </div>
+                </div>
                 <div class="color-select-row">
                   <svg id="red-flag-color-preview" class="flag-color-preview" viewBox="0 0 14 10">
                     <path d="M0 0h14l-4 5 4 5H0z"></path>
@@ -521,8 +528,15 @@
                 </div>
               </div>
               <div class="field">
-                <label for="red-flag-tag-input">Tags to match</label>
-                <p>Matches whole tags, ignoring letter case. Press Enter to add each tag, then Save changes to apply your list.</p>
+                <div class="label-row">
+                  <label for="red-flag-tag-input">Tags to match</label>
+                  <div class="tooltip">
+                    <button class="tooltip-trigger" type="button">i</button>
+                    <div class="tooltip-bubble">
+                      Matches whole tags, ignoring letter case. Press Enter to add each tag, then Save changes to apply your list.
+                    </div>
+                  </div>
+                </div>
                 <input id="red-flag-tag-input" type="text" placeholder="Type a tag and press Enter" autocomplete="off">
                 <ul id="red-flag-tags" class="tag-list"></ul>
               </div>
