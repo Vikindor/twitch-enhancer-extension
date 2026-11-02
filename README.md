@@ -29,27 +29,31 @@ Especially useful for people who like to **keep streams running in the backgroun
 - Can dismiss Twitch overlays such as `Start Watching` and network errors
 - Can request a screen wake lock when supported
 
-<img src="media/screenshot_2.jpg" width="75%" alt="Features screenshot 2" title="Features"/>
-
 ### 3️⃣  Auto Claim Bonus
 
 - Polls for the `Claim Bonus` button under the chat
 - Claims channel points bonuses automatically
 
-### 4️⃣  Chat Reply Preview
+<img src="media/screenshot_2.jpg" width="75%" alt="Features screenshot 2" title="Features"/>
+
+### 4️⃣  Chat: Reply Preview
 
 - Makes Twitch chat's `Replying to ...` labels clickable
 - Shows the original message's full text in a popup
-- Keeps popup text selectable for easy copying
+
+### 5️⃣  Chat: Show Moderated
+
+- Makes Twitch chat's `message deleted by a moderator` labels clickable
+- Shows the deleted message's author and original text in a popup
 
 <img src="media/screenshot_3.jpg" width="75%" alt="Features screenshot 3" title="Features"/>
 
-### 5️⃣  Force Sort Viewers
+### 6️⃣  Force Sort Viewers
 
 - Nudges Twitch directory pages toward `Viewers: High to Low` sorting
 - Supports per-load and per-tab-session run policies
 
-### 6️⃣  Block Annoyances (disabled by default)
+### 7️⃣  Block Annoyances (disabled by default)
 
 - Hides selected Twitch UI elements without blocking ads or modifying stream delivery
 - Provides a separate checkbox for each supported behavior or element:
@@ -70,17 +74,17 @@ Especially useful for people who like to **keep streams running in the backgroun
 
 <img src="media/screenshot_4.jpg" width="75%" alt="Features screenshot 4" title="Features"/>
 
-### 7️⃣  Show Stream Language
+### 8️⃣  Show Stream Language
 
 - Displays the stream language like `[EN]` / `[JA]` / etc.
 - Two visual modes: a badge on the preview card or a suffix next to the streamer's username
 
-### 8️⃣  Show Drops Indicator
+### 9️⃣  Show Drops Indicator
 
 - Marks directory cards for streams detected as Drops-enabled
 - Two visual modes: an icon badge on the preview card or an inline icon next to the streamer's username
 
-### 9️⃣ Red (or any other color) flag
+### 🔟 Red (or any other color) flag
 
 - Marks streams when any of your selected tags matches, ignoring letter case
 - Supports an inline flag to the left of Drops and language indicators or a badge on the stream preview

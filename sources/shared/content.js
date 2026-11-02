@@ -19,6 +19,7 @@
     'modules/auto-claim-bonus.js',
     'modules/keep-tab-active.js',
     'modules/chat-reply-preview.js',
+    'modules/chat-show-moderated.js',
     'modules/block-annoyances.js',
     'modules/twitch-gql.js',
     'modules/stream-card-ui.js',
@@ -76,6 +77,9 @@
         requestWakeLock: false
       },
       chatReplyPreview: {
+        enabled: true
+      },
+      chatShowModerated: {
         enabled: true
       },
       blockAnnoyances: {
@@ -147,6 +151,7 @@
     const autoClaim = getObject(modules.autoClaimBonus);
     const keepActive = getObject(modules.keepTabActive);
     const replyPreview = getObject(modules.chatReplyPreview);
+    const moderated = getObject(modules.chatShowModerated);
     const blockAnnoyances = getObject(modules.blockAnnoyances);
     const language = getObject(modules.showStreamLanguage);
     const dropsIndicator = getObject(modules.showDropsIndicator);
@@ -190,6 +195,10 @@
 
     fallback.modules.chatReplyPreview = {
       enabled: typeof replyPreview.enabled === 'boolean' ? replyPreview.enabled : true
+    };
+
+    fallback.modules.chatShowModerated = {
+      enabled: typeof moderated.enabled === 'boolean' ? moderated.enabled : true
     };
 
     fallback.modules.blockAnnoyances = {
