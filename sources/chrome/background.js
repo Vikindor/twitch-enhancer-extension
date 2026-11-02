@@ -21,6 +21,9 @@ const DEFAULT_SETTINGS = {
     chatReplyPreview: {
       enabled: true
     },
+    chatShowModerated: {
+      enabled: true
+    },
     blockAnnoyances: {
       enabled: false,
       dismissPhoneNumberPrompt: true,

@@ -196,7 +196,7 @@
           <div class="panel-content">
             <div class="module-header">
               <div class="module-copy">
-                <h2>Chat Reply Preview</h2>
+                <h2>Chat: Reply Preview</h2>
                 <p>Click Twitch chat reply labels to show the full replied message in a small popup</p>
               </div>
               <div class="module-toggle">
@@ -206,7 +206,28 @@
             </div>
 
             <div class="module-settings" data-module-settings="chatReplyPreview">
-              <p>Works with Twitch reply labels like <code>Replying to ...</code> when Twitch includes the original message text in the page</p>
+              <p>Works with messages in Twitch chat that have a <code>Replying to ...</code> label</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel-wrap">
+        <section class="panel">
+          <div class="panel-content">
+            <div class="module-header">
+              <div class="module-copy">
+                <h2>Chat: Show Moderated <span class="new-badge">new</span></h2>
+                <p>Click deleted message labels in Twitch chat to show the original text in a small popup</p>
+              </div>
+              <div class="module-toggle">
+                <input id="chat-show-moderated-enabled" type="checkbox">
+                <label for="chat-show-moderated-enabled">Enable module</label>
+              </div>
+            </div>
+
+            <div class="module-settings" data-module-settings="chatShowModerated">
+              <p>Works with messages in Twitch chat marked as <code>message deleted by a moderator</code></p>
             </div>
           </div>
         </section>
@@ -408,8 +429,8 @@
                     <div class="tooltip">
                       <button class="tooltip-trigger" type="button" aria-label="More information about the channel About section">i</button>
                       <div class="tooltip-bubble" role="tooltip">
-                        Hides the entire channel About section, including the description, social links, and custom panels.<br>
-                        Disabled by default because it removes all of this channel information.
+                        Hides the entire channel's About section, including the description, social links, and custom panels.<br>
+                        Disabled by default because it removes all the channel's information.
                       </div>
                     </div>
                   </div>

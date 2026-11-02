@@ -161,6 +161,12 @@ h2 {
   letter-spacing: -0.02em;
 }
 
+h2:has(> .new-badge) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 p {
   margin: 0;
   color: var(--text-soft);

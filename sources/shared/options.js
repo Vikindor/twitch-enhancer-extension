@@ -24,6 +24,9 @@ const DEFAULT_SETTINGS = {
     chatReplyPreview: {
       enabled: true
     },
+    chatShowModerated: {
+      enabled: true
+    },
     blockAnnoyances: {
       enabled: false,
       dismissPhoneNumberPrompt: true,
@@ -460,6 +463,10 @@ async function loadOptions() {
   document.getElementById('reply-preview-enabled').checked = replyPreview.enabled !== false;
   setModuleDisabledState('chatReplyPreview', replyPreview.enabled !== false);
 
+  const moderated = modules.chatShowModerated || DEFAULT_SETTINGS.modules.chatShowModerated;
+  document.getElementById('chat-show-moderated-enabled').checked = moderated.enabled !== false;
+  setModuleDisabledState('chatShowModerated', moderated.enabled !== false);
+
   const blockAnnoyances = modules.blockAnnoyances || DEFAULT_SETTINGS.modules.blockAnnoyances;
   document.getElementById('annoyances-enabled').checked = blockAnnoyances.enabled === true;
   document.getElementById('annoyances-dismissPhoneNumberPrompt').checked =
@@ -573,6 +580,9 @@ async function saveOptions() {
       chatReplyPreview: {
         enabled: document.getElementById('reply-preview-enabled').checked
       },
+      chatShowModerated: {
+        enabled: document.getElementById('chat-show-moderated-enabled').checked
+      },
       blockAnnoyances: {
         enabled: document.getElementById('annoyances-enabled').checked,
         dismissPhoneNumberPrompt:
@@ -682,6 +692,7 @@ function initializeOptionsPage() {
   bindModuleToggle('claim-enabled', 'autoClaimBonus');
   bindModuleToggle('keep-enabled', 'keepTabActive');
   bindModuleToggle('reply-preview-enabled', 'chatReplyPreview');
+  bindModuleToggle('chat-show-moderated-enabled', 'chatShowModerated');
   bindModuleToggle(
     'annoyances-enabled',
     'blockAnnoyances',
